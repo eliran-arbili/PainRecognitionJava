@@ -105,12 +105,7 @@ public class DataBase {
 		    stmt = conn.createStatement();//Creates a Statement object for sending SQL statements to the database.
 			rs=stmt.executeQuery("insert into casetbl(Case_Resulte)values(2);");
 			rs=stmt.executeQuery("select Case_Id  from casetbl order by Case_Id desc limit 1;");
-			if(rs.next())
-			{
-				int AU_NUM=Integer.parseInt(ActionUnits[0][i]);
-				float AU_Value=Float.parseFloat(ActionUnits[i][0]);
-				rs2=stmt.executeQuery("insert into AUInCaseTbl(Case_Id,AU_Id,AU_Value)values("+rs.getInt("Case_Id")+","+AU_NUM+","+AU_Value+");");
-			}
+
 		}
 		catch (SQLException e)
 		{
