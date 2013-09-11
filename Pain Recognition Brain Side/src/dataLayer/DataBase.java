@@ -94,29 +94,40 @@ public class DataBase {
 
 	}
 	
-	public void AddCase(String [][] ActionUnits){
-	Statement stmt;
-    ResultSet rs = null;
-    ResultSet rs2 = null;
-    int i=0;
+	public void AddCase(double[] actionUnits,double solution){
+		Statement stmt;
+		ResultSet rs = null;
+
 		try
 		{
-			
-		    stmt = conn.createStatement();//Creates a Statement object for sending SQL statements to the database.
-			rs=stmt.executeQuery("insert into casetbl(Case_Resulte)values(2);");
-			rs=stmt.executeQuery("select Case_Id  from casetbl order by Case_Id desc limit 1;");
-			if(rs.next())
+
+			stmt = conn.createStatement();//Creates a Statement object for sending SQL statements to the database.
+			stmt.executeUpdate("insert into casetbl(Case_Resulte)values("+solution+");",Statement.RETURN_GENERATED_KEYS);
+			rs=stmt.getGeneratedKeys();
+			rs.first();
+			String caseId=rs.getString(1);
+			for(int i=0;i<actionUnits.length;i++)
 			{
-				int AU_NUM=Integer.parseInt(ActionUnits[0][i]);
-				float AU_Value=Float.parseFloat(ActionUnits[i][0]);
-				rs2=stmt.executeQuery("insert into AUInCaseTbl(Case_Id,AU_Id,AU_Value)values("+rs.getInt("Case_Id")+","+AU_NUM+","+AU_Value+");");
+				stmt.executeUpdate("insert into AUInCaseTbl(Case_Id,AU_Num,AU_Value)values("+caseId+","+(i+1)+","+actionUnits[i]+");");
 			}
+			rs.close();
+
 		}
 		catch (SQLException e)
 		{
 			e.printStackTrace();
-			
+
 		}
 	}
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		DataBase db=new DataBase();
+		double [] actionUnits={0.2,0.4,0.6,0.5,0.7};
+		db.AddCase(actionUnits,0.7);
+	}
+	
+	
+
 
 }
