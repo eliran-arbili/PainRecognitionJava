@@ -2,8 +2,6 @@ package businessLogic;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
-
 import dataLayer.ProjectConfig;
 
 import org.encog.ml.data.MLData;
@@ -37,7 +35,7 @@ public class NeuralNetworkManager {
 		arrayNormalizer.setNormalizedHigh(1);
 		arrayNormalizer.setNormalizedLow(-1);
 		if(networkParameters.exists()){
-			RBFNetwork neuralNet = (RBFNetwork)EncogDirectoryPersistence.loadObject(networkParamaters);
+			neuralNet = (RBFNetwork)EncogDirectoryPersistence.loadObject(networkParamaters);
 		}
 		else{
 			try {
@@ -78,4 +76,5 @@ public class NeuralNetworkManager {
 		}
 		return new BasicMLDataSet(trainingPairs);
 	}
+	
 }
