@@ -4,11 +4,14 @@ package dataLayer;
 public class ProjectConfig {
 	public static final int SERVER_PORT = 2222;
 	public static final int NUMBER_OF_ACTION_UNITS = 17;
-	enum ActionUnits{brow_raiser, nose_wrinkler /*....*/};
+	enum ActionUnit{brow_raiser, nose_wrinkler /*....*/};
 	public static final int HISTORY_CASES_SAVE_SIZE = 1000; // in MB
 	public static final float FREQUENCY_CASE_SAMPLING = 5; // times per second
 	public static String ANN_PARAMETERS_PATH;
 	public static String INSTALL_PATH;
+	public static double FUZZY_AU_MIN_LIMIT = -1;
+	public static double FUZZY_AU_MAX_LIMIT = 1;
+
 	public ProjectConfig()
 	{
 		INSTALL_PATH = System.getenv("PRS_INSTALL_PATH");
@@ -17,4 +20,5 @@ public class ProjectConfig {
 		}
 		ANN_PARAMETERS_PATH = INSTALL_PATH+"\\RBFneuralNetwork.eg";
 	}
+
 }
