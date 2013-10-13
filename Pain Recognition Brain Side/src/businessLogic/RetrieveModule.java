@@ -2,15 +2,18 @@ package businessLogic;
 
 import java.util.ArrayList;
 
-import businessLogic.casesServer.CaseFactory;
+import dataLayer.DataBase;
 
 public class RetrieveModule {
-	private CaseFactory caseDB;
+	private DataBase caseDB;
 	public RetrieveModule(){
-		caseDB = CaseFactory.instance();
+		caseDB = DataBase.instance();
 	}
 	public ArrayList<RunTimeCase> getKSimilarCases(RunTimeCase rtCase)
 	{
-		return caseDB.loadCasesByQuery("TO-DO:complete implementation");
+		/**
+		 * TO-DO: complete implementation with caseDB generic query function implementation
+		 */
+		return null;
 	}
 }

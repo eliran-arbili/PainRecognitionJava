@@ -7,10 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+
 public class DataBase {
 	public static Connection conn ;
-
-	public DataBase()
+	private final static DataBase instance = new DataBase();
+	private DataBase()
 	{
 		try 
 		{
@@ -31,7 +32,7 @@ public class DataBase {
         }
 	}
 	
-	public DataBase(String user,String password)
+	private DataBase(String user,String password)
 	{
 		try 
 		{
@@ -51,6 +52,10 @@ public class DataBase {
     		System.out.println("SQLState: " + ex.getSQLState());
     		System.out.println("VendorError: " + ex.getErrorCode());
         }
+	}
+	
+	public static DataBase instance(){
+		return instance;
 	}
 	
 	public void PrintAUs() {
@@ -108,7 +113,7 @@ public class DataBase {
 	}
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		DataBase db=new DataBase();
+		DataBase db= DataBase.instance();
 		double [] actionUnits={0.2,0.4,0.6,0.5,0.7};
 		db.AddCase(actionUnits,0.7);
 	}
