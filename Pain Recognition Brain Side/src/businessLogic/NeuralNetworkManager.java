@@ -65,7 +65,7 @@ public class NeuralNetworkManager {
 		 */
 	}
 	public void saveNet(){
-		EncogDirectoryPersistence.saveObject(new File(ProjectConfig.ANN_PARAMETERS_PATH), neuralNet);
+		EncogDirectoryPersistence.saveObject(networkParameters, neuralNet);
 	}
 	private MLDataSet constructTrainingSetFromCases(ArrayList<RunTimeCase> trainingCases){
 		ArrayList<MLDataPair> trainingPairs = new ArrayList<MLDataPair>();

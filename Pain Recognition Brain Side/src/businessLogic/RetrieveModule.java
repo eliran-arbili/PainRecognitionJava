@@ -6,25 +6,28 @@ import java.util.Iterator;
 import java.util.Random;
 
 import dataLayer.DataBase;
+
 import dataLayer.ProjectConfig;
 
+
 public class RetrieveModule {
-	private DataBase db;
+
 	private ArrayList<RunTimeCase> allCases;
-	public RetrieveModule(){
-		db=new DataBase();
+	private DataBase caseDB;
+    public RetrieveModule(){
+
+    	caseDB = DataBase.instance();
 		allCases = new ArrayList<RunTimeCase>();
-		allCases=db.GetAllCases();
+		allCases=caseDB.GetAllCases();
 		
 	}
 	public RetrieveModule( ArrayList<RunTimeCase> allCases){
-		db=new DataBase();
+		caseDB = DataBase.instance();
 		this.allCases = allCases;
 		
 	}
 	public ArrayList<RunTimeCase> getKSimilarCases(RunTimeCase rtCase)
 	{
-		
 		HashMap<RunTimeCase,Double> kSimilarCases = new HashMap<RunTimeCase,Double>();
 		
 		Iterator<RunTimeCase> allCasesIterator = allCases.iterator();
@@ -90,10 +93,7 @@ public class RetrieveModule {
 		for(RunTimeCase c: kSimilar){
 			System.out.println("similarity: "+c.similarity(testCase)+ "  "+c.toString());
 		}
-/*		System.out.println("All Cases:"+allCasesDemo.size());
-		for(RunTimeCase c: allCasesDemo){
-			System.out.println(similarity(c,testCase));
-		}*/
+
 
 	}
 	
