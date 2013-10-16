@@ -6,11 +6,10 @@ import dataLayer.DataBase;
 import dataLayer.ProjectConfig;
 
 public class CBRController {
+	private RetrieveModule retrieveModule;
 	public CBRController()
 	{
-		/**
-		 * TO-DO: complete implementation
-		 */
+		retrieveModule=new RetrieveModule();
 	}
 	public double[] fuzzification(double [] actionUnits)
 	{

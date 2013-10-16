@@ -6,6 +6,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+
+import businessLogic.RunTimeCase;
 
 public class DataBase {
 	public static Connection conn ;
@@ -106,11 +109,70 @@ public class DataBase {
 
 		}
 	}
+	
+	
+	
+	public ArrayList<RunTimeCase> GetAllCases(){
+		Statement stmt;
+		Statement stmt1;
+		Statement stmt2;
+		ResultSet rsCases = null;
+		ResultSet rsActionUnits = null;
+		ResultSet rsCaseSolution = null;
+		ArrayList<RunTimeCase> allCases = new ArrayList<RunTimeCase>();
+		
+		double[] actionUnits = new double[ProjectConfig.NUMBER_OF_ACTION_UNITS];
+		
+		try
+		{
+			int i=0;
+			stmt = conn.createStatement();//Creates a Statement object for sending SQL statements to the database.
+			stmt1=conn.createStatement();
+			stmt2=conn.createStatement();
+			
+			rsCases=stmt.executeQuery("SELECT Case_Id from casetbl");
+			while(rsCases.next())
+			{
+				rsCaseSolution=stmt1.executeQuery("SELECT Case_Solution from casetbl where Case_Id="+rsCases.getInt("Case_Id"));
+				rsActionUnits=stmt2.executeQuery("SELECT AU_Value from auincasetbl where Case_Id=7");
+				
+				while (rsActionUnits.next())
+				{
+					actionUnits[i]=rsActionUnits.getDouble("AU_Value");
+					System.out.println(actionUnits[i]);
+					i++;
+				}
+				i=0;
+				actionUnits = new double[ProjectConfig.NUMBER_OF_ACTION_UNITS];
+				rsCaseSolution.first();
+				allCases.add(new RunTimeCase(actionUnits,rsCaseSolution.getDouble("Case_Solution")));
+			}
+			
+			return allCases;
+			
+
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			return null;
+
+		}
+	}
+	
+	
+	
+	
+	
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		DataBase db=new DataBase();
-		double [] actionUnits={0.2,0.4,0.6,0.5,0.7};
-		db.AddCase(actionUnits,0.7);
+		//double [] actionUnits={0.2,0.4,0.6,0.5,0.7};
+		//db.AddCase(actionUnits,0.7);
+		
+		//ArrayList<RunTimeCase> allCases = new ArrayList<RunTimeCase>();
+		//allCases=db.GetAllCases();
 	}
 	
 
