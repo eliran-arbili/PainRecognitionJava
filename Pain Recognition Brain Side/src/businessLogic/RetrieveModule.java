@@ -12,54 +12,66 @@ import dataLayer.ProjectConfig;
 
 public class RetrieveModule {
 
+	/*
+	 * Member variables 
+	 */
 	private ArrayList<RunTimeCase> allCases;
 	private DataBase caseDB;
-    public RetrieveModule(){
-
-    	caseDB = DataBase.instance();
-		allCases = new ArrayList<RunTimeCase>();
-		allCases=caseDB.GetAllCases();
-		
+	
+	/*
+	 * Constructors 
+	 */
+    public RetrieveModule()
+    {
+    	caseDB  = DataBase.instance();
+		allCases = caseDB.GetAllCases();
 	}
-	public RetrieveModule( ArrayList<RunTimeCase> allCases){
+    
+	public RetrieveModule( ArrayList<RunTimeCase> allCases)
+	{
 		caseDB = DataBase.instance();
 		this.allCases = allCases;
-		
 	}
+	
+	/*
+	 * Member functions
+	 */
 	public ArrayList<RunTimeCase> getKSimilarCases(RunTimeCase rtCase)
 	{
 		HashMap<RunTimeCase,Double> kSimilarCases = new HashMap<RunTimeCase,Double>();
 		
 		Iterator<RunTimeCase> allCasesIterator = allCases.iterator();
-		ProjectUtils.assertFalse(ProjectConfig.K_Similarity_Cases <= allCases.size() , "Number of cases in DataBase is less then configuered k similars");
-		for(int i = 0; i< ProjectConfig.K_Similarity_Cases ; i++){
-			RunTimeCase rt= allCasesIterator.next();
+		ProjectUtils.assertFalse(ProjectConfig.K_SIMILAR_CASES <= allCases.size() , "Number of cases in DataBase is less then configuered k similars");
+		for(int i = 0; i< ProjectConfig.K_SIMILAR_CASES ; i++){
+			RunTimeCase rt = allCasesIterator.next();
 			kSimilarCases.put(rt,rt.similarity(rtCase));
 		}
 		while(allCasesIterator.hasNext()){
 			updateSimilarCases(kSimilarCases,rtCase,allCasesIterator.next());
 		}
 		return new ArrayList<RunTimeCase>(kSimilarCases.keySet());
-		
 	}
 	
+	/*
+	 * Auxiliary Methods
+	 */
 	private void updateSimilarCases(HashMap<RunTimeCase,Double> kSimilarCases,RunTimeCase theCase,RunTimeCase checkCase)
 	{
-		double similarity = theCase.similarity(checkCase);
-		Iterator<RunTimeCase> it= kSimilarCases.keySet().iterator();
-		RunTimeCase maxCase=null;
-		double maxSim=-1;
+		double similarity 			= theCase.similarity(checkCase);
+		Iterator<RunTimeCase> it 	= kSimilarCases.keySet().iterator();
+		RunTimeCase maxCase 		= null;
+		double maxSim 				=-1;
 		while(it.hasNext())
 		{
-			RunTimeCase currCase=it.next();
-			double currSim=kSimilarCases.get(currCase);
-			if(currSim>maxSim)
+			RunTimeCase currCase = it.next();
+			double currSim = kSimilarCases.get(currCase);
+			if(currSim > maxSim)
 			{
-				maxSim=currSim;
-				maxCase=currCase;
+				maxSim = currSim;
+				maxCase = currCase;
 			}
 		}
-		if(maxSim>similarity)
+		if(maxSim > similarity)
 		{
 			kSimilarCases.remove(maxCase);
 			kSimilarCases.put(checkCase,similarity);
@@ -67,6 +79,9 @@ public class RetrieveModule {
 	}
 	
 	
+	/*
+	 * Testing Unit
+	 */
 	public static void main(String[] args) {
 		int numOfCases = 50000;
 		Random rand = new Random();

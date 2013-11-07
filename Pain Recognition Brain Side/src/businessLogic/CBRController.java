@@ -1,43 +1,44 @@
 package businessLogic;
 
-import java.util.Arrays;
-
-import dataLayer.DataBase;
+import java.io.File;
+import java.util.ArrayList;
 import dataLayer.ProjectConfig;
 
 public class CBRController {
+	
+	/*
+	 * Instance variables
+	 */
 	private RetrieveModule retrieveModule;
+	private NeuralNetworkManager painRecAnn;
+	
+	/*
+	 * Constructors
+	 */
 	public CBRController()
 	{
 		retrieveModule=new RetrieveModule();
+		painRecAnn = NeuralNetworkManager.createInstance(new File(ProjectConfig.ANN_PARAMETERS_PATH));
 	}
-	public double[] fuzzification(double [] actionUnits)
-	{
-		int rangeDistributionNum = 10;
-		double[] fuzzyActionUnits = new double[actionUnits.length];
-		double [] fuzzy=new double[rangeDistributionNum/2+1];
-		double factor = (ProjectConfig.FUZZY_AU_MAX_LIMIT-ProjectConfig.FUZZY_AU_MIN_LIMIT)/rangeDistributionNum;
-		fuzzy[0] = 0;
-		for(int i = 1; i < fuzzy.length; i++){
-			fuzzy[i]=fuzzy[i-1]+factor;
-		}
-		
-		for(int i=0;i<actionUnits.length;i++)
-		{
-			int index=(int)Math.round((Math.abs(actionUnits[i])/factor));
-			fuzzyActionUnits[i]= fuzzy[index] * Math.signum(actionUnits[i]);
-		}
-		
-		return fuzzyActionUnits;
+	
+	/*
+	 * Member functions
+	 */
+	
+	/**
+	 * Activate Case Based Reasoning cycle: retrieve, reuse.
+	 * @param rtCase
+	 * @return pain measure
+	 */
+	public double doCycle(RunTimeCase rtCase){
+		ArrayList<RunTimeCase> kClosestCases = retrieveModule.getKSimilarCases(rtCase);
+		painRecAnn.trainKclosestCases(kClosestCases);
+		double caseResult = painRecAnn.computeOutput(rtCase);
+		return caseResult;
 	}
-	public static void main(String[] args) {
-		double [] actionUnitsInput={-0.938,-0.75,-0.6,-0.397,-0.116,0,0.114,0.588,0.799,0.9};
-		double [] fuzzyExpectedOutput = {-1,-0.8,-0.6,-0.4,-0.2,0,0.2,0.6,0.8,1};
-		CBRController cbr = new CBRController();
-		double [] testResult = cbr.fuzzification(actionUnitsInput);
-		double epsilon = 0.0001;
-		for(int i = 0 ; i< testResult.length ; i++){
-			ProjectUtils.assertFalse((Math.abs(testResult[i] - fuzzyExpectedOutput[i]) < epsilon), "Test Failed");
-		}
+	
+	public void handleShutDown(){
+		painRecAnn.saveNet();
 	}
+	
 }
