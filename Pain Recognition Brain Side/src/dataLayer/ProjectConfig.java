@@ -21,6 +21,8 @@ public class ProjectConfig {
 	public static double MAX_ANN_ERROR = 0.02;
 	public static HashMap<ActionUnit,NormalizedField> AURangeMap = mapAuRanges();
 	public static double PAIN_SENSITIVITY = 0.75;
+	public static final int RUN_TIME_K_FOLD = 2;
+
 	
 	/*
 	 * The Following can be changed in start-up

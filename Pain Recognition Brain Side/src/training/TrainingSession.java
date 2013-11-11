@@ -34,40 +34,32 @@ import businessLogic.ProjectUtils;
 
 public class TrainingSession {
 	
-	boolean normalized;
-	private File  dataSetNormFile;
-	private File dataSetFile;
 	public HashMap<ConfKeys,Object> confValues;
 	public static final int RBF_TYPE = 0;
 	public static final int MLP_TYPE = 1;
-	
 
-	public TrainingSession(File dataSet) {
-		this.dataSetFile = dataSet;
-		this.normalized = false;
-
+	public TrainingSession() {
+	}
+	public TrainingSession(HashMap<ConfKeys,Object> configurations){
+		this.confValues = configurations;
 	}
 	
-	public File getDataSetFile() {
-		return dataSetFile;
-	}
 	
-	public void setConfValues(HashMap<ConfKeys,Object> trainingConfigurations){
+	public void configureTraining(HashMap<ConfKeys,Object> trainingConfigurations){
 		this.confValues = trainingConfigurations;
 	}
 	
 	/**
 	 * 
-	 * @param k-  for k-folds
-	 * @return the path to Encog .eg file with minimum error
-	 * @throws Exception (if k<2)
+	 * @param k-  for k-folds data sets
+	 * @return report contains the details for each network 
 	 */
-	public String kFoldsCrossValidationTrain(int k){
+	public String kFoldsCrossValidationTrain(File dataSet, int k){
 		ProjectUtils.assertFalse((k>=2), "Input Error k<2");
 		
 		switch((int)confValues.get(ConfKeys.neyType)){
 			case MLP_TYPE: 
-				ArrayList<BasicMLDataSet> kFoldsDataSet = splitDataSet(dataSetNormFile, k, (int)confValues.get(ConfKeys.inputCount), (int)confValues.get(ConfKeys.outputCount));
+				ArrayList<BasicMLDataSet> kFoldsDataSet = ProjectUtils.splitDataSet(dataSet, k, (int)confValues.get(ConfKeys.inputCount), (int)confValues.get(ConfKeys.outputCount));
 				ArrayList<NeuralNetDesciptor> kNetworks = new ArrayList<NeuralNetDesciptor>();
 				for(int i = 0 ; i < k ; i++){
 					kNetworks.add(trainNewMLP(kFoldsDataSet,i));
@@ -78,14 +70,22 @@ public class TrainingSession {
 					report += "-------------------\n";
 					report += ann.toString();
 					report += "-------------------\n";
-					
+					String netDir 			= (String)confValues.get(ConfKeys.saveDir);
+					ann.saveAsEncogFile(netDir+"\\");
 				}
 				return report;
 			case RBF_TYPE: return null ;
 			default: return null;
 		}
 	}
-
+	
+	public void kFoldsCrossValidationTrain(BasicNetwork mlpNetwork, BasicMLDataSet dataSet,int k){
+		ProjectUtils.assertFalse((k>=2), "Input Error k<2");
+		ArrayList<BasicMLDataSet> kFoldsDataSet = ProjectUtils.splitDataSet(dataSet, k);
+		doTraining(mlpNetwork,kFoldsDataSet,0);
+		
+	}
+	
 	
 	private NeuralNetDesciptor trainNewMLP(ArrayList<BasicMLDataSet> kFoldsDataSet, int validationSetIndex) {
 		BasicNetwork mlpNetwork = new BasicNetwork();
@@ -99,116 +99,35 @@ public class TrainingSession {
 		mlpNetwork.addLayer(new BasicLayer(func,false,outputCount));
 		mlpNetwork.getStructure().finalizeStructure();
 		mlpNetwork.reset();
+		
+		NeuralNetDesciptor mlpDescriptor = doTraining(mlpNetwork, kFoldsDataSet, validationSetIndex);
+
+		return mlpDescriptor;
+	}
+	
+	public NeuralNetDesciptor doTraining(BasicNetwork mlpNetwork,ArrayList<BasicMLDataSet> kFoldsDataSet, int validationSetIndex){
 		BasicMLDataSet validationSet 		= kFoldsDataSet.get(validationSetIndex);
 		BasicMLDataSet trainingSet 			= unionDataSets(kFoldsDataSet,validationSetIndex );
-		EarlyStoppingStrategy strategy 		= new EarlyStoppingStrategy(validationSet, validationSet,1,20,0.1);
+		int alpha = (int)confValues.get(ConfKeys.alpha);
+		Double minEffiency = (Double)confValues.get(ConfKeys.minEffiency);
+		int stripLength = (int)confValues.get(ConfKeys.stripLength);
+		EarlyStoppingStrategy strategy 		= new EarlyStoppingStrategy(validationSet, validationSet,stripLength,alpha,minEffiency);
 		final ResilientPropagation train 	= new ResilientPropagation(mlpNetwork,trainingSet);
 
 		train.addStrategy(strategy);
 		int maxEpochs = (int)confValues.get(ConfKeys.maxEpochs);
 		while(! train.isTrainingDone() && train.getIteration() < maxEpochs){
-			train.iteration();
+			train.iteration();			
 		}
 		
 		double valError 		= strategy.getValidationError();
 		double testError 		= strategy.getTestError();
 		double trainError		= strategy.getTrainingError();
-		String strValError 		= String.format("%.4f", valError);
-		String strTestError		= String.format("%.4f",testError);
-		String strTrainError	= String.format("%.4f",trainError);
-		Integer numOfIterationsDone = train.getIteration();
-		strValError.replaceAll(".", "_");
-		strTestError.replaceAll(".","_");
-		strTrainError.replaceAll(".", "_");
-		
-		String netName 			= "MLP_val"+strValError+"_trn"+strTrainError+"_te"+strTestError+"_it"+numOfIterationsDone.toString()+".eg";
-		String netDir 			= (String)confValues.get(ConfKeys.saveDir);
-		
 		NeuralNetDesciptor mlpDescriptor = new NeuralNetDesciptor(mlpNetwork);
-		mlpDescriptor.setAnnFile(new File(netDir+"//"+netName));
 		mlpDescriptor.setValidationSetError(valError);
 		mlpDescriptor.setTesttingSetError(testError);
 		mlpDescriptor.setTrainingSetError(trainError);
 		return mlpDescriptor;
-	}
-	
-	public void normalize(File dataSetFile){
-		DataNormalization norm = new DataNormalization();
-		for(int i = 0; i < (int)confValues.get(ConfKeys.inputCount)+1 ; i++){
-			InputFieldCSV inputField = new InputFieldCSV(true,dataSetFile,i);
-			norm.addInputField(inputField);
-			norm.addOutputField(new OutputFieldRangeMapped(inputField,0,1));
-		}
-		norm.setCSVFormat(CSVFormat.ENGLISH);
-		String targetFileName = dataSetFile.getName();
-		String targetFileDir = dataSetFile.getParent();
-		targetFileName = targetFileName.substring(0,targetFileName.lastIndexOf("."));
-		targetFileName += "_norm.csv";
-		File targetFile = new File(targetFileDir+"//"+targetFileName);
-		norm.setTarget(new NormalizationStorageCSV(CSVFormat.ENGLISH,targetFile));
-		norm.setReport(new ConsoleStatusReportable());
-		norm.process();
-		this.dataSetNormFile = targetFile;
-		this.normalized = true;
-
-	}
-
-	private ArrayList<BasicMLDataSet> splitDataSet(File dataSet, int k, int inputCount, int outputCount) {
-		ArrayList<BasicMLDataSet> kDataSets = new ArrayList<BasicMLDataSet>();
-		try {
-			FileReader frLines = new FileReader(dataSet);
-			LineNumberReader lnr = new LineNumberReader(frLines);
-			lnr.skip(Long.MAX_VALUE);
-			int numOfSetLines =  (lnr.getLineNumber())/k;
-			int remainder = lnr.getLineNumber() % k;
-			int remainderAddition = (remainder == 0)? 0:1; 
-			lnr.close();
-			frLines.close();
-			FileReader fr = new FileReader(dataSet);
-			BufferedReader reader = new BufferedReader(fr);
-			int index = 1;
-			int dataSetIndex = 0;
-			String line = null;
-			kDataSets.add(new BasicMLDataSet());
-			while((line = reader.readLine()) != null){
-				if(index > numOfSetLines + remainderAddition){
-					index = 1;
-					dataSetIndex++;
-					if(remainder > 1)
-						remainder--;
-					else
-						remainderAddition = 0;
-					
-					kDataSets.add(new BasicMLDataSet());
-				}
-				
-				ParseCSVLine csvParser = new ParseCSVLine(CSVFormat.ENGLISH);
-				List<String> lineStrings = csvParser.parse(line);
-				BasicMLData dataInput = new BasicMLData(inputCount);
-				BasicMLData dataOutput = new BasicMLData(outputCount);
-				for(int i = 0 ; i < inputCount + outputCount; i++){
-					if(i < inputCount){
-						dataInput.add(i, Double.parseDouble(lineStrings.get(i)));
-					}
-					else{
-						dataOutput.add(i-inputCount, Double.parseDouble(lineStrings.get(i)));
-					}
-				}
-				kDataSets.get(dataSetIndex).add(new BasicMLDataPair(dataInput,dataOutput));
-				index++;
-			}
-			reader.close();
-			fr.close();
-			return kDataSets;
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			System.exit(1);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-		return null;
 	}
 	
 	private BasicMLDataSet unionDataSets(ArrayList<BasicMLDataSet> dataSets,int indexException){
@@ -237,15 +156,14 @@ public class TrainingSession {
 		learnningRate,
 		leaningMomentum,
 		saveDir,
-		normHigh,
-		normLow,
 		maxEpochs,
+		minEffiency,
+		alpha,
+		stripLength,
 	};
 	
 
-	public static void main(String[] args) {
-		File dataSet = new File("C:\\Users\\user\\Desktop\\NEW_DataSet_FullAUS2.csv");
-		TrainingSession ts = new TrainingSession(dataSet);
+	public static void main(String[] args) {		
 		HashMap<ConfKeys,Object> conf = new HashMap<ConfKeys,Object>();
 		conf = new HashMap<ConfKeys,Object>();
 		
@@ -254,14 +172,22 @@ public class TrainingSession {
 		conf.put(ConfKeys.outputCount, 1);
 		conf.put(ConfKeys.activationFunction, new ActivationSigmoid());
 		conf.put(ConfKeys.neyType, MLP_TYPE);
-		conf.put(ConfKeys.saveDir,dataSet.getParent());
-		conf.put(ConfKeys.normLow, 0);
-		conf.put(ConfKeys.normHigh, 1);
 		conf.put(ConfKeys.maxEpochs, 15000);
+		conf.put(ConfKeys.stripLength, 1);
+		conf.put(ConfKeys.alpha, 20);
+		conf.put(ConfKeys.minEffiency, 0.1);
 		
-		ts.setConfValues(conf);
-		ts.normalize(dataSet);
-		String result = ts.kFoldsCrossValidationTrain(4);
+		
+		File dataSetNormalized = ProjectUtils.normalizeCSVFile(
+				new File("C:\\Users\\earbili\\Desktop\\DataSet_FullAUS.csv"), 
+				(int)conf.get(ConfKeys.inputCount), (int)conf.get(ConfKeys.outputCount));
+		
+		conf.put(ConfKeys.saveDir,dataSetNormalized.getParent());
+		
+		TrainingSession ts = new TrainingSession();
+		ts.configureTraining(conf);
+		
+		String result = ts.kFoldsCrossValidationTrain(dataSetNormalized,4);
 		System.out.println(result);
 		System.exit(0);
 	}
