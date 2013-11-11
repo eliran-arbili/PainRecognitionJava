@@ -104,7 +104,7 @@ public class ServerGui extends JFrame{
 		txtFldAnnFile.setEnabled(false);
 		txtFldPort.setText(String.valueOf(ProjectConfig.SERVER_PORT));
 		txtFldKCases.setText(String.valueOf(ProjectConfig.K_SIMILAR_CASES));
-		txtFldAnnFile.setText(ProjectConfig.ANN_PARAMETERS_PATH);
+		//txtFldAnnFile.setText(ProjectConfig.ANN_PARAMETERS_PATH);
 		txtFldDBAddress.setText(ProjectConfig.DB_ADDRESS);
 		
 		
@@ -178,9 +178,18 @@ public class ServerGui extends JFrame{
 		}
 	}
 	protected void btnStartOnClick(ActionEvent arg0) {
-		if(! isFieldsOK()){
+	
+		String portTxt		= txtFldPort.getText();
+		String kCasesTxt 	= txtFldKCases.getText();
+		String annPath		= txtFldAnnFile.getText();
+		String dbAddress	= txtFldDBAddress.getText();
+		if(! isFieldsOK(portTxt,kCasesTxt,annPath,dbAddress)){
 			return;
 		}
+		ProjectConfig.SERVER_PORT 		= Integer.parseInt(portTxt);;
+		ProjectConfig.K_SIMILAR_CASES 	= Integer.parseInt(kCasesTxt);
+		ProjectConfig.DB_ADDRESS		= dbAddress;
+		ProjectConfig.ANN_PARAMETERS_PATH=annPath;
 		painRecognitionServer = new Server(ProjectConfig.SERVER_PORT);
 		try {
 			painRecognitionServer.listen();
@@ -206,27 +215,24 @@ public class ServerGui extends JFrame{
 	/*
 	 * Auxiliary methods
 	 */
-	private boolean isFieldsOK()
+	private boolean isFieldsOK(String... args)
 	{
-		String portTxt 		= txtFldPort.getText();
-		String kCasesTxt 	= txtFldKCases.getText();
-		String annPath		= txtFldAnnFile.getText();
-		String dbAddress	= txtFldDBAddress.getText();
-		if(portTxt.isEmpty() || kCasesTxt.isEmpty() || annPath.isEmpty() || dbAddress.isEmpty()){
-			JOptionPane.showMessageDialog(this, "Please fill empty fields", "Operation couldn't be completed", JOptionPane.INFORMATION_MESSAGE);
-			return false;
-		}
+		
+		for (String arg : args) {
+	        if(arg.isEmpty()){
+	        	JOptionPane.showMessageDialog(this, "Please fill empty fields", "Operation couldn't be completed", JOptionPane.INFORMATION_MESSAGE);
+				return false;
+	        }
+	    }
+		return true;
+		/*
 		try{
-			ProjectConfig.SERVER_PORT 		= Integer.parseInt(portTxt);;
-			ProjectConfig.K_SIMILAR_CASES 	= Integer.parseInt(kCasesTxt);
-			ProjectConfig.DB_ADDRESS		= dbAddress;
 			
 		}catch(NumberFormatException ex){
 			JOptionPane.showMessageDialog(this, "Wrong number Format", "Operation couldn't be completed", JOptionPane.INFORMATION_MESSAGE);
 			return false;
 		}
-		return true;
-		
+		*/	
 	}
 
 	/*
@@ -258,6 +264,10 @@ public class ServerGui extends JFrame{
     catch (Exception e) {
     	e.printStackTrace();
     }
+		for(int i=0;i<ProjectConfig.NUMBER_OF_ACTION_UNITS;i++)
+		{
+			ProjectConfig.auWeights[i]=1;
+		}
 		ServerGui sg = new ServerGui();
 		sg.setVisible(true);
 	}

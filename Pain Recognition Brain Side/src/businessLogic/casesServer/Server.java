@@ -1,6 +1,8 @@
 package businessLogic.casesServer;
 import java.io.IOException;
 import java.util.Arrays;
+
+import dataLayer.ProjectConfig;
 import businessLogic.*;
 
 
@@ -31,18 +33,20 @@ public class Server extends AbstractServer{
 	@Override
 	protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
 		double [] message 		= 	(double[])msg;
-		double [] actionUnits 	= 	Arrays.copyOfRange(message, 0, message.length-1);
-		int mode 				= 	Double.valueOf(message[message.length-1]).intValue();
-		if(mode == 0) // run time case
-		{
-			RunTimeCase rtCase = new RunTimeCase(actionUnits);
-			double painMeasure = painCBR.doCycle(rtCase);
-			sendMsgToClient(client, painMeasure);
-			//System.out.println(rtCase);
+		double [] actionUnits 	= 	Arrays.copyOfRange(message, 0, message.length);
+
+		RunTimeCase rtCase = new RunTimeCase(NeuralNetworkManager.NormalizeAUs(actionUnits));
+		//RunTimeCase rtCase = new RunTimeCase(actionUnits);
+		//rtCase.normalize();
+		double painMeasure = painCBR.doCycle(rtCase);
+		String toSend = String.format("%.3f", painMeasure);
+		System.out.println(toSend);
+		if(painMeasure > ProjectConfig.PAIN_SENSITIVITY){
+			sendMsgToClient(client, toSend);
+			System.out.println(rtCase);
 		}
-		/**
-		 * TO-DO: complete implementation
-		 */
+		
+		
 	}
 	
 	public void sendMsgToClient(ConnectionToClient client, Object msg){

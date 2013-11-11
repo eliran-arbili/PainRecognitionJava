@@ -2,6 +2,7 @@ package businessLogic;
 
 import java.io.File;
 import java.util.ArrayList;
+
 import dataLayer.ProjectConfig;
 
 public class CBRController {
@@ -34,11 +35,19 @@ public class CBRController {
 		ArrayList<RunTimeCase> kClosestCases = retrieveModule.getKSimilarCases(rtCase);
 		painRecAnn.trainKclosestCases(kClosestCases);
 		double caseResult = painRecAnn.computeOutput(rtCase);
+/*		if(caseResult > ProjectConfig.PAIN_SENSITIVITY){
+			System.out.println("NetSolution:"+caseResult);
+			for(RunTimeCase r: kClosestCases){
+				System.out.println("case: "+r);
+				System.out.println("sol: "+r.getSolutionOutput());
+				System.out.println("sim: "+r.similarity(rtCase));
+			}
+		}*/
 		return caseResult;
 	}
 	
 	public void handleShutDown(){
-		painRecAnn.saveNet();
+		//painRecAnn.saveNet();
 	}
 	
 }

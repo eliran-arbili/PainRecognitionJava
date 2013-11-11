@@ -2,6 +2,9 @@ package businessLogic;
 
 import java.util.Arrays;
 
+import org.encog.util.arrayutil.NormalizedField;
+
+import dataLayer.ActionUnit;
 import dataLayer.ProjectConfig;
 
 public class RunTimeCase {
@@ -66,7 +69,7 @@ public class RunTimeCase {
 		
 		int rangeDistributionNum 	= 	ProjectConfig.AU_FUZZY_DEGREES;
 		double [] fuzzy				=	new double[rangeDistributionNum/2+1];
-		double factor 				= 	(ProjectConfig.FUZZY_AU_MAX_LIMIT-ProjectConfig.FUZZY_AU_MIN_LIMIT)/rangeDistributionNum;
+		double factor 				= 	(ProjectConfig.NORM_MAX_LIMIT-ProjectConfig.NORM_MIN_LIMIT)/rangeDistributionNum;
 		
 		
 		fuzzy[0] = 0;
@@ -90,6 +93,14 @@ public class RunTimeCase {
 		}
 		
 		return sum;
+	}
+	
+	public  void normalize(){
+		ActionUnit[] aus = ActionUnit.values();
+		for (int i = 0; i < actionUnits.length; i++) {
+			NormalizedField norm = ProjectConfig.AURangeMap.get(aus[i]);	
+			actionUnits[i] = norm.normalize(actionUnits[i]);
+		}
 	}
 	
 	/*

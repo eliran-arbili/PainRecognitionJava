@@ -121,38 +121,34 @@ public class DataBase {
 	
 	public ArrayList<RunTimeCase> GetAllCases(){
 		Statement stmt;
-		Statement stmt1;
-		Statement stmt2;
 		ResultSet rsCases 				= null;
-		ResultSet rsActionUnits 		= null;
-		ResultSet rsCaseSolution 		= null;
+		double Result 		= 0;
 		ArrayList<RunTimeCase> allCases = new ArrayList<RunTimeCase>();
 		
 		double[] actionUnits = new double[ProjectConfig.NUMBER_OF_ACTION_UNITS];
 		
 		try
 		{
-			int i=0;
 			stmt 	= 	conn.createStatement();//Creates a Statement object for sending SQL statements to the database.
-			stmt1	=	conn.createStatement();
-			stmt2	=	conn.createStatement();
-			
-			rsCases = stmt.executeQuery("SELECT Case_Id from casetbl");
+			rsCases = stmt.executeQuery("SELECT * from norm_CasesTbl");
 			while(rsCases.next())
 			{
-				rsCaseSolution = stmt1.executeQuery("SELECT Case_Solution from casetbl where Case_Id="+rsCases.getInt("Case_Id"));
-				rsActionUnits = stmt2.executeQuery("SELECT AU_Value from auincasetbl where Case_Id=7");
 				
-				while (rsActionUnits.next())
-				{
-					actionUnits[i] = rsActionUnits.getDouble("AU_Value");
-					System.out.println(actionUnits[i]);
-					i++;
-				}
-				i=0;
-				actionUnits = new double[ProjectConfig.NUMBER_OF_ACTION_UNITS];
-				rsCaseSolution.first();
-				allCases.add(new RunTimeCase(actionUnits,rsCaseSolution.getDouble("Case_Solution")));
+				actionUnits[0]=rsCases.getDouble("NoseWrinkler");
+				actionUnits[1]=rsCases.getDouble("Jawdrop");
+				actionUnits[2]=rsCases.getDouble("UpperLipRaiser");
+				actionUnits[3]=rsCases.getDouble("LipStretcher");
+				actionUnits[4]=rsCases.getDouble("LipCornerDepressor");
+				actionUnits[5]=rsCases.getDouble("OuterBrowRaiser");
+				actionUnits[6]=rsCases.getDouble("InnerBrowRaiser");
+				actionUnits[7]=rsCases.getDouble("BrowLowerer");
+				actionUnits[8]=rsCases.getDouble("EyesClosed");
+				actionUnits[9]=rsCases.getDouble("RotateEyesLeft");
+				actionUnits[10]=rsCases.getDouble("RotateEyesDown");
+				Result=rsCases.getDouble("Result");
+				
+			
+				allCases.add(new RunTimeCase(actionUnits,Result));
 			}
 			return allCases;
 		}
@@ -160,7 +156,6 @@ public class DataBase {
 		{
 			e.printStackTrace();
 			return null;
-
 		}
 	}
 	

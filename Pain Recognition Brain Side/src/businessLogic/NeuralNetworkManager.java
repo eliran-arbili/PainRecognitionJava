@@ -2,12 +2,12 @@ package businessLogic;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
+import dataLayer.ActionUnit;
 import dataLayer.ProjectConfig;
 
-import org.encog.ml.BasicML;
-import org.encog.ml.MLMethod;
 import org.encog.ml.data.MLData;
 import org.encog.ml.data.MLDataPair;
 import org.encog.ml.data.MLDataSet;
@@ -17,9 +17,8 @@ import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.ml.train.MLTrain;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
-import org.encog.neural.rbf.RBFNetwork;
 import org.encog.persist.EncogDirectoryPersistence;
-import org.encog.util.arrayutil.NormalizeArray;
+import org.encog.util.arrayutil.NormalizedField;
 
 public class NeuralNetworkManager {
 	
@@ -27,15 +26,12 @@ public class NeuralNetworkManager {
 	/*
 	 * Class variables 
 	 */
-	private static HashMap<String,NeuralNetworkManager> activeNetworks;
+	private static HashMap<String,NeuralNetworkManager> activeNetworks = new HashMap<String,NeuralNetworkManager>();
 	
 	/*
 	 * Instance variables
 	 */
 	
-	// arrayNormalizer normalizing fuzzy action units to range -1 to 1
-	 
-	private NormalizeArray arrayNormalizer;
 	
 	 // A pointer to the saved neural network parameters
 	 
@@ -51,9 +47,6 @@ public class NeuralNetworkManager {
 	 * Constructors
 	 */
 	private NeuralNetworkManager(File networkParamaters){
-		arrayNormalizer = new NormalizeArray();
-		arrayNormalizer.setNormalizedHigh(1);
-		arrayNormalizer.setNormalizedLow(-1);
 		MLPNeuralNet = (BasicNetwork)EncogDirectoryPersistence.loadObject(networkParamaters);
 	}
 	
@@ -69,7 +62,7 @@ public class NeuralNetworkManager {
 		}while(train.getError() > ProjectConfig.MAX_ANN_ERROR);
 	}
 	public double computeOutput(RunTimeCase rtCase){
-		MLData dataInput = new BasicMLData(arrayNormalizer.process(rtCase.getActionUnits()));
+		MLData dataInput = new BasicMLData(rtCase.getActionUnits());
 		MLData solutionOutput = MLPNeuralNet.compute(dataInput);
 		return solutionOutput.getData(0);
 	}
@@ -108,6 +101,27 @@ public class NeuralNetworkManager {
 							new BasicMLData(new double [] {rtCase.getSolutionOutput()})));
 		}
 		return new BasicMLDataSet(trainingPairs);
+	}
+	
+	public static  double [] NormalizeAUs(double [] actionUnits){
+		double [] actionUnitsNorm = new double[actionUnits.length];
+		ActionUnit[] aus = ActionUnit.values();
+
+		for (int i = 0; i < actionUnits.length; i++) {
+			NormalizedField norm = ProjectConfig.AURangeMap.get(aus[i]);	
+			actionUnitsNorm[i] = norm.normalize(actionUnits[i]);
+		}
+		return actionUnitsNorm;
+	}
+	public static void main (String[] args){
+		double [] testCase = new double[]{0.073, 0.962, 0.55, -0.676, 0.0, -0.006, 0.108, -0.029, 1.0, 0.0, 0.0};
+		BasicNetwork net = (BasicNetwork) EncogDirectoryPersistence.loadObject(new File("C:\\Users\\user\\Desktop\\MLP_val0.1329_trn0.0290_te0.1329_it144.eg"));
+		MLData dataInput = new BasicMLData(NormalizeAUs(testCase));
+		System.out.println(Arrays.toString(NormalizeAUs(testCase)));
+		MLData solutionOutput = net.compute(dataInput);
+	
+		System.out.println(solutionOutput.getData(0));
+		//MLDataSet set = new BasicMLDataSet();
 	}
 	
 }

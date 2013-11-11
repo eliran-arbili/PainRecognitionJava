@@ -3,6 +3,7 @@ import java.io.File;
 
 import org.encog.ml.MLMethod;
 import org.encog.persist.EncogDirectoryPersistence;
+import org.encog.util.Format;
 
 public class NeuralNetDesciptor {
 	private MLMethod neuralNet;
@@ -46,9 +47,9 @@ public class NeuralNetDesciptor {
 				"Nework Status Report\n"+
 				"--------------------\n"+
 				"path			: " +annFile+"\n"+
-				"Training error		: " +trainingSetError+"\n"+
-				"Validation error	: " +validationSetError+"\n"+
-				"Testing error		: " +testtingSetError+"\n";
+				"Training error		: " +Format.formatPercent(trainingSetError)+"\n"+
+				"Validation error	: " +Format.formatPercent(validationSetError)+"\n"+
+				"Testing error		: " +Format.formatPercent(testtingSetError)+"\n";
 		return dataString;
 	}
 	

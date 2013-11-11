@@ -73,15 +73,6 @@ public class TrainingSession {
 					kNetworks.add(trainNewMLP(kFoldsDataSet,i));
 				}
 				
-				double minTrainError = 100;
-				int minNetErrorIndex = 0;
-				for(int i = 0 ; i < k ; i++){
-					double curTrainError = kNetworks.get(i).getTrainingSetError();
-					if(minTrainError > curTrainError){
-						minTrainError = curTrainError;
-						minNetErrorIndex = i;
-					}
-				}
 				String report = "";
 				for(NeuralNetDesciptor ann:kNetworks){
 					report += "-------------------\n";
@@ -116,7 +107,7 @@ public class TrainingSession {
 		train.addStrategy(strategy);
 		int maxEpochs = (int)confValues.get(ConfKeys.maxEpochs);
 		while(! train.isTrainingDone() && train.getIteration() < maxEpochs){
-			train.iteration();			
+			train.iteration();
 		}
 		
 		double valError 		= strategy.getValidationError();
@@ -253,13 +244,13 @@ public class TrainingSession {
 	
 
 	public static void main(String[] args) {
-		File dataSet = new File("C:\\Users\\earbili\\Desktop\\DataSet_FullAUS.csv");
+		File dataSet = new File("C:\\Users\\user\\Desktop\\NEW_DataSet_FullAUS2.csv");
 		TrainingSession ts = new TrainingSession(dataSet);
 		HashMap<ConfKeys,Object> conf = new HashMap<ConfKeys,Object>();
 		conf = new HashMap<ConfKeys,Object>();
 		
 		conf.put(ConfKeys.inputCount, 11);
-		conf.put(ConfKeys.hiddenCount, 7);
+		conf.put(ConfKeys.hiddenCount, 5);
 		conf.put(ConfKeys.outputCount, 1);
 		conf.put(ConfKeys.activationFunction, new ActivationSigmoid());
 		conf.put(ConfKeys.neyType, MLP_TYPE);

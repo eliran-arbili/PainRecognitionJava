@@ -1,12 +1,12 @@
 package businessLogic;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 
 import dataLayer.DataBase;
-
 import dataLayer.ProjectConfig;
 
 
@@ -82,7 +82,7 @@ public class RetrieveModule {
 	/*
 	 * Testing Unit
 	 */
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		int numOfCases = 50000;
 		Random rand = new Random();
 		ArrayList<RunTimeCase> allCasesDemo = new ArrayList<RunTimeCase>();
@@ -109,6 +109,25 @@ public class RetrieveModule {
 			System.out.println("similarity: "+c.similarity(testCase)+ "  "+c.toString());
 		}
 
+
+	}*/
+	
+	public static void main(String[] args){
+		RetrieveModule rm = new RetrieveModule();
+		NeuralNetworkManager nm = NeuralNetworkManager.createInstance(new File("C:\\Users\\user\\Desktop\\MLP_val0.1329_trn0.0290_te0.1329_it144.eg"));
+		for(int i=0;i<ProjectConfig.NUMBER_OF_ACTION_UNITS;i++)
+		{
+			ProjectConfig.auWeights[i]=1;
+		}
+		RunTimeCase rt = new RunTimeCase(NeuralNetworkManager.NormalizeAUs(new double[]{0.232, -0.05, 1.136, 0.527, -0.778, 0.122, 0.127, 0.067, 0.0, -0.048, 0.128}));
+		ArrayList<RunTimeCase> sim = rm.getKSimilarCases(rt);
+		nm.trainKclosestCases(sim);
+		System.out.println("NetSolution:"+nm.computeOutput(rt));
+		for(RunTimeCase r: sim){
+			System.out.println("case: "+r);
+			System.out.println("sol: "+r.getSolutionOutput());
+			System.out.println("sim: "+r.similarity(rt));
+		}
 
 	}
 	
