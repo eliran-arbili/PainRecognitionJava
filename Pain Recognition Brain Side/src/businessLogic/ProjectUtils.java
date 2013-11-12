@@ -37,11 +37,12 @@ public class ProjectUtils {
 		ArrayList<BasicMLDataSet> kDataSets = new ArrayList<BasicMLDataSet>();
 		int index 			= 0;
 		int dataSetIndex 	= 0;
-		int remainder = dataSet.size() % k;
+		int remainder 		= dataSet.size() % k;
+		int numOfLines		= dataSet.size() / k; 
 		int remainderAddition = (remainder == 0)? 0:1; 
 		kDataSets.add(new BasicMLDataSet());
 		for(MLDataPair pair: dataSet){
-			if(index > dataSet.size() + remainderAddition){
+			if(index > numOfLines + remainderAddition){
 				index = 1;
 				dataSetIndex++;
 				if(remainder > 1)
