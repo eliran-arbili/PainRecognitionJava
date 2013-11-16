@@ -20,7 +20,7 @@ public class ProjectConfig {
 	public static double [] auWeights= new double[NUMBER_OF_ACTION_UNITS];
 	public static double MAX_ANN_ERROR = 0.02;
 	public static HashMap<ActionUnit,NormalizedField> AURangeMap = mapAuRanges();
-	public static double PAIN_SENSITIVITY = 0.75;
+	public static double PAIN_SENSITIVITY = 0.75; // Between 0 (always) and 1 (never)
 	public static final int RUN_TIME_K_FOLD = 2;
 
 	

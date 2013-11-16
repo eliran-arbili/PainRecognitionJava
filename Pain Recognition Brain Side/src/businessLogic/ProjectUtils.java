@@ -35,7 +35,7 @@ public class ProjectUtils {
 	
 	public static ArrayList<BasicMLDataSet> splitDataSet(BasicMLDataSet dataSet, int k) {
 		ArrayList<BasicMLDataSet> kDataSets = new ArrayList<BasicMLDataSet>();
-		int index 			= 0;
+		int index 			= 1;
 		int dataSetIndex 	= 0;
 		int remainder 		= dataSet.size() % k;
 		int numOfLines		= dataSet.size() / k; 

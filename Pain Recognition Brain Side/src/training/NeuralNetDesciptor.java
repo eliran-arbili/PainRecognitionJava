@@ -3,6 +3,7 @@ import java.io.File;
 
 import org.encog.ml.MLMethod;
 import org.encog.neural.networks.BasicNetwork;
+import org.encog.neural.rbf.RBFNetwork;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.Format;
 
@@ -69,6 +70,9 @@ public class NeuralNetDesciptor {
 		String netName 			= "val"+strValError+"_trn"+strTrainError+"_te"+strTestError+"_it"+numOfIterations.toString()+".eg";
 		if(neuralNet instanceof BasicNetwork){
 			netName = "MLP_"+netName;
+		}
+		else if(neuralNet instanceof RBFNetwork){
+			netName = "RBF_" + netName;
 		}
 		return netName;
 	}
