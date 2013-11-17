@@ -134,21 +134,24 @@ public class DataBase {
 			while(rsCases.next())
 			{
 				
-				actionUnits[0]=rsCases.getDouble("NoseWrinkler");
-				actionUnits[1]=rsCases.getDouble("Jawdrop");
-				actionUnits[2]=rsCases.getDouble("UpperLipRaiser");
-				actionUnits[3]=rsCases.getDouble("LipStretcher");
-				actionUnits[4]=rsCases.getDouble("LipCornerDepressor");
-				actionUnits[5]=rsCases.getDouble("OuterBrowRaiser");
-				actionUnits[6]=rsCases.getDouble("InnerBrowRaiser");
-				actionUnits[7]=rsCases.getDouble("BrowLowerer");
-				actionUnits[8]=rsCases.getDouble("EyesClosed");
-				actionUnits[9]=rsCases.getDouble("RotateEyesLeft");
-				actionUnits[10]=rsCases.getDouble("RotateEyesDown");
-				Result=rsCases.getDouble("Result");
+				actionUnits[0]  = rsCases.getDouble("NoseWrinkler");
+				actionUnits[1]  = rsCases.getDouble("Jawdrop");
+				actionUnits[2]  = rsCases.getDouble("UpperLipRaiser");
+				actionUnits[3]  = rsCases.getDouble("LipStretcher");
+				actionUnits[4]  = rsCases.getDouble("LipCornerDepressor");
+				actionUnits[5]  = rsCases.getDouble("OuterBrowRaiser");
+				actionUnits[6]  = rsCases.getDouble("InnerBrowRaiser");
+				actionUnits[7]  = rsCases.getDouble("BrowLowerer");
+				actionUnits[8]  = rsCases.getDouble("EyesClosed");
+				actionUnits[9]  = rsCases.getDouble("RotateEyesLeft");
+				actionUnits[10] = rsCases.getDouble("RotateEyesDown");
+				Result			= rsCases.getDouble("Result");
 				
-			
-				allCases.add(new RunTimeCase(actionUnits,Result));
+				RunTimeCase rs = new RunTimeCase(actionUnits,Result);
+				if(ProjectConfig.fuzzyMode)
+					rs.fuzzify();
+				if(!allCases.contains(rs))
+					allCases.add(rs);
 			}
 			return allCases;
 		}

@@ -21,6 +21,8 @@ import org.encog.util.normalize.input.InputFieldCSV;
 import org.encog.util.normalize.output.OutputFieldRangeMapped;
 import org.encog.util.normalize.target.NormalizationStorageCSV;
 
+import dataLayer.ProjectConfig;
+
 public class ProjectUtils {
 	public static void assertFalse(boolean statement, String description){
 		if(statement == true){
@@ -90,16 +92,24 @@ public class ProjectUtils {
 				
 				ParseCSVLine csvParser = new ParseCSVLine(CSVFormat.ENGLISH);
 				List<String> lineStrings = csvParser.parse(line);
-				BasicMLData dataInput = new BasicMLData(inputCount);
-				BasicMLData dataOutput = new BasicMLData(outputCount);
+				double [] input=new  double[inputCount];
+				double [] output=new  double[outputCount];
 				for(int i = 0 ; i < inputCount + outputCount; i++){
 					if(i < inputCount){
-						dataInput.add(i, Double.parseDouble(lineStrings.get(i)));
+						//dataInput.add(i, Double.parseDouble(lineStrings.get(i)));
+						input[i]=Double.parseDouble(lineStrings.get(i));
 					}
 					else{
-						dataOutput.add(i-inputCount, Double.parseDouble(lineStrings.get(i)));
+						//dataOutput.add(i-inputCount, Double.parseDouble(lineStrings.get(i)));
+						output[i]=Double.parseDouble(lineStrings.get(i));
 					}
 				}
+				
+				RunTimeCase rtCase= new RunTimeCase(input);
+				if(ProjectConfig.fuzzyMode)
+					rtCase.fuzzify();
+				BasicMLData dataInput = new BasicMLData(rtCase.getActionUnits());
+				BasicMLData dataOutput = new BasicMLData(outputCount);
 				kDataSets.get(dataSetIndex).add(new BasicMLDataPair(dataInput,dataOutput));
 				index++;
 			}

@@ -8,17 +8,13 @@ import java.util.HashMap;
 import dataLayer.*;
 
 import org.encog.engine.network.activation.ActivationSigmoid;
-import org.encog.ml.data.MLData;
 import org.encog.ml.data.MLDataPair;
 import org.encog.ml.data.basic.BasicMLData;
 import org.encog.ml.data.basic.BasicMLDataPair;
 import org.encog.ml.data.basic.BasicMLDataSet;
-import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.ContainsFlat;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.Format;
-import org.encog.util.arrayutil.NormalizedField;
-
 import training.TrainingSession;
 import training.TrainingSession.ConfKeys;
 
@@ -44,6 +40,8 @@ public class NeuralNetworkManager {
 	
 	private ContainsFlat neuralNet;
 	
+	private double [] originalWeights;
+	
 	/*
 	 * handle training with our configurations
 	 */
@@ -56,12 +54,19 @@ public class NeuralNetworkManager {
 		neuralNet = (ContainsFlat)EncogDirectoryPersistence.loadObject(networkParamaters);
 		HashMap<ConfKeys,Object> conf = getDefaultTrainConfigurations();
 		trainingSession = new TrainingSession(conf);
+		originalWeights=Arrays.copyOf(neuralNet.getFlat().getWeights(), neuralNet.getFlat().getWeights().length);
 	}
 	
 
 	/*
 	 * Member functions
 	 */
+	
+	public void ResetWeights()
+	{
+		 for(int i=0;i<originalWeights.length;i++)
+			 neuralNet.getFlat().getWeights()[i] = originalWeights[i];
+	}
 	
 	public void trainKclosestCases(ArrayList<RunTimeCase> kClosestCases){
 		BasicMLDataSet trainingSet = constructTrainingSetFromCases(kClosestCases);
@@ -94,6 +99,10 @@ public class NeuralNetworkManager {
 		EncogDirectoryPersistence.saveObject(networkParameters, neuralNet);
 	}
 	
+	public ContainsFlat getNeuralNet() {
+		return neuralNet;
+	}
+	
 	/*
 	 * Class functions
 	 */
@@ -111,17 +120,6 @@ public class NeuralNetworkManager {
 				return null;
 			}
 		}
-	}
-
-	public static  double [] NormalizeAUs(double [] actionUnits){
-		double [] actionUnitsNorm = new double[actionUnits.length];
-		ActionUnit[] aus = ActionUnit.values();
-
-		for (int i = 0; i < actionUnits.length; i++) {
-			NormalizedField norm = ProjectConfig.AURangeMap.get(aus[i]);	
-			actionUnitsNorm[i] = norm.normalize(actionUnits[i]);
-		}
-		return actionUnitsNorm;
 	}
 	
 	/*

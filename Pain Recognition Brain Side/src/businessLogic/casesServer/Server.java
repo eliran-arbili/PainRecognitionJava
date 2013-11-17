@@ -35,9 +35,8 @@ public class Server extends AbstractServer{
 		double [] message 		= 	(double[])msg;
 		double [] actionUnits 	= 	Arrays.copyOfRange(message, 0, message.length);
 
-		RunTimeCase rtCase = new RunTimeCase(NeuralNetworkManager.NormalizeAUs(actionUnits));
-		//RunTimeCase rtCase = new RunTimeCase(actionUnits);
-		//rtCase.normalize();
+		RunTimeCase rtCase = new RunTimeCase(actionUnits);
+		rtCase.normalize();
 		double painMeasure = painCBR.doCycle(rtCase);
 		String toSend = String.format("%.3f", painMeasure);
 		System.out.println(toSend);
@@ -75,4 +74,7 @@ public class Server extends AbstractServer{
 	synchronized protected void clientException(ConnectionToClient client, Throwable exception){
 		exception.printStackTrace();
 	}
+	  protected void clientConnected(ConnectionToClient client) {
+		  System.out.println("Client Connected");
+	  }
 }

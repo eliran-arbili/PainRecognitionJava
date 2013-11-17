@@ -20,6 +20,8 @@ public class RunTimeCase {
 	private double actionUnits[];
 	private double origActionUnits[];
 	private double solutionOutput;
+	private boolean normalized;
+
 	
 
 	/*
@@ -28,11 +30,13 @@ public class RunTimeCase {
 	public RunTimeCase(double actionUnits[]){
 		this.actionUnits = Arrays.copyOf(actionUnits, actionUnits.length);
 		solutionOutput = NO_SOLUTION;
+		setNormalized(false);
 	}
 	
 	public RunTimeCase(double actionUnits[], double solution){
 		this.actionUnits = Arrays.copyOf(actionUnits, actionUnits.length);
 		solutionOutput = solution;
+		setNormalized(false);
 	}
 	
 	/*
@@ -68,7 +72,7 @@ public class RunTimeCase {
 		}
 		
 		int rangeDistributionNum 	= 	ProjectConfig.AU_FUZZY_DEGREES;
-		double [] fuzzy				=	new double[rangeDistributionNum/2+1];
+		double [] fuzzy				=	new double[rangeDistributionNum+1];
 		double factor 				= 	(ProjectConfig.NORM_MAX_LIMIT-ProjectConfig.NORM_MIN_LIMIT)/rangeDistributionNum;
 		
 		
@@ -80,7 +84,7 @@ public class RunTimeCase {
 		for(int i = 0; i < actionUnits.length; i++)
 		{
 			int index  =  (int)Math.round( Math.abs(actionUnits[i]) / factor );
-			actionUnits[i] 	=  fuzzy[index] * Math.signum(actionUnits[i]);
+			actionUnits[i] 	=  fuzzy[index] ;
 		}		
 	}
 	 
@@ -95,20 +99,43 @@ public class RunTimeCase {
 		return sum;
 	}
 	
+	public boolean isNormalized() {
+		return normalized;
+	}
+
+	public void setNormalized(boolean normalized) {
+		this.normalized = normalized;
+	}
+	
+	public boolean equals(RunTimeCase r)
+	{
+		for(int i=0;i<r.getActionUnits().length;i++)
+		{
+			if(this.actionUnits[i]!=r.actionUnits[i])
+				return false;
+		}
+		return true;
+	}
+	
 	public  void normalize(){
+		if(isNormalized()){
+			return;
+		}
 		ActionUnit[] aus = ActionUnit.values();
 		for (int i = 0; i < actionUnits.length; i++) {
 			NormalizedField norm = ProjectConfig.AURangeMap.get(aus[i]);	
 			actionUnits[i] = norm.normalize(actionUnits[i]);
 		}
+		setNormalized(true);
 	}
 	
 	/*
 	 * Testing Unit
 	 */
 	public static void main(String[] args) {
-		double [] actionUnitsInput		=	{-0.938,-0.75,-0.6,-0.397,-0.116,0,0.114,0.588,0.799,0.9};
-		double [] fuzzyExpectedOutput 	= 	{-1,-0.8,-0.6,-0.4,-0.2,0,0.2,0.6,0.8,1};
+		
+		double [] actionUnitsInput		=	{0.938,0.75,0.6,0.397,0.116,0,0.114,0.588,0.799,0.9,0.98};
+		double [] fuzzyExpectedOutput 	= 	{1,    0.8, 0.6,0.4,  0.2,    0,0.2,  0.6,0.8,  1,1};    
 		RunTimeCase rtCase 				= 	new RunTimeCase(actionUnitsInput);
 		rtCase.fuzzify();
 		double [] testResult 			= 	rtCase.getActionUnits();
@@ -117,6 +144,7 @@ public class RunTimeCase {
 			ProjectUtils.assertFalse((Math.abs(testResult[i] - fuzzyExpectedOutput[i]) < epsilon), "Test Failed");
 		}
 		System.out.println("Test Passed!");
+		
 	}
 	
 	

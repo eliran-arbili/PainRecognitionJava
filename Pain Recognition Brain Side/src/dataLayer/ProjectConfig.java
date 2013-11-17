@@ -12,7 +12,7 @@ public class ProjectConfig {
 	 */
 	
 	public static final int NUMBER_OF_ACTION_UNITS = 11;
-	public static final int AU_FUZZY_DEGREES = 10;;
+	public static final int AU_FUZZY_DEGREES = 10;
 	public static final int HISTORY_CASES_SAVE_SIZE = 1000; // in MB
 	public static String INSTALL_PATH = getInstallPath();
 	public static double NORM_MIN_LIMIT = 0;
@@ -22,6 +22,7 @@ public class ProjectConfig {
 	public static HashMap<ActionUnit,NormalizedField> AURangeMap = mapAuRanges();
 	public static double PAIN_SENSITIVITY = 0.75; // Between 0 (always) and 1 (never)
 	public static final int RUN_TIME_K_FOLD = 2;
+	public static boolean fuzzyMode=true;
 
 	/*
 	 * Config the workingMemory parameters

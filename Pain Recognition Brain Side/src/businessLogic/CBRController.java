@@ -32,9 +32,12 @@ public class CBRController {
 	 * @return pain measure
 	 */
 	public double doCycle(RunTimeCase rtCase){
+		if(ProjectConfig.fuzzyMode)
+			rtCase.fuzzify();
 		ArrayList<RunTimeCase> kClosestCases = retrieveModule.getKSimilarCases(rtCase);
 		painRecAnn.trainKclosestCases(kClosestCases);
 		double caseResult = painRecAnn.computeOutput(rtCase);
+		painRecAnn.ResetWeights();
 /*		if(caseResult > ProjectConfig.PAIN_SENSITIVITY){
 			System.out.println("NetSolution:"+caseResult);
 			for(RunTimeCase r: kClosestCases){
