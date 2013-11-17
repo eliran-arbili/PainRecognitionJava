@@ -17,31 +17,30 @@ public class ProjectConfig {
 	public static String INSTALL_PATH = getInstallPath();
 	public static double NORM_MIN_LIMIT = 0;
 	public static double NORM_MAX_LIMIT = 1;
-	public static double [] auWeights= new double[NUMBER_OF_ACTION_UNITS];
+	public static double [] auWeights = initWeights(); 
 	public static double MAX_ANN_ERROR = 0.02;
 	public static HashMap<ActionUnit,NormalizedField> AURangeMap = mapAuRanges();
 	public static double PAIN_SENSITIVITY = 0.75; // Between 0 (always) and 1 (never)
 	public static final int RUN_TIME_K_FOLD = 2;
 
+	/*
+	 * Config the workingMemory parameters
+	 */
+	public static final int WM_SIZE = 3;
+	public static final int WM_SIMILARITY_THRESHOLD = 2;
 	
 	/*
 	 * The Following can be changed in start-up
 	 */
 	public static String ANN_PARAMETERS_PATH ;//= INSTALL_PATH+"\\PainNeuralNet.eg";
 	public static int SERVER_PORT = 2222;
-	public static int K_SIMILAR_CASES = 5;
+	public static int K_SIMILAR_CASES = 80;
 	public static String DB_ADDRESS = "localhost";
 	
 /**
  * TO-DO: remove static weights initializations	
  */
-	{
-		//initWeights();
-		for(int i=0;i<ProjectConfig.NUMBER_OF_ACTION_UNITS;i++)
-		{
-			auWeights[i]=1;
-		}
-	}
+
 	
 	public ProjectConfig()
 	{
@@ -87,18 +86,25 @@ public class ProjectConfig {
 		return mapping;
 	}
 	
-	private static void initWeights(){
-		auWeights[0] 		= 1.3;
-		auWeights[1] 		= 1.1;
-		auWeights[2] 		= 1.2;
-		auWeights[3]		= 0.9;
-		auWeights[4] 		= 0.9;
-		auWeights[5]		= 1.3;
-		auWeights[6]		= 1.3;
-		auWeights[7]		= 1.4;
-		auWeights[8]		= 1.2;
-		auWeights[9]		= 0.5;
-		auWeights[10]		= 0.5;
+	public static double []  initWeights(){
+		double [] weights = new double[NUMBER_OF_ACTION_UNITS];
+		weights[0] 		= 1.4;
+		weights[1] 		= 1.1;
+		weights[2] 		= 1.2;
+		weights[3]		= 0.9;
+		weights[4] 		= 0.9;
+		weights[5]		= 1.3;
+		weights[6]		= 1.3;
+		weights[7]		= 1.4;
+		weights[8]		= 1.2;
+		weights[9]		= 0.5;
+		weights[10]		= 0.5;
+		
+		for(int i=0;i<ProjectConfig.NUMBER_OF_ACTION_UNITS;i++)
+		{
+			weights[i]=1;
+		}
+		return weights;
 	}
 	
 	private static String getInstallPath(){
