@@ -41,7 +41,6 @@ public class Server extends AbstractServer{
 		String toSend = String.format("%.3f", painMeasure);
 		System.out.println(toSend);
 		if(painMeasure > ProjectConfig.PAIN_SENSITIVITY){
-			sendMsgToClient(client, toSend);
 			System.out.println(rtCase);
 		}
 		
