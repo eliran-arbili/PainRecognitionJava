@@ -1,4 +1,4 @@
-package training;
+package businessLogic.training;
 import java.io.File;
 
 import org.encog.ml.MLMethod;
@@ -7,7 +7,7 @@ import org.encog.neural.rbf.RBFNetwork;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.Format;
 
-public class NeuralNetDesciptor {
+public class NeuralTrainDesciptor {
 	private MLMethod neuralNet;
 	private double validationSetError;
 	private double trainingSetError;
@@ -22,7 +22,7 @@ public class NeuralNetDesciptor {
 		this.trainIterations = trainIterations;
 	}
 
-	public NeuralNetDesciptor(MLMethod neuralNet) {
+	public NeuralTrainDesciptor(MLMethod neuralNet) {
 		this.neuralNet = neuralNet;
 	}
 	
@@ -55,7 +55,8 @@ public class NeuralNetDesciptor {
 				"--------------------\n"+
 				"Training error		: " +Format.formatPercent(trainingSetError)+"\n"+
 				"Validation error	: " +Format.formatPercent(validationSetError)+"\n"+
-				"Testing error		: " +Format.formatPercent(testtingSetError)+"\n";
+				"Testing error		: " +Format.formatPercent(testtingSetError)+"\n"+
+				"Iterations 		: " + trainIterations + "\n";		
 		return dataString;
 	}
 	
