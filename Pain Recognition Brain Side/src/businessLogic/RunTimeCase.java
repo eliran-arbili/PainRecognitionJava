@@ -28,6 +28,7 @@ public class RunTimeCase {
 	 * Constructors
 	 */
 	public RunTimeCase(double actionUnits[]){
+		this.origActionUnits = Arrays.copyOf(actionUnits, actionUnits.length);
 		this.actionUnits = Arrays.copyOf(actionUnits, actionUnits.length);
 		solutionOutput = NO_SOLUTION;
 		setNormalized(false);
@@ -37,6 +38,14 @@ public class RunTimeCase {
 		this.actionUnits = Arrays.copyOf(actionUnits, actionUnits.length);
 		solutionOutput = solution;
 		setNormalized(false);
+	}
+	public RunTimeCase(double actionUnits[], double solution, boolean normalized){
+		this(actionUnits,solution);
+		setNormalized(normalized);
+	}
+	public RunTimeCase(double actionUnits[], boolean normalized){
+		this(actionUnits);
+		setNormalized(normalized);
 	}
 	
 	/*
@@ -57,7 +66,7 @@ public class RunTimeCase {
 	}
 	
 	public double [] getOrigActionUnits(){
-		return Arrays.copyOf((origActionUnits == null) ? actionUnits : origActionUnits , actionUnits.length);
+		return origActionUnits;
 	}
 	
 	public String toString()
@@ -66,11 +75,7 @@ public class RunTimeCase {
 	}
 	
 	public void fuzzify()
-	{
-		if(origActionUnits == null){
-			origActionUnits = Arrays.copyOf(actionUnits, actionUnits.length);
-		}
-		
+	{	
 		int rangeDistributionNum 	= 	ProjectConfig.AU_FUZZY_DEGREES;
 		double [] fuzzy				=	new double[rangeDistributionNum+1];
 		double factor 				= 	(ProjectConfig.NORM_MAX_LIMIT-ProjectConfig.NORM_MIN_LIMIT)/rangeDistributionNum;
@@ -89,7 +94,7 @@ public class RunTimeCase {
 	}
 	 
 	
-	public double similarity(RunTimeCase rtCase) {
+	public Double similarity(RunTimeCase rtCase) {
 		double sum	= 0;
 		for(int i = 0; i < ProjectConfig.NUMBER_OF_ACTION_UNITS; i++)
 		{
