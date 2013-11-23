@@ -10,7 +10,7 @@ public class ProjectConfig {
 	/*
 	 * Default Configuration values
 	 */
-	
+	public static final int CASE_OUTPUT_COUNT  = 1;
 	public static final int NUMBER_OF_ACTION_UNITS = 11;
 	public static final int AU_FUZZY_DEGREES = 10;
 	public static final int HISTORY_CASES_SAVE_SIZE = 1000; // in MB

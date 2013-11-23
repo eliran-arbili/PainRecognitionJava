@@ -12,14 +12,13 @@ public class RunTimeCase {
 	/*
 	 * Class Variables
 	 */
-	public static final double NO_SOLUTION = Short.MIN_VALUE;
 	
 	/*
 	 * Instance variables
 	 */
-	private double actionUnits[];
-	private double origActionUnits[];
-	private double solutionOutput;
+	private double [] actionUnits;
+	private double [] origActionUnits;
+	private double [] solutionOutput;
 	private boolean normalized;
 
 	
@@ -29,24 +28,24 @@ public class RunTimeCase {
 	 */
 	public RunTimeCase(double actionUnits[]){
 		this.actionUnits = Arrays.copyOf(actionUnits, actionUnits.length);
-		solutionOutput = NO_SOLUTION;
+		solutionOutput = null;
 		setNormalized(false);
 	}
 	
-	public RunTimeCase(double actionUnits[], double solution){
+	public RunTimeCase(double actionUnits[], double [] solution){
 		this.actionUnits = Arrays.copyOf(actionUnits, actionUnits.length);
-		solutionOutput = solution;
+		solutionOutput = Arrays.copyOf(solution, solution.length);
 		setNormalized(false);
 	}
 	
 	/*
 	 * Member functions
 	 */
-	public double getSolutionOutput() {
-		return solutionOutput;
+	public double[] getSolutionOutput() {
+		return Arrays.copyOf(solutionOutput, solutionOutput.length);
 	}
-	public void setSolutionOutput(double solutionOutput) {
-		this.solutionOutput = solutionOutput;
+	public void setSolutionOutput(double[] solutionOutput) {
+		this.solutionOutput = Arrays.copyOf(solutionOutput, solutionOutput.length);
 	}
 	public double getActionUnit(int i){
 		return actionUnits[i];
@@ -107,13 +106,28 @@ public class RunTimeCase {
 		this.normalized = normalized;
 	}
 	
-	public boolean equals(RunTimeCase r)
+	public boolean equals(Object obj)
 	{
+		if(obj == null){
+			return false;
+		}
+		if(getClass() != obj.getClass()){
+			return false;
+		}
+		final RunTimeCase r = (RunTimeCase)obj;
 		for(int i=0;i<r.getActionUnits().length;i++)
 		{
-			if(this.actionUnits[i]!=r.actionUnits[i])
+			if(this.actionUnits[i] != r.actionUnits[i])
 				return false;
 		}
+		if(this.solutionOutput != null && r.solutionOutput != null){
+			for(int i = 0 ; i < solutionOutput.length; i++){
+				if(this.solutionOutput[i] != r.solutionOutput[i]){
+					return false;
+				}
+			}
+		}
+		
 		return true;
 	}
 	

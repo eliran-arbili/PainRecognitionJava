@@ -121,11 +121,10 @@ public class DataBase {
 	
 	public ArrayList<RunTimeCase> GetAllCases(){
 		Statement stmt;
-		ResultSet rsCases 				= null;
-		double Result 		= 0;
-		ArrayList<RunTimeCase> allCases = new ArrayList<RunTimeCase>();
-		
-		double[] actionUnits = new double[ProjectConfig.NUMBER_OF_ACTION_UNITS];
+		ResultSet 				rsCases 	= null;
+		double [] 				result 		= new double[ProjectConfig.CASE_OUTPUT_COUNT];
+		ArrayList<RunTimeCase> 	allCases 	= new ArrayList<RunTimeCase>();	
+		double[] 				actionUnits = new double[ProjectConfig.NUMBER_OF_ACTION_UNITS];
 		
 		try
 		{
@@ -145,9 +144,9 @@ public class DataBase {
 				actionUnits[8]  = rsCases.getDouble("EyesClosed");
 				actionUnits[9]  = rsCases.getDouble("RotateEyesLeft");
 				actionUnits[10] = rsCases.getDouble("RotateEyesDown");
-				Result			= rsCases.getDouble("Result");
+				result[0]			= rsCases.getDouble("Result");
 				
-				RunTimeCase rs = new RunTimeCase(actionUnits,Result);
+				RunTimeCase rs = new RunTimeCase(actionUnits,result);
 				if(ProjectConfig.fuzzyMode)
 					rs.fuzzify();
 				if(!allCases.contains(rs))
