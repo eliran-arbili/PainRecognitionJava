@@ -65,7 +65,7 @@ public class RunTimeCase {
 	}
 	
 	public double [] getOrigActionUnits(){
-		return origActionUnits;
+		return Arrays.copyOf(origActionUnits,origActionUnits.length);
 	}
 	
 	public String toString()
