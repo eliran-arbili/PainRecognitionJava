@@ -1,9 +1,11 @@
 package businessLogic;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
@@ -61,61 +63,62 @@ public class ProjectUtils {
 	}
 
 	
-	public static ArrayList<BasicMLDataSet> splitDataSet(File dataSet, int k, int inputCount, int outputCount) {
-		ArrayList<BasicMLDataSet> kDataSets = new ArrayList<BasicMLDataSet>();
+	public static ArrayList<File> splitDataSet(File dataSet, int k, int inputCount, int outputCount, boolean headers, boolean idForEachLine) {
+		ArrayList<File> kDataSets = new ArrayList<File>();
 		try {
-			FileReader frLines = new FileReader(dataSet);
-			LineNumberReader lnr = new LineNumberReader(frLines);
-			lnr.skip(Long.MAX_VALUE);
-			int numOfSetLines =  (lnr.getLineNumber())/k;
-			int remainder = lnr.getLineNumber() % k;
-			int remainderAddition = (remainder == 0)? 0:1; 
-			lnr.close();
-			frLines.close();
-			FileReader fr = new FileReader(dataSet);
-			BufferedReader reader = new BufferedReader(fr);
-			int index = 1;
-			int dataSetIndex = 0;
-			String line = null;
-			kDataSets.add(new BasicMLDataSet());
-			while((line = reader.readLine()) != null){
-				if(index > numOfSetLines + remainderAddition){
-					index = 1;
-					dataSetIndex++;
-					if(remainder > 1)
-						remainder--;
-					else
-						remainderAddition = 0;
-					
-					kDataSets.add(new BasicMLDataSet());
-				}
-				
-				ParseCSVLine csvParser = new ParseCSVLine(CSVFormat.ENGLISH);
+			FileReader 		fr 					= new FileReader(dataSet);
+			BufferedReader reader 				= new BufferedReader(fr);
+			int 			numberOfFileLines 	= getNumberOFLines(dataSet);
+			int 			numOfSetLines 		= numberOfFileLines/ k;
+			int 			remainder 			= numberOfFileLines % k;
+			int 			remainderAddition 	= (remainder == 0)? 0:1; 
+			int 			index 				= 1;
+			int 			dataSetIndex 		= 0;
+			String 			line 				= null;
+			String 			prevLineId			= null;
+			ParseCSVLine 	csvParser 			= new ParseCSVLine(CSVFormat.ENGLISH);
+			String			fileName			= dataSet.getName().substring(0,dataSet.getName().lastIndexOf(".")) + "_sub";
+			kDataSets.add(new File(dataSet.getParent()+"//"+fileName+(dataSetIndex+1)+".csv"));
+			FileWriter 		fw					= new FileWriter(kDataSets.get(0));
+			BufferedWriter 	writer				= new BufferedWriter(fw);
+
+			if(headers){
+				reader.readLine();
+			}
+			while((line = reader.readLine()) != null){	
 				List<String> lineStrings = csvParser.parse(line);
-				double [] input=new  double[inputCount];
-				double [] output=new  double[outputCount];
-				for(int i = 0 ; i < inputCount + outputCount; i++){
-					if(i < inputCount){
-						//dataInput.add(i, Double.parseDouble(lineStrings.get(i)));
-						input[i]=Double.parseDouble(lineStrings.get(i));
-					}
-					else{
-						//dataOutput.add(i-inputCount, Double.parseDouble(lineStrings.get(i)));
-						output[i]=Double.parseDouble(lineStrings.get(i));
-					}
-				}
-				
-				RunTimeCase rtCase= new RunTimeCase(input);
+				RunTimeCase rtCase = resolveCase(lineStrings, inputCount, outputCount);
 				if(ProjectConfig.fuzzyMode)
 					rtCase.fuzzify();
-				BasicMLData dataInput = new BasicMLData(rtCase.getActionUnits());
-				BasicMLData dataOutput = new BasicMLData(outputCount);
-				kDataSets.get(dataSetIndex).add(new BasicMLDataPair(dataInput,dataOutput));
+				if(index > numOfSetLines + remainderAddition){
+					if(! lineStrings.get(lineStrings.size() -1 ).equals(prevLineId)){
+						index = 1;
+						dataSetIndex++;
+						if(remainder > 1)
+							remainder--;
+						else
+							remainderAddition = 0;
+						writer.close();
+						fw.close();
+						kDataSets.add(new File(dataSet.getParent()+"\\"+fileName+(dataSetIndex+1)+".csv"));
+						fw			= new FileWriter(kDataSets.get(dataSetIndex));
+						writer		= new BufferedWriter(fw);
+					}
+
+				}	
+				writer.write(line+"\n");
 				index++;
+				prevLineId = lineStrings.get(lineStrings.size() - 1);
 			}
+			
 			reader.close();
 			fr.close();
+			writer.close();
+			fw.close();
+			
 			return kDataSets;
+			
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -124,6 +127,57 @@ public class ProjectUtils {
 			System.exit(1);
 		}
 		return null;
+	}
+	
+	public static BasicMLDataSet convertCSVToDateSet(File csvDataSet, int inputCount, int outputCount, boolean headers) throws IOException{
+		FileReader 		fr 			= new FileReader(csvDataSet);
+		BufferedReader 	reader 		= new BufferedReader(fr);
+		String 			line		= null;
+		ParseCSVLine 	csvParser 	= new ParseCSVLine(CSVFormat.ENGLISH);
+		List<String> 	lineStrings = null;
+		BasicMLDataSet	dataSet		= new BasicMLDataSet();
+		if(headers){
+			line = reader.readLine();			
+		}
+		while((line = reader.readLine()) != null){
+			lineStrings = csvParser.parse(line);
+			RunTimeCase rtCase = resolveCase(lineStrings, inputCount, outputCount);
+            BasicMLData dataInput = new BasicMLData(rtCase.getActionUnits());
+            BasicMLData dataOutput = new BasicMLData(rtCase.getSolutionOutput());
+            dataSet.add(new BasicMLDataPair(dataInput,dataOutput));
+		}
+		reader.close();
+		fr.close();	
+		return dataSet;
+	}
+	private static int getNumberOFLines(File file) throws IOException{
+		FileReader frLines 		= new FileReader(file);
+		LineNumberReader lnr 	= new LineNumberReader(frLines);
+		lnr.skip(Long.MAX_VALUE);
+		int numOFLines = lnr.getLineNumber();
+		lnr.close();
+		frLines.close();
+		return numOFLines;
+	}
+
+	
+    public static String replaceLast(String text, String regex, String replacement) {
+        return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
+    }
+    
+    
+	private static RunTimeCase resolveCase(List<String> lineStrings, int inputCount, int outputCount){
+		double [] input=new  double[inputCount];
+		double [] output=new  double[outputCount];
+		for(int i = 0 ; i < inputCount + outputCount; i++){
+			if(i < inputCount){
+				input[i] = Double.parseDouble(lineStrings.get(i));
+			}
+			else{
+				output[i - inputCount] = Double.parseDouble(lineStrings.get(i));
+			}
+		}
+		return new RunTimeCase(input,output);
 	}
 	
 	public static File normalizeCSVFile(File dataSetFile, int inputCount, int outputCount){
@@ -144,4 +198,47 @@ public class ProjectUtils {
 		norm.process();
 		return targetFile;
 	}
+	
+	public static File removeDuplicateLines(File dataSet, int inputCount, int outputCount, boolean headers) throws IOException{
+		FileReader 		fr 			= new FileReader(dataSet);
+		BufferedReader 	reader 		= new BufferedReader(fr);
+		String			fileSuffix	= dataSet.getName().substring(dataSet.getName().lastIndexOf("."));
+		String 			fileName	= replaceLast(dataSet.getName(), fileSuffix, "_nodup"+fileSuffix);
+		File 			newFile		= new File(dataSet.getParent()+"\\"+fileName);
+		FileWriter 		fw			= new FileWriter(newFile);
+		BufferedWriter 	writer		= new BufferedWriter(fw);
+		ParseCSVLine 	csvParser 	= new ParseCSVLine(CSVFormat.ENGLISH);
+		String 			line 		= null;
+		if(headers){
+			line = reader.readLine();
+			writer.write(line+"\n");
+			
+		}
+		
+		ArrayList<RunTimeCase> existedCases = new ArrayList<RunTimeCase>();
+		List<String> lineStrings = null;
+		while((line = reader.readLine()) != null){
+			lineStrings = csvParser.parse(line);
+			RunTimeCase rtCase = resolveCase(lineStrings, inputCount, outputCount);
+			if(! existedCases.contains(rtCase)){
+				existedCases.add(rtCase);
+				writer.append(line+"\n");
+			}
+		}
+		writer.close();
+		reader.close();
+		fw.close();
+		fr.close();
+		return newFile;
+	}
+	
+	public static void main(String[] args){
+		try {
+			File f =removeDuplicateLines(new File("C:\\Users\\earbili\\Desktop\\NeuralNets\\NEW_DataSet_FullAUS.csv"),11,1,true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }
