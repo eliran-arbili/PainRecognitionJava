@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 
 import dataLayer.*;
 
@@ -69,7 +70,7 @@ public class NeuralNetworkManager {
 			 neuralNet.getFlat().getWeights()[i] = originalWeights[i];
 	}
 	
-	public void trainKclosestCases(ArrayList<RunTimeCase> kClosestCases){
+	public void trainKclosestCases(PriorityQueue<RunTimeCase> kClosestCases){
 		BasicMLDataSet trainingSet = constructTrainingSetFromCases(kClosestCases);
 		ProjectUtils.assertFalse(
 				trainingSet.getInputSize() == neuralNet.getFlat().getInputCount(), 	
@@ -126,9 +127,9 @@ public class NeuralNetworkManager {
 	/*
 	 * Auxiliary methods
 	 */
-	private BasicMLDataSet constructTrainingSetFromCases(ArrayList<RunTimeCase> trainingCases){
+	private BasicMLDataSet constructTrainingSetFromCases(PriorityQueue<RunTimeCase> kClosestCases){
 		ArrayList<MLDataPair> trainingPairs = new ArrayList<MLDataPair>();
-		for(RunTimeCase rtCase: trainingCases){
+		for(RunTimeCase rtCase: kClosestCases){
 			trainingPairs.add(new BasicMLDataPair(
 							new BasicMLData(rtCase.getActionUnits()), 
 							new BasicMLData(rtCase.getSolutionOutput())

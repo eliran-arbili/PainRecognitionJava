@@ -22,7 +22,7 @@ public class ProjectConfig {
 	public static HashMap<ActionUnit,NormalizedField> AURangeMap = mapAuRanges();
 	public static double PAIN_SENSITIVITY = 0.75; // Between 0 (always) and 1 (never)
 	public static final int RUN_TIME_K_FOLD = 2;
-	public static boolean fuzzyMode=true;
+	public static boolean fuzzyMode=false;
 
 	/*
 	 * Config the workingMemory parameters
@@ -58,7 +58,7 @@ public class ProjectConfig {
 						1.2,-0.05, NORM_MAX_LIMIT, NORM_MIN_LIMIT));
 		mapping.put(ActionUnit.UpperLipRaiser,
 				new NormalizedField(NormalizationAction.Normalize, "UpperLipRaiser", 
-						-0.05,1.47,NORM_MAX_LIMIT, NORM_MIN_LIMIT));
+						1.47,-0.05,NORM_MAX_LIMIT, NORM_MIN_LIMIT));
 		mapping.put(ActionUnit.LipStretcher,
 				new NormalizedField(NormalizationAction.Normalize, "LipStretcher", 
 						1,-0.94, NORM_MAX_LIMIT, NORM_MIN_LIMIT));	
