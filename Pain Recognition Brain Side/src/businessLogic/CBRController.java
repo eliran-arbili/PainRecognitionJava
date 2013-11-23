@@ -2,6 +2,7 @@ package businessLogic;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 import dataLayer.ProjectConfig;
 
@@ -34,7 +35,7 @@ public class CBRController {
 	public double doCycle(RunTimeCase rtCase){
 		if(ProjectConfig.fuzzyMode)
 			rtCase.fuzzify();
-		ArrayList<RunTimeCase> kClosestCases = retrieveModule.getKSimilarCases(rtCase);
+		PriorityQueue<RunTimeCase> kClosestCases = retrieveModule.getKSimilarCases(rtCase);
 		painRecAnn.trainKclosestCases(kClosestCases);
 		double caseResult = painRecAnn.computeOutput(rtCase);
 		painRecAnn.ResetWeights();

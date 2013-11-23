@@ -3,8 +3,10 @@ package businessLogic;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.PriorityQueue;
 import java.util.Random;
 
 import org.encog.util.Format;
@@ -39,47 +41,39 @@ public class RetrieveModule {
 	/*
 	 * Member functions
 	 */
-	public ArrayList<RunTimeCase> getKSimilarCases(RunTimeCase rtCase)
+	public PriorityQueue<RunTimeCase> getKSimilarCases(final RunTimeCase rtCase)
 	{
-		HashMap<RunTimeCase,Double> kSimilarCases = new HashMap<RunTimeCase,Double>();
+		PriorityQueue<RunTimeCase> kSimilarCases = new PriorityQueue<RunTimeCase>(ProjectConfig.K_SIMILAR_CASES, 
+				new Comparator<RunTimeCase>() {
+					@Override
+					public int compare(RunTimeCase o1, RunTimeCase o2) {
+						return o2.similarity(rtCase).compareTo(o1.similarity(rtCase));
+					}
+				});
 		
 		Iterator<RunTimeCase> allCasesIterator = allCases.iterator();
 		ProjectUtils.assertFalse(ProjectConfig.K_SIMILAR_CASES <= allCases.size() , "Number of cases in DataBase is less then configuered k similars");
 		for(int i = 0; i< ProjectConfig.K_SIMILAR_CASES ; i++){
 			RunTimeCase rt = allCasesIterator.next();
-			kSimilarCases.put(rt,rt.similarity(rtCase));
+			kSimilarCases.offer(rt);
 		}
 		while(allCasesIterator.hasNext()){
-			updateSimilarCases(kSimilarCases,rtCase,allCasesIterator.next());
+			RunTimeCase currCase = allCasesIterator.next();
+			if(kSimilarCases.peek().similarity(rtCase) > currCase.similarity(rtCase)){
+				kSimilarCases.poll();
+				kSimilarCases.offer(currCase);
+			}
+			
 		}
-		return new ArrayList<RunTimeCase>(kSimilarCases.keySet());
+		
+		return kSimilarCases;
 	}
+	
 	
 	/*
 	 * Auxiliary Methods
 	 */
-	private void updateSimilarCases(HashMap<RunTimeCase,Double> kSimilarCases,RunTimeCase theCase,RunTimeCase checkCase)
-	{
-		double similarity 			= theCase.similarity(checkCase);
-		Iterator<RunTimeCase> it 	= kSimilarCases.keySet().iterator();
-		RunTimeCase maxCase 		= null;
-		double maxSim 				=-1;
-		while(it.hasNext())
-		{
-			RunTimeCase currCase = it.next();
-			double currSim = kSimilarCases.get(currCase);
-			if(currSim > maxSim)
-			{
-				maxSim = currSim;
-				maxCase = currCase;
-			}
-		}
-		if(maxSim > similarity)
-		{
-			kSimilarCases.remove(maxCase);
-			kSimilarCases.put(checkCase,similarity);
-		}
-	}
+
 	
 	
 	/*
@@ -120,8 +114,22 @@ public class RetrieveModule {
 		NeuralNetworkManager nm = NeuralNetworkManager.createInstance(new File("C:\\Users\\user\\Desktop\\MLP_val0.1329_trn0.0290_te0.1329_it144.eg"));
 		ProjectConfig.initWeights();
 		RunTimeCase rt = new RunTimeCase(new double[]{0.8478723404255318, 0.17839999999999998, 1.0, 0.6932989690721649, 0.3420863309352518, 0.4533783783783784, 0.6581818181818181, 0.4707964601769912, 0.0, 0.37672413793103443, 0.5659722222222223});
-		ArrayList<RunTimeCase> sim = rm.getKSimilarCases(rt);
-		double [] weightsBefore = Arrays.copyOf(nm.getNeuralNet().getFlat().getWeights(), nm.getNeuralNet().getFlat().getWeights().length);
+		
+		long start1 = System.nanoTime();
+		PriorityQueue<RunTimeCase> sim = rm.getKSimilarCases(rt);
+		long elapsed = System.nanoTime() - start1;
+
+		
+		
+		System.out.println("Regular cases");
+
+		for(RunTimeCase r: sim){
+			ProjectUtils.assertFalse(sim.contains(r), "Older retrival does not contain new Retrieval");
+		}
+		
+		System.out.println("first: "+elapsed);
+
+		/*double [] weightsBefore = Arrays.copyOf(nm.getNeuralNet().getFlat().getWeights(), nm.getNeuralNet().getFlat().getWeights().length);
 		nm.trainKclosestCases(sim);
 
 
@@ -153,7 +161,7 @@ public class RetrieveModule {
 		System.out.println("\nmax: " + Format.formatPercent(max) +"   Index:" + maxIndex);
 		System.out.println("Aaverage: " + Format.formatPercent(averageRatio));
 		System.out.println(weightsBefore[maxIndex]);
-		System.out.println(weightsAfter[maxIndex]);
+		System.out.println(weightsAfter[maxIndex]);*/
 
 
 	}

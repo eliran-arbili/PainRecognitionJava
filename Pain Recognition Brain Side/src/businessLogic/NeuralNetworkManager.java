@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 
 import dataLayer.*;
 
@@ -15,6 +16,7 @@ import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.neural.networks.ContainsFlat;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.Format;
+
 import training.TrainingSession;
 import training.TrainingSession.ConfKeys;
 
@@ -68,7 +70,7 @@ public class NeuralNetworkManager {
 			 neuralNet.getFlat().getWeights()[i] = originalWeights[i];
 	}
 	
-	public void trainKclosestCases(ArrayList<RunTimeCase> kClosestCases){
+	public void trainKclosestCases(PriorityQueue<RunTimeCase> kClosestCases){
 		BasicMLDataSet trainingSet = constructTrainingSetFromCases(kClosestCases);
 		ProjectUtils.assertFalse(
 				trainingSet.getInputSize() == neuralNet.getFlat().getInputCount(), 	
@@ -125,9 +127,9 @@ public class NeuralNetworkManager {
 	/*
 	 * Auxiliary methods
 	 */
-	private BasicMLDataSet constructTrainingSetFromCases(ArrayList<RunTimeCase> trainingCases){
+	private BasicMLDataSet constructTrainingSetFromCases(PriorityQueue<RunTimeCase> kClosestCases){
 		ArrayList<MLDataPair> trainingPairs = new ArrayList<MLDataPair>();
-		for(RunTimeCase rtCase: trainingCases){
+		for(RunTimeCase rtCase: kClosestCases){
 			trainingPairs.add(new BasicMLDataPair(
 							new BasicMLData(rtCase.getActionUnits()), 
 							new BasicMLData(new double [] {rtCase.getSolutionOutput()})));
@@ -163,7 +165,7 @@ public class NeuralNetworkManager {
 		RunTimeCase r9 = new RunTimeCase(new double[]{0.01,-0.02,0.1,-0.02,-0.02,-0.03,0.04,0.02,0,-0.06,0.11},0);
 		RunTimeCase r10 = new RunTimeCase(new double[]{0.0,0,-0.04,0.07,0.05,-0.02,0.01,0,0,-0.04,0.19},0);
 		
-		ArrayList<RunTimeCase> cases = new ArrayList<RunTimeCase>();
+		PriorityQueue<RunTimeCase> cases = new PriorityQueue<RunTimeCase>();
 		r1.normalize();r2.normalize();r3.normalize();r4.normalize();r5.normalize();
 		r6.normalize();r7.normalize();r8.normalize();r9.normalize();r10.normalize();
 		
