@@ -1,8 +1,6 @@
 package businessLogic.casesServer;
 import java.io.IOException;
 import java.util.Arrays;
-
-import dataLayer.ProjectConfig;
 import businessLogic.*;
 
 
@@ -37,7 +35,8 @@ public class Server extends ObservableServer{
 		RunTimeCase rtCase = new RunTimeCase(actionUnits);
 		rtCase.normalize();
 		
-		double  painMeasure = painCBR.doCycle(rtCase);
+		double [] painMeasure = painCBR.doCycle(rtCase);
+		rtCase.setSolutionOutput(painMeasure);
 		setChanged();
 		notifyObservers(rtCase);
 	}

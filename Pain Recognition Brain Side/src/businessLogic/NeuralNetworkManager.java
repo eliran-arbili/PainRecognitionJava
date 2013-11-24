@@ -90,11 +90,11 @@ public class NeuralNetworkManager {
 		}while(train.getError() > ProjectConfig.MAX_ANN_ERROR);*/
 		
 	}
-	public double computeOutput(RunTimeCase rtCase){
+	public double[] computeOutput(RunTimeCase rtCase){
 		//MLData dataInput = new BasicMLData(rtCase.getActionUnits());
-		double [] output = new double[1];
+		double [] output = new double[ProjectConfig.CASE_OUTPUT_COUNT];
 		neuralNet.getFlat().compute(rtCase.getActionUnits(), output);
-		return output[0];
+		return output;
 	}
 
 	public void saveNet(){
