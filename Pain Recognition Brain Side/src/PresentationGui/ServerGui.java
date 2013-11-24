@@ -31,10 +31,10 @@ public class ServerGui extends JFrame{
 	 * Instance variables
 	 */
 	private Server painRecognitionServer;
-	
+	private PainMeasureGui painGui;
 	public ServerGui(){
 		initComponents();
-		
+		painGui = new PainMeasureGui();
 	}
 	
 	/*
@@ -186,12 +186,18 @@ public class ServerGui extends JFrame{
 		if(! isFieldsOK(portTxt,kCasesTxt,annPath,dbAddress)){
 			return;
 		}
+		
 		ProjectConfig.SERVER_PORT 		= Integer.parseInt(portTxt);;
 		ProjectConfig.K_SIMILAR_CASES 	= Integer.parseInt(kCasesTxt);
 		ProjectConfig.DB_ADDRESS		= dbAddress;
 		ProjectConfig.ANN_PARAMETERS_PATH=annPath;
-		painRecognitionServer = new Server(ProjectConfig.SERVER_PORT);
+		if(painRecognitionServer == null){
+			painRecognitionServer = new Server(ProjectConfig.SERVER_PORT);
+			painRecognitionServer.addObserver(painGui);
+
+		}
 		try {
+			painGui.openWindow();
 			painRecognitionServer.listen();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -202,13 +208,11 @@ public class ServerGui extends JFrame{
 	}
 	
 	protected void btnStopOnClick(ActionEvent arg0) {
-		try {
-			painRecognitionServer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		painRecognitionServer.stopListening();
 		lblServerStatus.setText("OFF");
 		lblServerStatus.setForeground(Color.RED);
+		painGui.closeWindow();
+
 		
 	}
 	
