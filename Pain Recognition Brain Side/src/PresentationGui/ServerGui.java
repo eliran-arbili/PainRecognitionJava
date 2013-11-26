@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
 import java.io.File;
 import java.io.IOException;
 
@@ -13,6 +14,9 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.GroupLayout.Alignment;
@@ -41,6 +45,12 @@ public class ServerGui extends JFrame{
 	 * initialize frame shape and components 
 	 */
 	private void initComponents(){
+		menuBar				= new JMenuBar();
+		menuFile			= new JMenu();
+		menuTraining		= new JMenu();
+		menuItemExit		= new JMenuItem();
+		menuItemNewTraining = new JMenuItem();
+		menuItemExisting 	= new JMenuItem();
 		btnStop 			= new JButton();
 		btnStart 			= new JButton();
 		btnBrowsAnnFile		= new JButton();
@@ -54,7 +64,13 @@ public class ServerGui extends JFrame{
 		lblServerStatus 	= new JLabel();
 		lblDBAddress		= new JLabel();
 		
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {	
+			@Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+				onApplicationExit();
+			}
+		});
 		setPreferredSize(new Dimension(550, 300));
 		setResizable(false);
 		
@@ -71,6 +87,24 @@ public class ServerGui extends JFrame{
 		btnStop.setFont(new Font("Arial",1,18));
 		btnStart.setFont(new Font("Arial",1,18));
 		
+		menuFile.setText("File");
+		menuTraining.setText("Training");
+		menuItemExit.setText("Exit");
+		menuItemNewTraining.setText("New");
+		menuItemExisting.setText("Existing");
+		menuFile.add(menuItemExit);
+		menuTraining.add(menuItemNewTraining);
+		menuTraining.add(menuItemExisting);
+		menuBar.add(menuFile);
+		menuBar.add(menuTraining);
+		this.setJMenuBar(menuBar);
+		
+		menuItemExit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				onApplicationExit();
+			}
+		});
 		
 		btnStop.setText("Stop");
 		btnStop.addActionListener(new ActionListener() {
@@ -212,8 +246,27 @@ public class ServerGui extends JFrame{
 		lblServerStatus.setText("OFF");
 		lblServerStatus.setForeground(Color.RED);
 		painGui.closeWindow();
-
-		
+	}
+	
+	protected void onApplicationExit(){
+        int confirm = JOptionPane.showOptionDialog(this,
+                "Are You Sure You Want To Exit?",
+                "Exit Confirmation", JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null, null, null);
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+    		if(painRecognitionServer != null){
+    			try 
+    			{
+    				painRecognitionServer.close();
+    			} 
+    			catch (IOException e) 
+    			{
+    				e.printStackTrace();
+    			}
+    		}
+    		System.exit(0);
+        }
 	}
 	
 	/*
@@ -242,6 +295,12 @@ public class ServerGui extends JFrame{
 	/*
 	 * Gui components
 	 */
+	private JMenuBar 		menuBar;
+	private JMenu			menuFile;
+	private JMenu			menuTraining;
+	private JMenuItem		menuItemExit;
+	private JMenuItem		menuItemNewTraining;
+	private JMenuItem		menuItemExisting;
 	private JButton 		btnStop;
 	private JButton 		btnStart;
 	private JButton 		btnBrowsAnnFile;
@@ -277,6 +336,7 @@ public class ServerGui extends JFrame{
 		sg.setVisible(true);
 	}
 	
+	
 	/*
 	 * Inner class for Encog file filtering in dialog
 	 */
@@ -294,7 +354,7 @@ public class ServerGui extends JFrame{
 			return false;
 		}
 		@Override
-		public String getDescription() {	
+		public String getDescription() {
 			return "Encog files .eg";
 		}
 		
