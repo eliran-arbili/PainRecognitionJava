@@ -79,20 +79,11 @@ public class NeuralNetworkManager {
 		ProjectUtils.assertFalse(
 				trainingSet.getIdealSize() == neuralNet.getFlat().getOutputCount(), 	
 				"train output different from ANN output");
-		
-		
-		trainingSession.crossValidationTrain(neuralNet, trainingSet,2);
-
-		/*		final MLTrain train = new ResilientPropagation(MLPNeuralNet, trainingSet);
-		do
-		{
-			train.iteration();
-		}while(train.getError() > ProjectConfig.MAX_ANN_ERROR);*/
-		
+		trainingSession.crossValidationTrain(neuralNet, trainingSet,ProjectConfig.getOptInt("RUN_TIME_K_FOLD"));
 	}
 	public double[] computeOutput(RunTimeCase rtCase){
-		//MLData dataInput = new BasicMLData(rtCase.getActionUnits());
-		double [] output = new double[ProjectConfig.CASE_OUTPUT_COUNT];
+		Integer outputCount = ProjectConfig.getOptInt("CASE_OUTPUT_COUNT");		
+		double [] output = new double[outputCount];
 		neuralNet.getFlat().compute(rtCase.getActionUnits(), output);
 		return output;
 	}

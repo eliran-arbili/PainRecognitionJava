@@ -102,10 +102,10 @@ public class ServerGui extends JFrame{
 		lblServerStatus.setText("OFF");
 		lblServerStatus.setFont(new Font("Arial",1,18));
 		txtFldAnnFile.setEnabled(false);
-		txtFldPort.setText(String.valueOf(ProjectConfig.SERVER_PORT));
-		txtFldKCases.setText(String.valueOf(ProjectConfig.K_SIMILAR_CASES));
+		txtFldPort.setText(ProjectConfig.getOpt("SERVER_PORT"));
+		txtFldKCases.setText(ProjectConfig.getOpt("K_SIMILAR_CASES"));
 		//txtFldAnnFile.setText(ProjectConfig.ANN_PARAMETERS_PATH);
-		txtFldDBAddress.setText(ProjectConfig.DB_ADDRESS);
+		txtFldDBAddress.setText(ProjectConfig.getOpt("DB_ADDRESS"));
 		
 		
 		GroupLayout layout = new GroupLayout(this.getContentPane());
@@ -187,14 +187,14 @@ public class ServerGui extends JFrame{
 			return;
 		}
 		
-		ProjectConfig.SERVER_PORT 		= Integer.parseInt(portTxt);;
-		ProjectConfig.K_SIMILAR_CASES 	= Integer.parseInt(kCasesTxt);
-		ProjectConfig.DB_ADDRESS		= dbAddress;
-		ProjectConfig.ANN_PARAMETERS_PATH=annPath;
-		if(painRecognitionServer == null){
-			painRecognitionServer = new Server(ProjectConfig.SERVER_PORT);
-			painRecognitionServer.addObserver(painGui);
+		ProjectConfig.setOpt("SERVER_PORT", portTxt);
+		ProjectConfig.setOpt("K_SIMILAR_CASES", kCasesTxt);
+		ProjectConfig.setOpt("DB_ADDRESS", dbAddress);
+		ProjectConfig.setOpt("ANN_PARAMETERS_PATH", annPath);
 
+		if(painRecognitionServer == null){
+			painRecognitionServer = new Server(ProjectConfig.getOptInt("SERVER_PORT"));
+			painRecognitionServer.addObserver(painGui);
 		}
 		try {
 			painGui.openWindow();
@@ -268,9 +268,10 @@ public class ServerGui extends JFrame{
     catch (Exception e) {
     	e.printStackTrace();
     }
-		for(int i=0;i<ProjectConfig.NUMBER_OF_ACTION_UNITS;i++)
+	    Double auWeights[] = ProjectConfig.getOptDoubleArray("SIMILARITY_WEIGHTS");
+		for(int i = 0; i < ProjectConfig.getOptInt("NUMBER_OF_ACTION_UNITS"); i++)
 		{
-			ProjectConfig.auWeights[i]=1;
+			auWeights[i]=  1.0;
 		}
 		ServerGui sg = new ServerGui();
 		sg.setVisible(true);

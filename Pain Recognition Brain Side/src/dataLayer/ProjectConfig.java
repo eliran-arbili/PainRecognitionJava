@@ -1,5 +1,6 @@
 package dataLayer;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.TreeMap;
 
+import org.encog.util.ResourceLoader;
 import org.encog.util.arrayutil.NormalizationAction;
 import org.encog.util.arrayutil.NormalizedField;
 
@@ -14,47 +16,32 @@ import org.encog.util.arrayutil.NormalizedField;
 public class ProjectConfig {
 	
 	private static TreeMap<String,String> defaultConfigurations = initDefaultConfigurations();
-	private final static ProjectConfig instance = new ProjectConfig();
-	private Properties props;
+	public  static String INSTALL_PATH =  System.getProperty("user.home") + "\\PainRecogntion";
+	private static String PROPERTIES_PATH = INSTALL_PATH + "\\config.properties";
+	private static Properties props = initProperties();
+	public static HashMap<String,NormalizedField> AUNormFields = mapAuRanges();
+
 	/*
 	 * Default Configuration values
 	 */
-	public static final int CASE_OUTPUT_COUNT  = 1;
-	public static final int NUMBER_OF_ACTION_UNITS = 11;
-	public static final int AU_FUZZY_DEGREES = 10;
-	public static String INSTALL_PATH = getInstallPath();
-	public static double NORM_MIN_LIMIT = 0;
-	public static double NORM_MAX_LIMIT = 1;
-	public static double [] auWeights = initWeights(); 
-	public static double PAIN_SENSITIVITY = 0.75; // Between 0 (always) and 1 (never)
-	public static final int RUN_TIME_K_FOLD = 2;
 	public static boolean fuzzyMode = false;
 	
 	
-	public HashMap<String,NormalizedField> AURangeMap;
 	
 	/*
 	 * The Following can be changed in start-up
 	 */
-	public static String ANN_PARAMETERS_PATH ;//= INSTALL_PATH+"\\PainNeuralNet.eg";
-	public static int SERVER_PORT = 2222;
-	public static int K_SIMILAR_CASES = 80;
-	public static String DB_ADDRESS = "localhost";
-
 	
 	private ProjectConfig()
 	{
-		props = initProperties();
-		AURangeMap = mapAuRanges();
 	}
 	
-	private Properties initProperties(){
+
+	
+	private static Properties initProperties(){
 		Properties prop = new Properties();
 		try {
-			  InputStream inputStream = 
-					    this.getClass().getClassLoader().getResourceAsStream("dataLayer/resources/config.properties");
-			  prop.load(inputStream);
-			  inputStream.close();
+			  prop.load(new FileInputStream(PROPERTIES_PATH));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
@@ -67,7 +54,7 @@ public class ProjectConfig {
 				"NoseWrinkler,Jawdrop,UpperLipRaiser,LipStretcher,"+
 				"LipCornerDepressor,OuterBrowRaiser,InnerBrowRaiser,"+
 				"BrowLowerer,EyesClosed,RotateEyesLeft,RotateEyesDown");
-		defaultConf.put("similarityWeights", "1,1,1,1,1,1,1,1,1,1,1");
+		defaultConf.put("SIMILARITY_WEIGHTS", "1,1,1,1,1,1,1,1,1,1,1");
 		defaultConf.put("CASE_OUTPUT_COUNT", "1");
 		defaultConf.put("NUMBER_OF_ACTION_UNITS", "11");
 		defaultConf.put("AU_FUZZY_DEGREES", "10");
@@ -81,10 +68,11 @@ public class ProjectConfig {
 		defaultConf.put("DB_ADDRESS", "localhost");
 		defaultConf.put("AUS_NORM_MIN", "-0.44,-0.05,-0.05,-0.94,-1.28,-0.5,-1.2,-0.52,0,-0.49,-0.79");
 		defaultConf.put("AUS_NORM_MAX", "0.5,1.2,1.47,1,1.5,0.98,1,0.61,1,0.67,0.65");
+		defaultConf.put("OUTPUT_FIELDS","Result");
 		return defaultConf;
 	}
 	
-	public String getOpt(String opt){
+	public static String getOpt(String opt){
 		String property;
 		String defaultOpt = getDefaultOpt(opt);
 		if(defaultOpt != null){
@@ -95,7 +83,7 @@ public class ProjectConfig {
 		}
 		return property;
 	}
-	public String [] getOptArray(String opt){
+	public static String [] getOptArray(String opt){
 		String rawProperty;
 		String [] propertyArray = null;
 		String defaultOpt = getDefaultOpt(opt);
@@ -111,7 +99,7 @@ public class ProjectConfig {
 		return propertyArray;
 	}
 	
-	public Double getOptDouble(String opt){
+	public static Double getOptDouble(String opt){
 		Double property = null;
 		try{
 			property = Double.parseDouble(getOpt(opt));
@@ -121,7 +109,7 @@ public class ProjectConfig {
 			return null;
 		}
 	}
-	public Double[] getOptDoubleArray(String opt){
+	public static Double[] getOptDoubleArray(String opt){
 		Double [] property = null;
 		try{
 			String [] stringArrayProps = getOptArray(opt);
@@ -135,7 +123,18 @@ public class ProjectConfig {
 		}
 	}
 	
-	public Boolean getOptBool(String opt){
+	public static Integer getOptInt(String opt){
+		Integer property = null;
+		try{
+			property = Integer.parseInt(getOpt(opt));
+			return property;
+		}
+		catch(NumberFormatException ex){
+			return null;
+		}
+	}
+	
+	public static Boolean getOptBool(String opt){
 		String rawProperty = getOpt(opt);
 		Boolean property = null;
 		if(rawProperty.equalsIgnoreCase("false")){
@@ -147,12 +146,16 @@ public class ProjectConfig {
 		return property;
 	}
 	
+	public static void setOpt(String opt, String value){
+		props.setProperty(opt, value);
+	}
+	
 	
 	public static String getDefaultOpt(String opt){
 		return defaultConfigurations.get(opt);
 	}
 	
-	private HashMap<String,NormalizedField> mapAuRanges(){
+	private static HashMap<String,NormalizedField> mapAuRanges(){
 		HashMap<String,NormalizedField> mapping = new HashMap<String,NormalizedField>();
 		
 		String [] aus = getOptArray("AUS");
@@ -167,67 +170,6 @@ public class ProjectConfig {
 		return mapping;
 	}
 	
-	/*private static HashMap<ActionUnit,NormalizedField> mapAuRanges(){
-		HashMap<ActionUnit,NormalizedField> mapping = new HashMap<ActionUnit,NormalizedField>();
-		
-		mapping.put(ActionUnit.NoseWrinkler, 		
-				new NormalizedField(NormalizationAction.Normalize, "noseWrinkler", 
-						0.5,-0.44, NORM_MAX_LIMIT,NORM_MIN_LIMIT));
-		mapping.put(ActionUnit.Jawdrop,
-				new NormalizedField(NormalizationAction.Normalize, "Jawdrop", 
-						1.2,-0.05, NORM_MAX_LIMIT, NORM_MIN_LIMIT));
-		mapping.put(ActionUnit.UpperLipRaiser,
-				new NormalizedField(NormalizationAction.Normalize, "UpperLipRaiser", 
-						1.47,-0.05,NORM_MAX_LIMIT, NORM_MIN_LIMIT));
-		mapping.put(ActionUnit.LipStretcher,
-				new NormalizedField(NormalizationAction.Normalize, "LipStretcher", 
-						1,-0.94, NORM_MAX_LIMIT, NORM_MIN_LIMIT));	
-		mapping.put(ActionUnit.LipCornerDepressor,
-				new NormalizedField(NormalizationAction.Normalize, "LipCornerDepressor", 
-						1.5,-1.28, NORM_MAX_LIMIT, NORM_MIN_LIMIT));
-		mapping.put(ActionUnit.OuterBrowRaiser,
-				new NormalizedField(NormalizationAction.Normalize, "OuterBrowRaiser", 
-						0.98,-0.5, NORM_MAX_LIMIT, NORM_MIN_LIMIT));
-		mapping.put(ActionUnit.InnerBrowRaiser,
-				new NormalizedField(NormalizationAction.Normalize, "InnerBrowRaiser", 
-						1,-1.2, NORM_MAX_LIMIT, NORM_MIN_LIMIT));
-		mapping.put(ActionUnit.BrowLowerer,
-				new NormalizedField(NormalizationAction.Normalize, "BrowLowerer", 
-						0.61, -0.52,NORM_MAX_LIMIT, NORM_MIN_LIMIT));
-		mapping.put(ActionUnit.EyesClosed,
-				new NormalizedField(NormalizationAction.Normalize, "EyesClosed", 
-						1,0, NORM_MAX_LIMIT, NORM_MIN_LIMIT));
-		mapping.put(ActionUnit.RotateEyesLeft,
-				new NormalizedField(NormalizationAction.Normalize, "RotateEyesLeft", 
-						0.67,-0.49, NORM_MAX_LIMIT, NORM_MIN_LIMIT));
-		mapping.put(ActionUnit.RotateEyesDown,
-				new NormalizedField(NormalizationAction.Normalize, "RotateEyesDown", 
-						0.65,-0.79, NORM_MAX_LIMIT, NORM_MIN_LIMIT));
-		
-		return mapping;
-	}*/
-	
-	public static double []  initWeights(){
-		double [] weights = new double[NUMBER_OF_ACTION_UNITS];
-		weights[0] 		= 1.4;
-		weights[1] 		= 1.1;
-		weights[2] 		= 1.2;
-		weights[3]		= 0.9;
-		weights[4] 		= 0.9;
-		weights[5]		= 1.3;
-		weights[6]		= 1.3;
-		weights[7]		= 1.4;
-		weights[8]		= 1.2;
-		weights[9]		= 0.5;
-		weights[10]		= 0.5;
-		
-		for(int i=0;i<ProjectConfig.NUMBER_OF_ACTION_UNITS;i++)
-		{
-			weights[i]=1;
-		}
-		return weights;
-	}
-	
 	private static void writeDefaultPropertiesFile(){
 		@SuppressWarnings("serial")
 		Properties prop = new Properties() {
@@ -239,7 +181,8 @@ public class ProjectConfig {
 		TreeMap<String, String> defaultProps = initDefaultConfigurations();
 		prop.putAll(defaultProps);
 		try{
-			prop.store(new FileOutputStream("config.properties"),"Project Configurations");
+			String propertiesLocation = INSTALL_PATH + "\\config.properties";
+			prop.store(new FileOutputStream(propertiesLocation),"Project Configurations");
 		}catch(IOException ex){
 			ex.printStackTrace();
 		}

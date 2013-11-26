@@ -140,7 +140,7 @@ public class PainMeasureGui  implements Observer{
 		background.setIcon(Image);
 		background.repaint();
 		
-		if(painMeasure > ProjectConfig.PAIN_SENSITIVITY){
+		if(painMeasure > ProjectConfig.getOptDouble("PAIN_SENSITIVITY")){
 			textArea.append(String.valueOf(painMeasure)+" - Pain..Pain..Pain!!\n");
 			Image = new ImageIcon(imageList[3]);
 			background.setIcon(Image);

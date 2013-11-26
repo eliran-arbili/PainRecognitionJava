@@ -41,7 +41,7 @@ public class DataBase {
 
 	    try 
 	    {
-	    	conn = DriverManager.getConnection("jdbc:mysql://" + ProjectConfig.DB_ADDRESS + "/painrecognizedb",user,password);
+	    	conn = DriverManager.getConnection("jdbc:mysql://" + ProjectConfig.getOpt("DB_ADDRESS") + "/painrecognizedb",user,password);
 	    	System.out.println("SQL connection succeed");
 	 	} 
 	    catch (SQLException ex) 
@@ -121,31 +121,25 @@ public class DataBase {
 	
 	public ArrayList<RunTimeCase> GetAllCases(){
 		Statement stmt;
-		ResultSet 				rsCases 	= null;
-		double [] 				result 		= new double[ProjectConfig.CASE_OUTPUT_COUNT];
-		ArrayList<RunTimeCase> 	allCases 	= new ArrayList<RunTimeCase>();	
-		double[] 				actionUnits = new double[ProjectConfig.NUMBER_OF_ACTION_UNITS];
-		
+		ResultSet 				rsCases 		= null;
+		ArrayList<RunTimeCase> 	allCases 		= new ArrayList<RunTimeCase>();
+		String [] 				auNames			= ProjectConfig.getOptArray("AUS");
+		double [] 				actionUnits 	= new double[auNames.length];
+		String []				outputFields 	= ProjectConfig.getOptArray("OUTPUT_FIELDS");
+		double [] 				result 			= new double[outputFields.length];
+
 		try
 		{
 			stmt 	= 	conn.createStatement();//Creates a Statement object for sending SQL statements to the database.
 			rsCases = stmt.executeQuery("SELECT * from norm_CasesTbl");
 			while(rsCases.next())
 			{
-				
-				actionUnits[0]  = rsCases.getDouble("NoseWrinkler");
-				actionUnits[1]  = rsCases.getDouble("Jawdrop");
-				actionUnits[2]  = rsCases.getDouble("UpperLipRaiser");
-				actionUnits[3]  = rsCases.getDouble("LipStretcher");
-				actionUnits[4]  = rsCases.getDouble("LipCornerDepressor");
-				actionUnits[5]  = rsCases.getDouble("OuterBrowRaiser");
-				actionUnits[6]  = rsCases.getDouble("InnerBrowRaiser");
-				actionUnits[7]  = rsCases.getDouble("BrowLowerer");
-				actionUnits[8]  = rsCases.getDouble("EyesClosed");
-				actionUnits[9]  = rsCases.getDouble("RotateEyesLeft");
-				actionUnits[10] = rsCases.getDouble("RotateEyesDown");
-				result[0]			= rsCases.getDouble("Result");
-				
+				for(int i = 0 ; i < actionUnits.length ; i++){
+					actionUnits[i] 	= rsCases.getDouble(auNames[i]);
+				}
+				for(int i = 0 ; i < outputFields.length ; i++){
+					result[i]		= rsCases.getDouble(outputFields[i]);
+				}
 				RunTimeCase rs = new RunTimeCase(actionUnits,result);
 				if(ProjectConfig.fuzzyMode)
 					rs.fuzzify();

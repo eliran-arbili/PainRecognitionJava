@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import org.encog.util.arrayutil.NormalizedField;
 
-import dataLayer.ActionUnit;
 import dataLayer.ProjectConfig;
 
 public class RunTimeCase {
@@ -12,7 +11,7 @@ public class RunTimeCase {
 	/*
 	 * Class Variables
 	 */
-	
+
 	/*
 	 * Instance variables
 	 */
@@ -75,9 +74,9 @@ public class RunTimeCase {
 	
 	public void fuzzify()
 	{	
-		int rangeDistributionNum 	= 	ProjectConfig.AU_FUZZY_DEGREES;
+		int rangeDistributionNum 	= 	ProjectConfig.getOptInt("AU_FUZZY_DEGREES");
 		double [] fuzzy				=	new double[rangeDistributionNum+1];
-		double factor 				= 	(ProjectConfig.NORM_MAX_LIMIT-ProjectConfig.NORM_MIN_LIMIT)/rangeDistributionNum;
+		double factor 				= 	(ProjectConfig.getOptDouble("NORM_MAX_LIMIT") - ProjectConfig.getOptDouble("NORM_MIN_LIMIT"))/rangeDistributionNum;
 		
 		
 		fuzzy[0] = 0;
@@ -95,9 +94,10 @@ public class RunTimeCase {
 	
 	public Double similarity(RunTimeCase rtCase) {
 		double sum	= 0;
-		for(int i = 0; i < ProjectConfig.NUMBER_OF_ACTION_UNITS; i++)
+		Double [] auWeights = ProjectConfig.getOptDoubleArray("SIMILARITY_WEIGHTS");
+		for(int i = 0; i < actionUnits.length; i++)
 		{
-			sum  +=  ProjectConfig.auWeights[i] * (Math.abs(this.actionUnits[i] - rtCase.actionUnits[i]));
+			sum  +=  auWeights[i] * (Math.abs(this.actionUnits[i] - rtCase.actionUnits[i]));
 		}
 		
 		return sum;
@@ -140,9 +140,12 @@ public class RunTimeCase {
 		if(isNormalized()){
 			return;
 		}
-		ActionUnit[] aus = ActionUnit.values();
+		String [] aus = ProjectConfig.getOptArray("AUS");
+		
+		ProjectUtils.assertFalse(aus.length == actionUnits.length, "Number of AU's configuered is different from ehat in RunTimeCase");
+		
 		for (int i = 0; i < actionUnits.length; i++) {
-			NormalizedField norm = ProjectConfig.AURangeMap.get(aus[i]);	
+			NormalizedField norm = ProjectConfig.AUNormFields.get(aus[i]);	
 			actionUnits[i] = norm.normalize(actionUnits[i]);
 		}
 		setNormalized(true);
