@@ -1,12 +1,22 @@
 package dataLayer;
 
 
+import java.awt.List;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.csv.ReadCSV;
 
+import businessLogic.ProjectUtils;
 import businessLogic.RunTimeCase;
 
 
@@ -17,47 +27,34 @@ public class DataBase {
 	 */
 	public File casesCSVFile ;
 	
-	
-	public DataBase(File casesCSVFile) {
-		this.casesCSVFile = casesCSVFile;
-	}
 
 	/*
 	 * Constructors
 	 */
 
-
+	public DataBase(File casesCSVFile) {
+		this.casesCSVFile = casesCSVFile;
+	}
 	
 	
 	/*
 	 * Member functions
 	 */
 	
-/*	public void AddCase(double[] actionUnits,double solution){
-		Statement stmt;
-		ResultSet rs = null;
-
-		try
-		{
-			
-			stmt = conn.createStatement();//Creates a Statement object for sending SQL statements to the database.
-			stmt.executeUpdate("insert into casetbl(Case_Resulte)values("+solution+");",Statement.RETURN_GENERATED_KEYS);
-			rs=stmt.getGeneratedKeys();
-			rs.first();
-			String caseId=rs.getString(1);
-			for(int i=0;i<actionUnits.length;i++)
-			{
-				stmt.executeUpdate("insert into AUInCaseTbl(Case_Id,AU_Num,AU_Value)values("+caseId+","+(i+1)+","+actionUnits[i]+");");
-			}
-			rs.close();
-
-		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
-
-		}
-	}*/
+	public void AddCase(Double[] actionUnits,Double [] solution) throws IOException{
+		File temp = ProjectUtils.generateFile(casesCSVFile, "_temp");
+		temp.createNewFile();
+		File f = Files.copy(casesCSVFile.toPath(), temp.toPath(), StandardCopyOption.REPLACE_EXISTING).toFile();
+		BufferedWriter 	writer		= Files.newBufferedWriter(f.toPath(), Charset.defaultCharset(),StandardOpenOption.APPEND);
+		String 			caseId		= "RunTimeCase";
+		writer.append(System.getProperty("line.separator"));
+		writer.append(ProjectUtils.join(",", Arrays.asList(actionUnits)));
+		writer.append(",");
+		writer.append(ProjectUtils.join(",",Arrays.asList(solution)));
+		writer.append(","+caseId);
+		writer.close();
+		Files.move(temp.toPath(), casesCSVFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+	}
 	
 	public ArrayList<RunTimeCase> GetAllCases(){
 		
