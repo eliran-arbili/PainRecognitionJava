@@ -1,14 +1,16 @@
 package businessLogic.training;
 import java.io.File;
 
-import org.encog.ml.MLMethod;
 import org.encog.neural.networks.BasicNetwork;
+import org.encog.neural.networks.ContainsFlat;
 import org.encog.neural.rbf.RBFNetwork;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.Format;
 
+import businessLogic.ProjectUtils;
+
 public class NeuralTrainDesciptor {
-	private MLMethod neuralNet;
+	private ContainsFlat neuralNet;
 	private double validationSetError;
 	private double trainingSetError;
 	private double testtingSetError;
@@ -22,13 +24,13 @@ public class NeuralTrainDesciptor {
 		this.trainIterations = trainIterations;
 	}
 
-	public NeuralTrainDesciptor(MLMethod neuralNet) {
+	public NeuralTrainDesciptor(ContainsFlat neuralNet) {
 		this.neuralNet = neuralNet;
 	}
 	
 	public void saveAsEncogFile(String dirToSave){
 		String fileName = produceFileName();
-		EncogDirectoryPersistence.saveObject(new File(dirToSave+fileName), neuralNet);
+		EncogDirectoryPersistence.saveObject(new File(ProjectUtils.combine(dirToSave, fileName)), neuralNet);
 	}
 	public double getValidationSetError() {
 		return validationSetError;
@@ -57,10 +59,11 @@ public class NeuralTrainDesciptor {
 				"Validation error	: " +Format.formatPercent(validationSetError)+"\n"+
 				"Testing error		: " +Format.formatPercent(testtingSetError)+"\n"+
 				"Iterations 		: " + trainIterations + "\n";		
+		
 		return dataString;
 	}
 	
-	private String produceFileName(){
+	public String produceFileName(){
 		String strValError 		= String.format("%.4f", getValidationSetError());
 		String strTestError		= String.format("%.4f", getTesttingSetError());
 		String strTrainError	= String.format("%.4f", getTrainingSetError());

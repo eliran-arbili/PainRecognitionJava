@@ -1,12 +1,11 @@
 package dataLayer;
 
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
+import org.encog.util.csv.CSVFormat;
+import org.encog.util.csv.ReadCSV;
 
 import businessLogic.RunTimeCase;
 
@@ -16,84 +15,25 @@ public class DataBase {
 	/*
 	 * Instance Variables
 	 */
-	public static Connection conn ;
-	private final static DataBase instance = new DataBase();
+	public File casesCSVFile ;
 	
+	
+	public DataBase(File casesCSVFile) {
+		this.casesCSVFile = casesCSVFile;
+	}
+
 	/*
 	 * Constructors
 	 */
-	private DataBase()
-	{
-		this("root","");
-	}
-	
-	private DataBase(String user,String password)
-	{
-		try 
-		{
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-        } 
-		catch (Exception ex) 
-		{
-			System.exit(1);
-		}
-	
 
-	    try 
-	    {
-	    	conn = DriverManager.getConnection("jdbc:mysql://" + ProjectConfig.getOpt("DB_ADDRESS") + "/painrecognizedb",user,password);
-	    	System.out.println("SQL connection succeed");
-	 	} 
-	    catch (SQLException ex) 
- 	    {
-    		System.out.println("SQLException: " + ex.getMessage());
-    		System.out.println("SQLState: " + ex.getSQLState());
-    		System.out.println("VendorError: " + ex.getErrorCode());
-			System.exit(1);
 
-        }
-	}
 	
-	/*
-	 * Class functions
-	 */
-	public static DataBase instance(){
-		return instance;
-	}
 	
 	/*
 	 * Member functions
 	 */
 	
-	public void PrintAUs() {
-		
-		Statement stmt;
-	    ResultSet rs = null;
-	
-	    try 
-		{
-			stmt = conn.createStatement();//Creates a Statement object for sending SQL statements to the database.
-			rs=stmt.executeQuery("SELECT *  FROM autbl");
-			
-	 		while(rs.next())
-	 		{
-				
-	 	        String AU_Num = rs.getString("AU_Num");
-	 	        String AU_Name = rs.getString("AU_Name");
-	 	        System.out.format("AU%s -  %s\n", AU_Num, AU_Name);
-			} 
-	 		rs.close();
-		}
-	 		 
-		catch (SQLException e)
-		{
-			e.printStackTrace();
-			
-		}
-
-	}
-	
-	public void AddCase(double[] actionUnits,double solution){
+/*	public void AddCase(double[] actionUnits,double solution){
 		Statement stmt;
 		ResultSet rs = null;
 
@@ -117,53 +57,39 @@ public class DataBase {
 			e.printStackTrace();
 
 		}
-	}
+	}*/
 	
 	public ArrayList<RunTimeCase> GetAllCases(){
-		Statement stmt;
-		ResultSet 				rsCases 		= null;
-		ArrayList<RunTimeCase> 	allCases 		= new ArrayList<RunTimeCase>();
-		String [] 				auNames			= ProjectConfig.getOptArray("AUS");
-		double [] 				actionUnits 	= new double[auNames.length];
-		String []				outputFields 	= ProjectConfig.getOptArray("OUTPUT_FIELDS");
-		double [] 				result 			= new double[outputFields.length];
+		
+		try{
+			
+			ArrayList<RunTimeCase> 	allCases 		= new ArrayList<RunTimeCase>();
+			String [] 				auNames			= ProjectConfig.getOptArray("AUS");
+			double [] 				actionUnits 	= new double[auNames.length];
+			String []				outputFields 	= ProjectConfig.getOptArray("OUTPUT_FIELDS");
+			double [] 				result 			= new double[outputFields.length];
 
-		try
-		{
-			stmt 	= 	conn.createStatement();//Creates a Statement object for sending SQL statements to the database.
-			rsCases = stmt.executeQuery("SELECT * from norm_CasesTbl");
-			while(rsCases.next())
-			{
-				for(int i = 0 ; i < actionUnits.length ; i++){
-					actionUnits[i] 	= rsCases.getDouble(auNames[i]);
+			ReadCSV csv = new ReadCSV(new FileInputStream(casesCSVFile), true, CSVFormat.ENGLISH);
+			while(csv.next()){
+				for(int i = 0 ; i < actionUnits.length; i++){
+					actionUnits[i] = csv.getDouble(auNames[i]);
 				}
 				for(int i = 0 ; i < outputFields.length ; i++){
-					result[i]		= rsCases.getDouble(outputFields[i]);
+					result[i]		= csv.getDouble(outputFields[i]);
 				}
 				RunTimeCase rs = new RunTimeCase(actionUnits,result);
-				if(ProjectConfig.fuzzyMode)
+				if(ProjectConfig.getOptBool("FUZZY_MODE") == true)
 					rs.fuzzify();
 				if(!allCases.contains(rs))
 					allCases.add(rs);
 			}
+			csv.close();
 			return allCases;
 		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
+		catch(Exception ex){
+			ex.printStackTrace();
 			return null;
 		}
 	}
-	
-	/*
-	 * Testing Unit
-	 */
-	public static void main(String[] args) {
-		DataBase db = DataBase.instance();
-		double [] actionUnits={0.2,0.4,0.6,0.5,0.7};
-		db.AddCase(actionUnits,0.7);
-
-	}
-	
 
 }
