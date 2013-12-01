@@ -20,8 +20,9 @@ import org.encog.neural.networks.training.propagation.resilient.ResilientPropaga
 import org.encog.neural.networks.training.strategy.SmartLearningRate;
 import org.encog.neural.networks.training.strategy.SmartMomentum;
 import org.encog.neural.rbf.RBFNetwork;
-import businessLogic.ProjectUtils;
 
+import dataLayer.ProjectConfig;
+import businessLogic.ProjectUtils;
 
 public class TrainingSession {
 	/*
@@ -84,11 +85,12 @@ public class TrainingSession {
 		ProjectUtils.assertFalse((k>=2), "Input Error k<2");
 		int inputCount 							= (int)confValues.get(ConfKeys.inputCount);
 		int outputCount							= (int)confValues.get(ConfKeys.outputCount);
-		ArrayList<File> kFoldsFiles 			= ProjectUtils.splitDataSet(dataSet, k, inputCount, outputCount);
+		ArrayList<File> kFoldsFiles 			= ProjectUtils.splitDataSet(dataSet, k, inputCount, outputCount,hasHeaders);
 		ArrayList<BasicMLDataSet> kFoldsDataSet = new ArrayList<BasicMLDataSet>();
 		for(File fold: kFoldsFiles){
 			kFoldsDataSet.add(ProjectUtils.convertCSVToDateSet(fold,inputCount,outputCount,hasHeaders));
-			fold.delete();
+			if(ProjectConfig.getOptBool("DEBUG_MODE") == false)
+				fold.delete();
 		}
 		ArrayList<NeuralTrainDesciptor> generatedNetworks = new ArrayList<NeuralTrainDesciptor>();
 		switch((int)confValues.get(ConfKeys.neyType)){

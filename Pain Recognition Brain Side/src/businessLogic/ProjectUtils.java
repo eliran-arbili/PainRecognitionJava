@@ -4,9 +4,10 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,10 +66,9 @@ public class ProjectUtils {
 	}
 
 	
-	public static ArrayList<File> splitDataSet(File dataSet, int k, int inputCount, int outputCount) throws IOException {
+	public static ArrayList<File> splitDataSet(File dataSet, int k, int inputCount, int outputCount, boolean headers) throws IOException {
 		ArrayList<File> kDataSets = new ArrayList<File>();
-		FileReader 		fr 					= new FileReader(dataSet);
-		BufferedReader reader 				= new BufferedReader(fr);
+		BufferedReader reader 				= Files.newBufferedReader(dataSet.toPath(),Charset.defaultCharset());
 		int 			numberOfFileLines 	= getNumberOFLines(dataSet);
 		int 			numOfSetLines 		= numberOfFileLines/ k;
 		int 			remainder 			= numberOfFileLines % k;
@@ -78,11 +78,13 @@ public class ProjectUtils {
 		String 			line 				= null;
 		String 			prevLineId			= null;
 		ParseCSVLine 	csvParser 			= new ParseCSVLine(CSVFormat.ENGLISH);
-		String			fileName			= dataSet.getName().substring(0,dataSet.getName().lastIndexOf(".")) + "_sub";
-		kDataSets.add(new File(dataSet.getParent()+"//"+fileName+(dataSetIndex+1)+".csv"));
-		FileWriter 		fw					= new FileWriter(kDataSets.get(0));
-		BufferedWriter 	writer				= new BufferedWriter(fw);
-
+		kDataSets.add(generateFile(dataSet,"_sub"+(dataSetIndex+1)));
+		BufferedWriter 	writer				= Files.newBufferedWriter(kDataSets.get(0).toPath(),Charset.defaultCharset());
+		String 			lineHeaders				= "";
+		if(headers){
+			lineHeaders = reader.readLine();
+			writer.write(lineHeaders + System.getProperty("line.separator"));
+		}
 		while((line = reader.readLine()) != null){	
 			List<String> lineStrings = csvParser.parse(line);
 			if(index > numOfSetLines + remainderAddition){
@@ -94,22 +96,21 @@ public class ProjectUtils {
 					else
 						remainderAddition = 0;
 					writer.close();
-					fw.close();
-					kDataSets.add(new File(dataSet.getParent()+"\\"+fileName+(dataSetIndex+1)+".csv"));
-					fw			= new FileWriter(kDataSets.get(dataSetIndex));
-					writer		= new BufferedWriter(fw);
+					kDataSets.add(generateFile(dataSet,"_sub"+(dataSetIndex+1)));
+					writer		= Files.newBufferedWriter(kDataSets.get(dataSetIndex).toPath(),Charset.defaultCharset());
+					if(headers){
+						writer.write(lineHeaders + System.getProperty("line.separator"));
+					}
 				}
 
 			}	
-			writer.write(line+"\n");
+			writer.write(line+System.getProperty("line.separator"));
 			index++;
 			prevLineId = lineStrings.get(lineStrings.size() - 1);
 		}
 
 		reader.close();
-		fr.close();
 		writer.close();
-		fw.close();
 		return kDataSets;
 	}
 
@@ -132,11 +133,7 @@ public class ProjectUtils {
 	public static File normalizeCSVFile(File dataSetFile, int inputCount, int outputCount, boolean headers) throws IOException{
 
 		int  numCols				= getNumberOFHeaderColumns(dataSetFile);
-		String targetFileName 		= dataSetFile.getName();
-		String targetFileDir 		= dataSetFile.getParent();
-		targetFileName 				= targetFileName.substring(0,targetFileName.lastIndexOf("."));
-		targetFileName += "_norm.csv";
-		File targetFile 			= new File(combine(targetFileDir,targetFileName));
+		File targetFile 			= generateFile(dataSetFile, "_norm");
 		EncogAnalyst analyst 		= new EncogAnalyst();
 		AnalystWizard wizard 		= new AnalystWizard(analyst);
 		wizard.setGoal(AnalystGoal.Regression);
@@ -176,19 +173,14 @@ public class ProjectUtils {
 	}
 
 	public static File removeDuplicateLines(File dataSet, int inputCount, int outputCount, boolean headers) throws IOException{
-		FileReader 		fr 			= new FileReader(dataSet);
-		BufferedReader 	reader 		= new BufferedReader(fr);
-		String			fileSuffix	= dataSet.getName().substring(dataSet.getName().lastIndexOf("."));
-		String 			fileName	= replaceLast(dataSet.getName(), fileSuffix, "_nodup"+fileSuffix);
-		File 			newFile		= new File(dataSet.getParent()+"\\"+fileName);
-		FileWriter 		fw			= new FileWriter(newFile);
-		BufferedWriter 	writer		= new BufferedWriter(fw);
+		BufferedReader 	reader 		= Files.newBufferedReader(dataSet.toPath(),Charset.defaultCharset());
+		File 			newFile		= generateFile(dataSet,"_nodup");
+		BufferedWriter 	writer		= Files.newBufferedWriter(newFile.toPath(),Charset.defaultCharset());
 		ParseCSVLine 	csvParser 	= new ParseCSVLine(CSVFormat.ENGLISH);
 		String 			line 		= null;
 		if(headers){
 			line = reader.readLine();
-			writer.write(line+"\n");
-			
+			writer.write(line+System.getProperty("line.separator"));
 		}
 		
 		ArrayList<RunTimeCase> existedCases = new ArrayList<RunTimeCase>();
@@ -198,13 +190,11 @@ public class ProjectUtils {
 			RunTimeCase rtCase = resolveCase(lineStrings, inputCount, outputCount);
 			if(! existedCases.contains(rtCase)){
 				existedCases.add(rtCase);
-				writer.append(line+"\n");
+				writer.append(line+System.getProperty("line.separator"));
 			}
 		}
 		writer.close();
 		reader.close();
-		fw.close();
-		fr.close();
 		return newFile;
 	}
 	
@@ -213,6 +203,36 @@ public class ProjectUtils {
 	    File file1 = new File(path1);
 	    File file2 = new File(file1, path2);
 	    return file2.getPath();
+	}
+	
+	public static String join(CharSequence delimiter, Iterable<? extends Object> elements){
+	    StringBuilder builder = new StringBuilder();
+
+	    if (elements != null)
+	    {
+	        java.util.Iterator<? extends Object> iter = elements.iterator();
+	        if(iter.hasNext())
+	        {
+	            builder.append( String.valueOf( iter.next() ) );
+	            while(iter.hasNext())
+	            {
+	                builder
+	                    .append( delimiter )
+	                    .append( String.valueOf( iter.next() ) );
+	            }
+	        }
+	    }
+	    return builder.toString();
+	}
+	
+	public static File generateFile(File source, String addition){
+		String targetFileName 		= source.getName();
+		String targetFileDir 		= source.getParent();
+		int dotIndex 				= targetFileName.lastIndexOf(".");
+		String extension			= targetFileName.substring(dotIndex);
+		targetFileName 				= targetFileName.substring(0,dotIndex);
+		targetFileName 				+= addition + extension;
+		return new File(combine(targetFileDir,targetFileName));
 	}
 	
 	private static RunTimeCase resolveCase(List<String> lineStrings, int inputCount, int outputCount){
@@ -239,8 +259,7 @@ public class ProjectUtils {
 	}
 	
 	private static void addColumnsToCSV(File fromFile, File toFile,int startColumn, int endColumn) throws IOException {
-		FileReader 				fr			= new FileReader(fromFile);
-		BufferedReader	 		reader 		= new BufferedReader(fr);
+		BufferedReader	 		reader 		= Files.newBufferedReader(fromFile.toPath(),Charset.defaultCharset());
 		ParseCSVLine    		csvParser	= new ParseCSVLine(CSVFormat.ENGLISH);
 		File					tempFile	= new File(toFile.getAbsoluteFile()+".temp");
 		String 					line		= "";
@@ -254,21 +273,16 @@ public class ProjectUtils {
 			toAdd.add(addRow);
 		}
 		reader.close();
-		fr.close();
-		fr							= new FileReader(toFile);
-		reader 						= new BufferedReader(fr);
-		FileWriter 		fw			= new FileWriter(tempFile);
-		BufferedWriter 	writer		= new BufferedWriter(fw);
+		reader 						= Files.newBufferedReader(toFile.toPath(),Charset.defaultCharset());
+		BufferedWriter 	writer		= Files.newBufferedWriter(tempFile.toPath(),Charset.defaultCharset());
 		int index					= 0;
 		while((line = reader.readLine()) != null){
 			line += toAdd.get(index);
-			writer.append(line + "\n");
+			writer.append(line + System.getProperty("line.separator"));
 			index++;
 		}
 		writer.close();
-		fw.close();
 		reader.close();
-		fr.close();
 		toFile.delete();
 		if(! tempFile.renameTo(toFile)){
 			throw new IOException("Renaming Of temp file failed!");

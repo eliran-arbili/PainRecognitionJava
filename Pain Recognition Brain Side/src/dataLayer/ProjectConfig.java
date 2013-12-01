@@ -69,6 +69,7 @@ public class ProjectConfig {
 		defaultConf.put("AUS_NORM_MIN", "-0.44,-0.05,-0.05,-0.94,-1.28,-0.5,-1.2,-0.52,0,-0.49,-0.79");
 		defaultConf.put("AUS_NORM_MAX", "0.5,1.2,1.47,1,1.5,0.98,1,0.61,1,0.67,0.65");
 		defaultConf.put("OUTPUT_FIELDS","Result");
+		defaultConf.put("DEBUG_MODE", "true");
 		return defaultConf;
 	}
 	

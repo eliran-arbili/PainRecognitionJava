@@ -297,7 +297,9 @@ public class TrainingGui extends JDialog {
 			ArrayList<NeuralTrainDesciptor> trainedNets = currentTrainSession.kFoldsCrossValidationTrain(dataSetFileToUse, kFolds, headers);
 			tableTrainedNetworks.setModel(new TrainingTableModel(trainedNets));
 			tableTrainedNetworks.addMouseListener(tableClickListener);
-			noDupsCSVSet.delete();
+			if(ProjectConfig.getOptBool("DEBUG_MODE") == false){
+				noDupsCSVSet.delete();
+			}
 		} 
 		catch (Exception ex) 
 		{
