@@ -37,7 +37,7 @@ public class RetrieveModule {
 	 */
 	public PriorityQueue<RunTimeCase> getKSimilarCases(final RunTimeCase rtCase)
 	{
-		PriorityQueue<RunTimeCase> kSimilarCases = new PriorityQueue<RunTimeCase>(ProjectConfig.K_SIMILAR_CASES, 
+		PriorityQueue<RunTimeCase> kSimilarCases = new PriorityQueue<RunTimeCase>(ProjectConfig.getOptInt("K_SIMILAR_CASES"), 
 				new Comparator<RunTimeCase>() {
 					@Override
 					public int compare(RunTimeCase o1, RunTimeCase o2) {
@@ -46,8 +46,9 @@ public class RetrieveModule {
 				});
 		
 		Iterator<RunTimeCase> allCasesIterator = allCases.iterator();
-		ProjectUtils.assertFalse(ProjectConfig.K_SIMILAR_CASES <= allCases.size() , "Number of cases in DataBase is less then configuered k similars");
-		for(int i = 0; i< ProjectConfig.K_SIMILAR_CASES ; i++){
+		Integer kNumber = ProjectConfig.getOptInt("K_SIMILAR_CASES");
+		ProjectUtils.assertFalse(kNumber <= allCases.size() , "Number of cases in DataBase is less then configuered k similars");
+		for(int i = 0; i< kNumber ; i++){
 			RunTimeCase rt = allCasesIterator.next();
 			kSimilarCases.offer(rt);
 		}
@@ -106,7 +107,6 @@ public class RetrieveModule {
 	public static void main(String[] args){
 		RetrieveModule rm = new RetrieveModule();
 		NeuralNetworkManager nm = NeuralNetworkManager.createInstance(new File("C:\\Users\\user\\Desktop\\MLP_val0.1329_trn0.0290_te0.1329_it144.eg"));
-		ProjectConfig.initWeights();
 		RunTimeCase rt = new RunTimeCase(new double[]{0.8478723404255318, 0.17839999999999998, 1.0, 0.6932989690721649, 0.3420863309352518, 0.4533783783783784, 0.6581818181818181, 0.4707964601769912, 0.0, 0.37672413793103443, 0.5659722222222223});
 		
 		long start1 = System.nanoTime();

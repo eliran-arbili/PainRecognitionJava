@@ -18,8 +18,10 @@ public class CBRController {
 	 */
 	public CBRController()
 	{
-		retrieveModule=new RetrieveModule();
-		painRecAnn = NeuralNetworkManager.createInstance(new File(ProjectConfig.ANN_PARAMETERS_PATH));
+		File annFile = new File(ProjectConfig.getOpt("ANN_PARAMETERS_PATH"));
+		ProjectUtils.assertFalse(annFile.exists(),"Cannot find the neural network file path");
+		retrieveModule	= new RetrieveModule();
+		painRecAnn 		= NeuralNetworkManager.createInstance(annFile);
 	}
 	
 	/*
