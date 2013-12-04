@@ -73,7 +73,10 @@ public class RunTimeCase {
 	}
 	
 	public void fuzzify()
-	{	
+	{
+		if(! isNormalized())
+			return;
+		
 		int rangeDistributionNum 	= 	ProjectConfig.getOptInt("AU_FUZZY_DEGREES");
 		double [] fuzzy				=	new double[rangeDistributionNum+1];
 		double factor 				= 	(ProjectConfig.getOptDouble("NORM_MAX_LIMIT") - ProjectConfig.getOptDouble("NORM_MIN_LIMIT"))/rangeDistributionNum;
