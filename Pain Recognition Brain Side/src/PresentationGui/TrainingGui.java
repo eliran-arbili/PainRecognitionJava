@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+
 import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.engine.network.activation.ActivationTANH;
 
@@ -219,8 +220,16 @@ public class TrainingGui extends JDialog {
 		};
 		scrollPane.setViewportView(tableTrainedNetworks);
 		
-	
 		
+		ClassLoader loader = this.getClass().getClassLoader();
+		ImageIcon image = new ImageIcon(loader.getResource("resources/loader.gif"));
+		iconLabel = new JLabel();
+		iconLabel.setBounds(350, 220, 60, 60);
+		iconLabel.setIcon(image);
+		image.setImageObserver(iconLabel);
+		iconLabel.setVisible(false);
+		
+		getContentPane().add(iconLabel);
 		getContentPane().setLayout(null);
 		getContentPane().add(btnCancel);
 		getContentPane().add(lblAlpha);
@@ -274,7 +283,7 @@ public class TrainingGui extends JDialog {
 		if(! isFieldsOK()){
 			return;
 		}
-		int kFolds;
+		final int kFolds;
 		HashMap<ConfKeys,Object> configurations;
 		try
 		{
@@ -288,26 +297,44 @@ public class TrainingGui extends JDialog {
 		}
 		
 		try{
-			int inputCount 			= (int)configurations.get(ConfKeys.inputCount);
-			int outputCount			= (int)configurations.get(ConfKeys.outputCount);
-			boolean headers			= chckbxCSVHeaders.isSelected();
-			currentTrainSession 	= new TrainingSession(configurations);
-			File noDupsCSVSet		= ProjectUtils.removeDuplicateLines(new File(textFieldDataSet.getText()), inputCount, outputCount, headers);
-			dataSetFileToUse		= ProjectUtils.normalizeCSVFile(noDupsCSVSet, inputCount, outputCount, headers);
-			ArrayList<NeuralTrainDesciptor> trainedNets = currentTrainSession.kFoldsCrossValidationTrain(dataSetFileToUse, kFolds, headers);
-			tableTrainedNetworks.setModel(new TrainingTableModel(trainedNets));
-			tableTrainedNetworks.addMouseListener(tableClickListener);
-			if(ProjectConfig.getOptBool("DEBUG_MODE") == false){
-				noDupsCSVSet.delete();
-			}
+			iconLabel.setVisible(true);
+			repaint();
+			final int inputCount 		= (int)configurations.get(ConfKeys.inputCount);
+			final int outputCount		= (int)configurations.get(ConfKeys.outputCount);
+			final boolean headers		= chckbxCSVHeaders.isSelected();
+			currentTrainSession 		= new TrainingSession(configurations);
+			Runnable run = new Runnable(){
+				@Override
+				public void run() {
+					ArrayList<NeuralTrainDesciptor> trainedNets;
+					try {
+						File noDupsCSVSet		= ProjectUtils.removeDuplicateLines(new File(textFieldDataSet.getText()), inputCount, outputCount, headers);
+						dataSetFileToUse		= ProjectUtils.normalizeCSVFile(noDupsCSVSet, inputCount, outputCount, headers);
+						trainedNets = currentTrainSession.kFoldsCrossValidationTrain(dataSetFileToUse, kFolds, headers);
+						tableTrainedNetworks.setModel(new TrainingTableModel(trainedNets));
+						if(ProjectConfig.getOptBool("DEBUG_MODE") == false){
+							noDupsCSVSet.delete();
+						}
+						iconLabel.setVisible(false);
+						tableTrainedNetworks.addMouseListener(tableClickListener);
+					} 
+					catch (IOException e) 
+					{
+						e.printStackTrace();
+					}
+				}
+				
+			};
+			Thread trainWorker = new Thread(run);
+			trainWorker.start();
 		} 
 		catch (Exception ex) 
 		{
-			JOptionPane.showMessageDialog(this, ex.getMessage(), "Operation couldn't be completed", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, ex.toString(), "Operation couldn't be completed", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 	}
-	
+
 	protected void onClickTable(MouseEvent e) {
 		if(e.getClickCount() == 2 && ! e.isConsumed()){
 			e.consume();
@@ -381,6 +408,8 @@ public class TrainingGui extends JDialog {
 	private JCheckBox chckbxCSVHeaders;
 	private JScrollPane scrollPane;
 	private JTable tableTrainedNetworks;
+	private JLabel iconLabel;
+
 	/*
 	 * Inner class for CSV file filtering in dialog
 	 */
