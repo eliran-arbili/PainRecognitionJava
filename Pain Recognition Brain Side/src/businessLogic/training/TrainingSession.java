@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.encog.Encog;
 import org.encog.engine.network.activation.ActivationFunction;
 import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.mathutil.rbf.RBFEnum;
@@ -20,8 +21,8 @@ import org.encog.neural.networks.training.strategy.SmartLearningRate;
 import org.encog.neural.networks.training.strategy.SmartMomentum;
 import org.encog.neural.rbf.RBFNetwork;
 
+import dataLayer.ProjectConfig;
 import businessLogic.ProjectUtils;
-
 
 public class TrainingSession {
 	/*
@@ -35,7 +36,11 @@ public class TrainingSession {
 	/*
 	 * Instance variables
 	 */
-	public HashMap<ConfKeys,Object> confValues;
+	private HashMap<ConfKeys,Object> confValues;
+
+
+
+
 
 	/*
 	 * configurations used to 
@@ -71,62 +76,51 @@ public class TrainingSession {
 	}
 	
 	/**
-	 * @param dataSet - CSV file contains data
+	 * @param dataSet - CSV file contains data, assuming normalized
 	 * @param k-  for k-folds data sets  
-	 * @return report contains the details for each network 
+	 * @return The list of NeuralTrainDescriptors
 	 * @throws IOException 
 	 */
-	public String kFoldsCrossValidationTrain(File dataSet, int k) throws IOException{
+	public ArrayList<NeuralTrainDesciptor> kFoldsCrossValidationTrain(File dataSet, int k, boolean hasHeaders) throws IOException{
 		ProjectUtils.assertFalse((k>=2), "Input Error k<2");
 		int inputCount 							= (int)confValues.get(ConfKeys.inputCount);
 		int outputCount							= (int)confValues.get(ConfKeys.outputCount);
-		File noDuplicationsFileSet					= ProjectUtils.removeDuplicateLines(dataSet, inputCount, outputCount, true);
-		ArrayList<File> kFoldsFiles 			= ProjectUtils.splitDataSet(noDuplicationsFileSet, k, inputCount, outputCount,true,true);
+		ArrayList<File> kFoldsFiles 			= ProjectUtils.splitDataSet(dataSet, k, inputCount, outputCount,hasHeaders);
 		ArrayList<BasicMLDataSet> kFoldsDataSet = new ArrayList<BasicMLDataSet>();
-		for(File f: kFoldsFiles){
-			kFoldsDataSet.add(ProjectUtils.convertCSVToDateSet
-					(ProjectUtils.normalizeCSVFile(f, inputCount, outputCount),
-							inputCount,
-							outputCount,
-							false
-				));
+		for(File fold: kFoldsFiles){
+			kFoldsDataSet.add(ProjectUtils.convertCSVToDateSet(fold,inputCount,outputCount,hasHeaders));
+			if(ProjectConfig.getOptBool("DEBUG_MODE") == false)
+				fold.delete();
 		}
-		ArrayList<NeuralTrainDesciptor> kNetworks = new ArrayList<NeuralTrainDesciptor>();
+		ArrayList<NeuralTrainDesciptor> generatedNetworks = new ArrayList<NeuralTrainDesciptor>();
 		switch((int)confValues.get(ConfKeys.neyType)){
 			case MLP_TYPE: 
 				for(int i = 0 ; i < k ; i++){
-					kNetworks.add(trainNewMLP(kFoldsDataSet,i));
+					generatedNetworks.add(trainNewMLP(kFoldsDataSet,i));
 				}
 				break;
 			case RBF_TYPE:
 				for(int i = 0 ; i < k ; i++){
-					kNetworks.add(trainNewRBF(kFoldsDataSet,i));
+					generatedNetworks.add(trainNewRBF(kFoldsDataSet,i));
 				}
 				break;
 		}
-		String report = "";
-		for(NeuralTrainDesciptor ann:kNetworks){
-			report += "-------------------\n";
-			report += ann.toString();
-			report += "-------------------\n";
-			String netDir 			= dataSet.getParent();
-			ann.saveAsEncogFile(netDir+"\\");
-		}
-		return report;
+		Encog.getInstance().shutdown();
+		return generatedNetworks;
 	}
 	
 	public void crossValidationTrain(ContainsFlat neuralNet, BasicMLDataSet dataSet,int partitions){
 		ProjectUtils.assertFalse((partitions>=2), "Input Error k<2");
 		ArrayList<BasicMLDataSet> kFoldsDataSet = ProjectUtils.splitDataSet(dataSet, partitions);
 		doTraining(neuralNet,kFoldsDataSet,0);
-		
+		Encog.getInstance().shutdown();
 	}
 	
 	
 	public NeuralTrainDesciptor doTraining(ContainsFlat neuralNet,ArrayList<BasicMLDataSet> kFoldsDataSet, int validationSetIndex){
 		BasicMLDataSet validationSet 			= kFoldsDataSet.get(validationSetIndex);
 		BasicMLDataSet trainingSet 				= unionDataSets(kFoldsDataSet,validationSetIndex );
-		int alpha 								= (int)confValues.get(ConfKeys.alpha);
+		Double alpha 							= (Double)confValues.get(ConfKeys.alpha);
 		Double minEffiency 						= (Double)confValues.get(ConfKeys.minEffiency);
 		int stripLength 						= (int)confValues.get(ConfKeys.stripLength);
 		int trainType							= (int)confValues.get(ConfKeys.trainType);
@@ -137,6 +131,7 @@ public class TrainingSession {
 		switch(trainType){
 			case REAS_PROP:
 				train 					= new ResilientPropagation(neuralNet,trainingSet); 
+				((ResilientPropagation) train).setThreadCount(2);
 				break;
 			case BACK_PROP:
 				train 					= new Backpropagation(neuralNet, trainingSet);
@@ -149,10 +144,11 @@ public class TrainingSession {
 		}
 
 		train.addStrategy(earlyStopping);
+		
 		while(! train.isTrainingDone() && train.getIteration() < maxEpochs){
 			train.iteration();	
 		}
-		
+		train.finishTraining();
 		double valError 		= earlyStopping.getValidationError();
 		double testError 		= earlyStopping.getTestError();
 		double trainError		= earlyStopping.getTrainingError();
@@ -163,7 +159,10 @@ public class TrainingSession {
 		neuralNetDecriptor.setTrainIterations(train.getIteration());
 		return neuralNetDecriptor;
 	}
-	
+
+	/*
+	 * Auxiliary functions
+	 */
 	private NeuralTrainDesciptor trainNewMLP(ArrayList<BasicMLDataSet> kFoldsDataSet, int validationSetIndex) {
 		BasicNetwork mlpNetwork = new BasicNetwork();
 		int inputCount 			= (int)confValues.get(ConfKeys.inputCount);
@@ -194,9 +193,8 @@ public class TrainingSession {
 		}
 		return newSet;
 	}
-
+	
 	private NeuralTrainDesciptor trainNewRBF(ArrayList<BasicMLDataSet> kFoldsDataSet, int validationSetIndex){
-		
 		int inputCount 						= (int)confValues.get(ConfKeys.inputCount);
 		int hiddenCount 					= (int)confValues.get(ConfKeys.hiddenCount);
 		int outputCount 					= (int)confValues.get(ConfKeys.outputCount);
@@ -207,7 +205,8 @@ public class TrainingSession {
 	
 	
 
-	public static void main(String[] args) {		
+	public static void main(String[] args) {
+		
 		HashMap<ConfKeys,Object> conf = new HashMap<ConfKeys,Object>();
 		conf = new HashMap<ConfKeys,Object>();
 
@@ -218,23 +217,25 @@ public class TrainingSession {
 		conf.put(ConfKeys.neyType, MLP_TYPE);
 		conf.put(ConfKeys.maxEpochs, 15000);
 		conf.put(ConfKeys.stripLength, 1);
-		conf.put(ConfKeys.alpha, 20);
+		conf.put(ConfKeys.alpha, 20.0);
 		conf.put(ConfKeys.minEffiency, 0.1);
-		conf.put(ConfKeys.trainType, BACK_PROP);
+		conf.put(ConfKeys.trainType, REAS_PROP);
 		
-		
-		File dataSetFile = new File("C:\\Users\\earbili\\Desktop\\NeuralNets\\NEW_DataSet_FullAUS- Edited.csv");
-		
-		TrainingSession ts = new TrainingSession();
-		ts.configureTraining(conf);
-		
-		String resultReport;
+		File dataSetFile 	= new File("C:\\Users\\earbili\\Desktop\\NeuralNets\\NEW_DataSet_FullAUS.csv");
+		TrainingSession ts 	= new TrainingSession();
+		File nodup;
 		try {
-			resultReport = ts.kFoldsCrossValidationTrain(dataSetFile,4);
-			System.out.println(resultReport);
+			nodup = ProjectUtils.removeDuplicateLines(dataSetFile, 11, 1, true);
+			File normalize = ProjectUtils.normalizeCSVFile(nodup, 11, 1, true);
+			ts.configureTraining(conf);		
+			ArrayList<NeuralTrainDesciptor> trainedAnns = ts.kFoldsCrossValidationTrain(normalize,4,true);
+			for(NeuralTrainDesciptor ann: trainedAnns){
+				System.out.println(ann);
+			}
 			System.exit(0);
-		} catch (IOException e) {
-			e.printStackTrace();
+		}catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 

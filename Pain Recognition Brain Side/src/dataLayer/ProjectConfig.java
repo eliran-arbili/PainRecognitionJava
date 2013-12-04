@@ -1,26 +1,27 @@
 package dataLayer;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.TreeMap;
-
-import org.encog.util.ResourceLoader;
 import org.encog.util.arrayutil.NormalizationAction;
 import org.encog.util.arrayutil.NormalizedField;
+import businessLogic.ProjectUtils;
 
 
 public class ProjectConfig {
 	
 	private static TreeMap<String,String> defaultConfigurations = initDefaultConfigurations();
-	public  static String INSTALL_PATH =  System.getProperty("user.home") + "\\PainRecogntion";
-	private static String PROPERTIES_PATH = INSTALL_PATH + "\\config.properties";
+	public  static String INSTALL_PATH =  getInstallPath() ;
+	public 	static String TRAINING_TAGS_PATH	= ProjectUtils.combine(INSTALL_PATH, "Training_Tags");
+	private static String PROPERTIES_PATH = ProjectUtils.combine(INSTALL_PATH,"config.properties");
+	public  static String DATASETS_PATH	= ProjectUtils.combine(INSTALL_PATH,"Data_Sets");
 	private static Properties props = initProperties();
-	public static HashMap<String,NormalizedField> AUNormFields = mapAuRanges();
-
+	public  static HashMap<String,NormalizedField> AUNormFields = mapAuRanges();
+	
 	/*
 	 * Default Configuration values
 	 */
@@ -51,9 +52,9 @@ public class ProjectConfig {
 	private static TreeMap<String, String> initDefaultConfigurations() {
 		TreeMap<String,String> defaultConf = new TreeMap<String,String>();
 		defaultConf.put("AUS", 	
-				"NoseWrinkler,Jawdrop,UpperLipRaiser,LipStretcher,"+
-				"LipCornerDepressor,OuterBrowRaiser,InnerBrowRaiser,"+
-				"BrowLowerer,EyesClosed,RotateEyesLeft,RotateEyesDown");
+				"nosewrinkler,jawdrop,upperlipraiser,lipstretcher,"+
+				"lipcornerdepressor,outerbrowraiser,innerbrowraiser,"+
+				"browlowerer,eyesclosed,rotateeyesleft,rotateeyesdown");
 		defaultConf.put("SIMILARITY_WEIGHTS", "1,1,1,1,1,1,1,1,1,1,1");
 		defaultConf.put("CASE_OUTPUT_COUNT", "1");
 		defaultConf.put("NUMBER_OF_ACTION_UNITS", "11");
@@ -65,10 +66,10 @@ public class ProjectConfig {
 		defaultConf.put("FUZZY_MODE", "false");
 		defaultConf.put("SERVER_PORT", "2222");
 		defaultConf.put("K_SIMILAR_CASES", "80");
-		defaultConf.put("DB_ADDRESS", "localhost");
 		defaultConf.put("AUS_NORM_MIN", "-0.44,-0.05,-0.05,-0.94,-1.28,-0.5,-1.2,-0.52,0,-0.49,-0.79");
 		defaultConf.put("AUS_NORM_MAX", "0.5,1.2,1.47,1,1.5,0.98,1,0.61,1,0.67,0.65");
 		defaultConf.put("OUTPUT_FIELDS","Result");
+		defaultConf.put("DEBUG_MODE", "true");
 		return defaultConf;
 	}
 	
@@ -149,12 +150,55 @@ public class ProjectConfig {
 	public static void setOpt(String opt, String value){
 		props.setProperty(opt, value);
 	}
+	public static boolean saveCurrentConfig() {
+		try 
+		{
+			props.store(new FileOutputStream(PROPERTIES_PATH),getPropertiesRules());
+			return true;
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 	
 	
 	public static String getDefaultOpt(String opt){
 		return defaultConfigurations.get(opt);
 	}
 	
+	public static File [] getTrainingTags(){
+		File tagsDir = new File(TRAINING_TAGS_PATH);
+		return tagsDir.listFiles();
+	}
+	
+	public static File getPersistenceANNByTag(File tagDir){
+		for(File f: tagDir.listFiles()){
+			if(f.getName().endsWith(".eg")){
+				return f;
+			}
+		}
+		return null;
+	}
+	public static File getCSVByTag(File tagDir){
+		for(File f: tagDir.listFiles()){
+			if(f.getName().endsWith(".csv")){
+				return f;
+			}
+		}
+		return null;
+	}
+	
+	private static String getPropertiesRules(){
+		String rules = "# General Rules:\n---------------\n";
+		rules +=	"# 1) AUS must be a subset of VISAGE_AUS\n";
+		rules +=	"# 2) NUMBER_OF_ACTION_UNITS must be the number of defined AUS\n";
+		rules +=	"# 3) Number of AUS_NORM_MAX and AUS_NORM_MIN must be NUMBER_OF_ACTION_UNITS\n";
+		rules +=	"# 4) CASE_OUTPUT_COUNT must be the number of defined OUTPUT_FIELDS\n";
+		rules +=	"# 4) NORM_MIN_LIMIT should be either 0 or -1\n";
+		rules +=	"# 5) NORM_MAX_LIMIT shouldn't be changed\n";
+		return rules;
+	}
 	private static HashMap<String,NormalizedField> mapAuRanges(){
 		HashMap<String,NormalizedField> mapping = new HashMap<String,NormalizedField>();
 		
@@ -181,8 +225,8 @@ public class ProjectConfig {
 		TreeMap<String, String> defaultProps = initDefaultConfigurations();
 		prop.putAll(defaultProps);
 		try{
-			String propertiesLocation = INSTALL_PATH + "\\config.properties";
-			prop.store(new FileOutputStream(propertiesLocation),"Project Configurations");
+			String propertiesLocation = ProjectUtils.combine(INSTALL_PATH, "config.properties");
+			prop.store(new FileOutputStream(propertiesLocation),getPropertiesRules());
 		}catch(IOException ex){
 			ex.printStackTrace();
 		}
@@ -190,11 +234,9 @@ public class ProjectConfig {
 	
 	
 	private static String getInstallPath(){
-		String instPath = System.getenv("PRS_INSTALL_PATH");
-		if(instPath == null){
-			instPath = System.getProperty("user.dir"); // current work directory
-		}
-		return instPath;
+	     javax.swing.JFileChooser fr = new javax.swing.JFileChooser();
+	     javax.swing.filechooser.FileSystemView fw = fr.getFileSystemView();
+	     return ProjectUtils.combine(fw.getDefaultDirectory().getAbsolutePath(), "PainRecognition");
 	}
 	
 	public static void main(String[] args){

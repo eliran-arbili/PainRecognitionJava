@@ -22,14 +22,14 @@ public class RetrieveModule {
 	 */
     public RetrieveModule()
     {
-    	caseDB  = DataBase.instance();
-		allCases = caseDB.GetAllCases();
+    	caseDB  	= new DataBase(new File(ProjectConfig.getOpt("CSV_CASES_PATH")));
+		allCases	= caseDB.GetAllCases();
 	}
     
 	public RetrieveModule( ArrayList<RunTimeCase> allCases)
 	{
-		caseDB = DataBase.instance();
-		this.allCases = allCases;
+		caseDB 			= new DataBase(new File(ProjectConfig.getOpt("CSV_CASES_PATH")));
+		this.allCases 	= allCases;
 	}
 	
 	/*
