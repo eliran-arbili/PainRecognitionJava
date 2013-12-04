@@ -51,12 +51,10 @@ public class ProjectConfig {
 	}
 	private static TreeMap<String, String> initDefaultConfigurations() {
 		TreeMap<String,String> defaultConf = new TreeMap<String,String>();
-		defaultConf.put("AUS", 	
-				"nosewrinkler,jawdrop,upperlipraiser,lipstretcher,"+
-				"lipcornerdepressor,outerbrowraiser,innerbrowraiser,"+
-				"browlowerer,eyesclosed,rotateeyesleft,rotateeyesdown");
+		defaultConf.put("AUS","au_nose_wrinkler,au_jaw_drop,au_upper_lip_raiser,au_lip_stretcher,au_lip_corner_depressor,au_outer_brow_raiser,au_inner_brows_raiser,au_brow_lowerer,au_eyes_closed,au_rotate_eyes_left,au_rotate_eyes_down");
 		defaultConf.put("SIMILARITY_WEIGHTS", "1,1,1,1,1,1,1,1,1,1,1");
 		defaultConf.put("CASE_OUTPUT_COUNT", "1");
+		defaultConf.put("CYCLES_FOR_ALARM", "3");
 		defaultConf.put("NUMBER_OF_ACTION_UNITS", "11");
 		defaultConf.put("AU_FUZZY_DEGREES", "10");
 		defaultConf.put("NORM_MIN_LIMIT", "0");
@@ -69,6 +67,9 @@ public class ProjectConfig {
 		defaultConf.put("AUS_NORM_MIN", "-0.44,-0.05,-0.05,-0.94,-1.28,-0.5,-1.2,-0.52,0,-0.49,-0.79");
 		defaultConf.put("AUS_NORM_MAX", "0.5,1.2,1.47,1,1.5,0.98,1,0.61,1,0.67,0.65");
 		defaultConf.put("OUTPUT_FIELDS","Result");
+		defaultConf.put("VENDOR_AUS","au_nose_wrinkler,au_jaw_z_push,au_jaw_x_push,au_jaw_drop,au_lower_lip_drop,au_upper_lip_raiser,au_lip_stretcher,au_lip_corner_depressor"+
+		"au_lip_presser,au_outer_brow_raiser,au_inner_brows_raiser,au_brow_lowerer,au_eyes_closed"+
+		"au_lid_tightener,au_upper_lid_raiser,au_rotate_eyes_left,au_rotate_eyes_down");
 		defaultConf.put("DEBUG_MODE", "true");
 		return defaultConf;
 	}
@@ -191,7 +192,7 @@ public class ProjectConfig {
 	
 	private static String getPropertiesRules(){
 		String rules = "# General Rules:\n---------------\n";
-		rules +=	"# 1) AUS must be a subset of VISAGE_AUS\n";
+		rules +=	"# 1) AUS must be a subset of VENDOR_AUS\n";
 		rules +=	"# 2) NUMBER_OF_ACTION_UNITS must be the number of defined AUS\n";
 		rules +=	"# 3) Number of AUS_NORM_MAX and AUS_NORM_MIN must be NUMBER_OF_ACTION_UNITS\n";
 		rules +=	"# 4) CASE_OUTPUT_COUNT must be the number of defined OUTPUT_FIELDS\n";

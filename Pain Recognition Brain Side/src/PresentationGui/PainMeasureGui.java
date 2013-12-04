@@ -3,16 +3,11 @@ package PresentationGui;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
 import javax.swing.JFrame;
 
 import businessLogic.RunTimeCase;
@@ -31,13 +26,9 @@ public class PainMeasureGui  implements Observer{
 	private JTextArea textArea;
 	private JScrollPane scrollPane;
 	private JLabel background;
-	
 	private ImageIcon Image = new ImageIcon();
 	private ArrayList<ImageIcon> painIcons;
-	private static String[] imageList =  {
-        "C:\\forPain\\1a.png", "C:\\forPain\\2a.png", "C:\\forPain\\3a.png", "C:\\forPain\\4a.png", "C:\\forPain\\5a.png", "C:\\forPain\\6a.png", "C:\\forPain\\7a.png"};
-	
-	
+	private int alarmCycle;
 	JSlider slider;
 	/**
 	 * Launch the application.
@@ -62,9 +53,9 @@ public class PainMeasureGui  implements Observer{
 	 */
 	public PainMeasureGui() {
 		try {
+		    alarmCycle=ProjectConfig.getOptInt("CYCLES_FOR_ALARM"); 
 			painIcons = getPainIcons();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		initialize();
@@ -200,16 +191,24 @@ public class PainMeasureGui  implements Observer{
 		slider.repaint();
 		background.setIcon(Image);
 		background.repaint();
-		
+		textArea.append(String.valueOf(painMeasure)+"\n");
 		if(painMeasure > ProjectConfig.getOptDouble("PAIN_SENSITIVITY")){
-			textArea.append(String.valueOf(painMeasure)+" - Pain..Pain..Pain!!\n");
-			background.setIcon(Image);
-			background.repaint();
-	
+			
+			alarmCycle--;
+			if(alarmCycle<=0)
+			{
+				textArea.append("\n Pain.. Pain..Pain..Pain!!\n");
+				textArea.setBackground(Color.red);
+					
+			}
 		}
 		else
 		{
-			textArea.append(String.valueOf(painMeasure)+"\n");
+			alarmCycle=ProjectConfig.getOptInt("CYCLES_FOR_ALARM");
+			textArea.setBackground(Color.white);
+			
+		
+		
 		}
 		
 		final int length = textArea.getText().length();
