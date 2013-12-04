@@ -162,6 +162,8 @@ public class PainMeasureGui  implements Observer{
 	
 	@Override
 	public void update(Observable o, Object arg) {
+		if(!(arg instanceof RunTimeCase))
+			return;
 		RunTimeCase rtCase=(RunTimeCase)arg;
 		double painMeasure =rtCase.getSolutionOutput()[0];
 		if(painMeasure < 0.2)
