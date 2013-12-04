@@ -12,6 +12,7 @@ import java.nio.file.Files;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -62,10 +63,12 @@ public class ServerGui extends JFrame{
 		txtFldPort			= new JTextField();
 		txtFldKCases		= new JTextField();
 		cmboxTags			= new JComboBox<File>();
+		chkboxFuzzyMode		= new JCheckBox();
 		lblTags				= new JLabel();
 		lblPort				= new JLabel();
 		lblKCases			= new JLabel();
 		lblServerStatus 	= new JLabel();
+		lblFuzzyMode		= new JLabel();
 		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(new WindowAdapter() {	
@@ -83,6 +86,7 @@ public class ServerGui extends JFrame{
 		lblTags.setFont(generalTxtFont);
 		lblPort.setFont(generalTxtFont);
 		lblKCases.setFont(generalTxtFont);
+		lblFuzzyMode.setFont(generalTxtFont);
 		btnStop.setFont(new Font("Arial",1,18));
 		btnStart.setFont(new Font("Arial",1,18));
 		
@@ -145,6 +149,7 @@ public class ServerGui extends JFrame{
 		lblKCases.setText("K Similar Cases:");
 		lblServerStatus.setForeground(Color.RED);
 		lblServerStatus.setText("OFF");
+		lblFuzzyMode.setText("Fuzzy Mode:");
 		lblServerStatus.setFont(new Font("Arial",1,18));
 		txtFldPort.setText(ProjectConfig.getOpt("SERVER_PORT"));
 		txtFldKCases.setText(ProjectConfig.getOpt("K_SIMILAR_CASES"));
@@ -158,14 +163,15 @@ public class ServerGui extends JFrame{
 						.addGroup(layout.createParallelGroup(Alignment.LEADING)
 								.addComponent(lblPort)
 								.addComponent(lblTags)
-								.addComponent(lblKCases))
+								.addComponent(lblKCases)
+								.addComponent(lblFuzzyMode))
 						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
 						.addGroup(layout.createParallelGroup(Alignment.LEADING)
 								.addComponent(txtFldPort,GroupLayout.PREFERRED_SIZE,80,GroupLayout.PREFERRED_SIZE)
-								.addGroup(layout.createSequentialGroup()
-										.addComponent(cmboxTags,GroupLayout.PREFERRED_SIZE,350,GroupLayout.PREFERRED_SIZE)
-										.addGap(10))
-								.addComponent(txtFldKCases,GroupLayout.PREFERRED_SIZE,30,GroupLayout.PREFERRED_SIZE)))
+								.addComponent(cmboxTags,GroupLayout.PREFERRED_SIZE,350,GroupLayout.PREFERRED_SIZE)
+										.addGap(10)
+								.addComponent(txtFldKCases,GroupLayout.PREFERRED_SIZE,30,GroupLayout.PREFERRED_SIZE)
+								.addComponent(chkboxFuzzyMode,GroupLayout.PREFERRED_SIZE,20,GroupLayout.PREFERRED_SIZE)))
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(btnStart,GroupLayout.PREFERRED_SIZE,100,GroupLayout.PREFERRED_SIZE)
 						.addContainerGap(30,60)
@@ -182,11 +188,14 @@ public class ServerGui extends JFrame{
 				.addGroup(layout.createParallelGroup(Alignment.LEADING)
 						.addComponent(lblTags)
 						.addComponent(cmboxTags,GroupLayout.PREFERRED_SIZE,20,GroupLayout.PREFERRED_SIZE))
-					//	.addComponent(btnBrowsAnnFile,GroupLayout.PREFERRED_SIZE,20,GroupLayout.PREFERRED_SIZE))
 				.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup(Alignment.LEADING)
 						.addComponent(lblKCases)
 						.addComponent(txtFldKCases,GroupLayout.PREFERRED_SIZE,20,GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+				.addGroup(layout.createParallelGroup(Alignment.LEADING)
+						.addComponent(lblFuzzyMode)
+						.addComponent(chkboxFuzzyMode,GroupLayout.PREFERRED_SIZE,20,GroupLayout.PREFERRED_SIZE))
 				.addContainerGap(30,50)
 				.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(btnStart,GroupLayout.PREFERRED_SIZE,50,GroupLayout.PREFERRED_SIZE)
@@ -204,6 +213,7 @@ public class ServerGui extends JFrame{
 
 	protected void onClickAnalyzeCSV() {
 		JFileChooser jf = new JFileChooser(ProjectConfig.DATASETS_PATH);
+		jf.setFileFilter(new CSVFileFilter());
 		int retval = jf.showOpenDialog(this);
 		if(retval == JFileChooser.APPROVE_OPTION){
 			StringBuilder minValues = new StringBuilder("Minimum Values: ");
@@ -297,6 +307,7 @@ public class ServerGui extends JFrame{
 		ProjectConfig.setOpt("K_SIMILAR_CASES", kCasesTxt);
 		ProjectConfig.setOpt("ANN_PARAMETERS_PATH", annPath);
 		ProjectConfig.setOpt("CSV_CASES_PATH", csvPath);
+		ProjectConfig.setOpt("FUZZY_MODE", String.valueOf(chkboxFuzzyMode.isSelected()));
 
 		if(painRecognitionServer == null){
 			painRecognitionServer = new Server(ProjectConfig.getOptInt("SERVER_PORT"));
@@ -381,10 +392,12 @@ public class ServerGui extends JFrame{
 	private JTextField 		 	txtFldPort;
 	private JTextField 			txtFldKCases;
 	private JComboBox<File> 	cmboxTags;
+	private JCheckBox			chkboxFuzzyMode;
 	private JLabel 			 	lblTags;
 	private JLabel 				lblPort;
 	private JLabel 				lblKCases;
 	private JLabel 				lblServerStatus;
+	private JLabel				lblFuzzyMode;
 	
 	/*
 	 * Project Entry
