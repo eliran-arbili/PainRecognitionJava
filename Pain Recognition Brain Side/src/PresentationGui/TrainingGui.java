@@ -410,26 +410,4 @@ public class TrainingGui extends JDialog {
 	private JTable tableTrainedNetworks;
 	private JLabel iconLabel;
 
-	/*
-	 * Inner class for CSV file filtering in dialog
-	 */
-	public class CSVFileFilter extends FileFilter{
-
-		@Override
-		public boolean accept(File file) {
-			if(file.isDirectory()){
-				return true;
-			}
-			String path = file.getAbsolutePath().toLowerCase();
-			if(path.endsWith("csv") && (path.charAt(path.length()-4) == '.')){
-				return true;
-			}
-			return false;
-		}
-		@Override
-		public String getDescription() {
-			return "csv files .csv";
-		}
-
-	}
 }
