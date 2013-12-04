@@ -128,6 +128,8 @@ public class ServerGui extends JFrame{
 				btnStopOnClick(arg0);
 			}
 		});
+		btnStop.setEnabled(false);
+		
 		btnStart.setText("Start");
 		btnStart.addActionListener(new ActionListener() {
 
@@ -285,6 +287,10 @@ public class ServerGui extends JFrame{
 			return;
 		}
 		File trainingTag = (File)cmboxTags.getSelectedItem();
+		if(trainingTag == null){
+			JOptionPane.showMessageDialog(this, "Must Choose Tag, Please Do Training","Operation Couldn't Be Completed", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
 		String annPath	= ProjectConfig.getPersistenceANNByTag(trainingTag).getAbsolutePath();
 		String csvPath = ProjectConfig.getCSVByTag(trainingTag).getAbsolutePath();
 		ProjectConfig.setOpt("SERVER_PORT", portTxt);
@@ -304,7 +310,8 @@ public class ServerGui extends JFrame{
 		}
 		lblServerStatus.setText("ON");
 		lblServerStatus.setForeground(Color.GREEN);
-		
+		btnStart.setEnabled(false);
+		btnStop.setEnabled(true);
 	}
 	
 	protected void btnStopOnClick(ActionEvent arg0) {
@@ -312,6 +319,8 @@ public class ServerGui extends JFrame{
 		lblServerStatus.setText("OFF");
 		lblServerStatus.setForeground(Color.RED);
 		painGui.closeWindow();
+		btnStart.setEnabled(true);
+		btnStop.setEnabled(false);
 	}
 	
 	protected void onApplicationExit(){
