@@ -1,17 +1,13 @@
 package PresentationGui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.io.File;
-import java.io.FileInputStream;
+import java.awt.event.WindowAdapter;
 import java.io.IOException;
-import java.net.URL;
-import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.swing.JFrame;
 
@@ -34,8 +30,6 @@ public class PainMeasureGui  implements Observer{
 	
 	private ImageIcon Image = new ImageIcon();
 	private ArrayList<ImageIcon> painIcons;
-	private static String[] imageList =  {
-        "C:\\forPain\\1a.png", "C:\\forPain\\2a.png", "C:\\forPain\\3a.png", "C:\\forPain\\4a.png", "C:\\forPain\\5a.png", "C:\\forPain\\6a.png", "C:\\forPain\\7a.png"};
 	
 	
 	JSlider slider;
@@ -61,44 +55,18 @@ public class PainMeasureGui  implements Observer{
 	 * Create the application.
 	 */
 	public PainMeasureGui() {
-		try {
 			painIcons = getPainIcons();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		initialize();
+			initialize();
 	}
 
-	private ArrayList<ImageIcon> getPainIcons() throws IOException {
-		CodeSource src = PainMeasureGui.class.getProtectionDomain().getCodeSource();
+	private ArrayList<ImageIcon> getPainIcons() {
+		
+		ClassLoader loader = this.getClass().getClassLoader();
 		ArrayList<ImageIcon> list = new ArrayList<ImageIcon>();
-
-		if( src != null ) {
-
-			String loc = src.getLocation().getPath() + "/resources/painExpressions";
-			File dir = new File(loc.replaceAll("%20", " "));
-			for(File f: dir.listFiles()){
-	        	ImageIcon c = new ImageIcon(this.getClass().getClassLoader().getResource("resources/painExpressions/"+f.getName()));
-	            list.add( c );
-			}
-			/*
-			 * This code Should be used when export to JAR
-			 */
-		   /* URL jar = src.getLocation();
-
-		    ZipInputStream zip = new ZipInputStream( jar.openStream());
-		    ZipEntry ze = null;
-		    
-		    while( ( ze = zip.getNextEntry() ) != null ) {
-		        String entryName = ze.getName();
-		        if( entryName.startsWith("resources") &&  entryName.endsWith(".png") ) {
-		        	ImageIcon c = new ImageIcon(this.getClass().getResource(entryName));
-		            list.add( c  );
-		        }
-		    }*/
-
-		 }
+		for(int index = 1 ; index <= 9; index++){
+			list.add(new ImageIcon(loader.getResource("resources/painExpressions/pain"+index+".png")));
+		}
+		
 		return list;
 	}
 
@@ -110,6 +78,14 @@ public class PainMeasureGui  implements Observer{
 		JLabel sliderMaxPainImage;
 		frame = new JFrame();
 		background=new JLabel();
+		frame.setPreferredSize(new Dimension(500,700));
+		frame.setResizable(false);
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+            public void windowActivated(java.awt.event.WindowEvent e) {
+				onFrameLoading();
+			}
+		});
 		sliderMinPainImage=new JLabel(painIcons.get(7));
 		sliderMaxPainImage=new JLabel(painIcons.get(8));
 		
@@ -138,19 +114,24 @@ public class PainMeasureGui  implements Observer{
 		
 		textArea = new JTextArea();
 		textArea.setBounds(25, 281, 422, 225);
+		textArea.setEditable(false);
 		
 		 scrollPane = new JScrollPane (textArea, 
-		   JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		 scrollPane.setBounds(25, 410, 422, 225);
 		frame.getContentPane().add(scrollPane);
 		
-		//frame.pack();
+		frame.pack();
 		//frame.getContentPane().add(textArea);
 		
 		
 		
 		
 	}
+	protected void onFrameLoading() {
+		textArea.setText("");
+	}
+
 	public void openWindow(){
 		
 		this.frame.setVisible(true);
