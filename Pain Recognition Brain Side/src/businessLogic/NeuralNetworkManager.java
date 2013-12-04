@@ -135,7 +135,7 @@ public class NeuralNetworkManager {
 		conf.put(ConfKeys.neyType, TrainingSession.MLP_TYPE);
 		conf.put(ConfKeys.maxEpochs, 100);
 		conf.put(ConfKeys.stripLength, 1);
-		conf.put(ConfKeys.alpha, 20);
+		conf.put(ConfKeys.alpha, 20.0);
 		conf.put(ConfKeys.minEffiency, 0.1);
 		conf.put(ConfKeys.trainType, TrainingSession.BACK_PROP);
 		return conf;

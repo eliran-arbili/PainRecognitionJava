@@ -306,7 +306,7 @@ public class ProjectUtils {
 			if(af.getAction() != NormalizationAction.Ignore){
 				af.setAction(NormalizationAction.Normalize);
 			}
-			if(af.getName().equals("eyesclosed")){ 
+			if(af.getName().equals("au_eyes_closed")){ 
 				af.setActualHigh(1.0);
 			}
 		}

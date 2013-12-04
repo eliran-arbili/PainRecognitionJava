@@ -1,16 +1,28 @@
 package PresentationGui;
 
+import java.awt.Color;
 import java.awt.EventQueue;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.security.CodeSource;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
 import javax.swing.JFrame;
+
 import businessLogic.RunTimeCase;
+
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
+
 import dataLayer.ProjectConfig;
 
 public class PainMeasureGui  implements Observer{
@@ -20,9 +32,10 @@ public class PainMeasureGui  implements Observer{
 	private JScrollPane scrollPane;
 	private JLabel background;
 	
-	private ImageIcon Image;
-	private static String[] imageList =  { 
-        "C:\\forPain\\1.png", "C:\\forPain\\2.png", "C:\\forPain\\2.png", "C:\\forPain\\4.png"};
+	private ImageIcon Image = new ImageIcon();
+	private ArrayList<ImageIcon> painIcons;
+	private static String[] imageList =  {
+        "C:\\forPain\\1a.png", "C:\\forPain\\2a.png", "C:\\forPain\\3a.png", "C:\\forPain\\4a.png", "C:\\forPain\\5a.png", "C:\\forPain\\6a.png", "C:\\forPain\\7a.png"};
 	
 	
 	JSlider slider;
@@ -48,7 +61,45 @@ public class PainMeasureGui  implements Observer{
 	 * Create the application.
 	 */
 	public PainMeasureGui() {
+		try {
+			painIcons = getPainIcons();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		initialize();
+	}
+
+	private ArrayList<ImageIcon> getPainIcons() throws IOException {
+		CodeSource src = PainMeasureGui.class.getProtectionDomain().getCodeSource();
+		ArrayList<ImageIcon> list = new ArrayList<ImageIcon>();
+
+		if( src != null ) {
+
+			String loc = src.getLocation().getPath() + "/resources/painExpressions";
+			File dir = new File(loc.replaceAll("%20", " "));
+			for(File f: dir.listFiles()){
+	        	ImageIcon c = new ImageIcon(this.getClass().getClassLoader().getResource("resources/painExpressions/"+f.getName()));
+	            list.add( c );
+			}
+			/*
+			 * This code Should be used when export to JAR
+			 */
+		   /* URL jar = src.getLocation();
+
+		    ZipInputStream zip = new ZipInputStream( jar.openStream());
+		    ZipEntry ze = null;
+		    
+		    while( ( ze = zip.getNextEntry() ) != null ) {
+		        String entryName = ze.getName();
+		        if( entryName.startsWith("resources") &&  entryName.endsWith(".png") ) {
+		        	ImageIcon c = new ImageIcon(this.getClass().getResource(entryName));
+		            list.add( c  );
+		        }
+		    }*/
+
+		 }
+		return list;
 	}
 
 	/**
@@ -59,22 +110,26 @@ public class PainMeasureGui  implements Observer{
 		JLabel sliderMaxPainImage;
 		frame = new JFrame();
 		background=new JLabel();
-		sliderMinPainImage=new JLabel(new ImageIcon("c:\\forPain\\netural.jpg"));
-		sliderMaxPainImage=new JLabel(new ImageIcon("c:\\forPain\\pain.jpg"));
+		sliderMinPainImage=new JLabel(painIcons.get(7));
+		sliderMaxPainImage=new JLabel(painIcons.get(8));
 		
 		slider = new JSlider();
-		slider.setBounds(150, 260, 180, 35);
-		sliderMinPainImage.setBounds(95,250,55,55);
-		sliderMaxPainImage.setBounds(333,250,55,55);
+		slider.setPaintTicks(true);
+		slider.setPaintLabels(true);
+		slider.setForeground(Color.RED);
+		slider.setMajorTickSpacing(25);
+		slider.setMinorTickSpacing(10);
+		slider.setBounds(150, 350, 180, 45);
+		sliderMinPainImage.setBounds(50,320,100,82);
+		sliderMaxPainImage.setBounds(333,320,100,82);
 		slider.setMinimum(0);
 		slider.setMaximum(100);
 		
-		frame.setBounds(350, 50, 500, 600);
+		frame.setBounds(350, 50, 500, 700);
 		frame.getContentPane().setLayout(null);
-		Image = new ImageIcon(imageList[0]);
-		background.setIcon(Image);
+		background.setIcon(painIcons.get(0));
 	  
-		background.setBounds(100, 10, 279, 234);
+		background.setBounds(60, 10, 363, 302);
 		frame.add(background);
 		frame.add(slider);
 		frame.add(sliderMinPainImage);
@@ -86,7 +141,7 @@ public class PainMeasureGui  implements Observer{
 		
 		 scrollPane = new JScrollPane (textArea, 
 		   JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		 scrollPane.setBounds(25, 310, 422, 225);
+		 scrollPane.setBounds(25, 410, 422, 225);
 		frame.getContentPane().add(scrollPane);
 		
 		//frame.pack();
@@ -107,31 +162,37 @@ public class PainMeasureGui  implements Observer{
 	
 	@Override
 	public void update(Observable o, Object arg) {
+		if(!(arg instanceof RunTimeCase))
+			return;
 		RunTimeCase rtCase=(RunTimeCase)arg;
 		double painMeasure =rtCase.getSolutionOutput()[0];
 		if(painMeasure < 0.2)
 		{
-			Image = new ImageIcon(imageList[0]);
-			
-			
-		}
-		if(painMeasure > 0.2 && painMeasure<0.5){
-			Image = new ImageIcon(imageList[0]);
-		}
-		if(painMeasure > 0.5 && painMeasure<0.7){
-			Image = new ImageIcon(imageList[1]);
+			Image = painIcons.get(0);
 			
 		}
-		if(painMeasure > 0.7 && painMeasure<0.8){
-			Image = new ImageIcon(imageList[2]);
-			
+		if(painMeasure > 0.2 && painMeasure<0.4){
+			Image = painIcons.get(1);
+
 		}
-		if(painMeasure > 0.8 && painMeasure<0.9){
-			Image = new ImageIcon(imageList[3]);
-		}
-		if(painMeasure > 0.9){
-			Image = new ImageIcon(imageList[3]);
 			
+		if(painMeasure >= 0.4 && painMeasure < 0.7){
+			Image = painIcons.get(2);
+
+		}
+		if(painMeasure >= 0.7 && painMeasure < 0.8){
+			Image = painIcons.get(3);
+		}
+		if(painMeasure >= 0.8 && painMeasure < 0.90){
+			Image = painIcons.get(4);
+
+		}
+		if(painMeasure >= 0.9 && painMeasure < 0.95){
+			Image = painIcons.get(5);
+
+		}
+		if(painMeasure > 0.95){
+			Image = painIcons.get(6);	
 		}
 		
 		slider.setValue((int)(painMeasure*100));
@@ -142,7 +203,6 @@ public class PainMeasureGui  implements Observer{
 		
 		if(painMeasure > ProjectConfig.getOptDouble("PAIN_SENSITIVITY")){
 			textArea.append(String.valueOf(painMeasure)+" - Pain..Pain..Pain!!\n");
-			Image = new ImageIcon(imageList[3]);
 			background.setIcon(Image);
 			background.repaint();
 	

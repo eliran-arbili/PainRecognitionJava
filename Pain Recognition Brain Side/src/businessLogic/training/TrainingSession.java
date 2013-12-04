@@ -120,8 +120,8 @@ public class TrainingSession {
 	public NeuralTrainDesciptor doTraining(ContainsFlat neuralNet,ArrayList<BasicMLDataSet> kFoldsDataSet, int validationSetIndex){
 		BasicMLDataSet validationSet 			= kFoldsDataSet.get(validationSetIndex);
 		BasicMLDataSet trainingSet 				= unionDataSets(kFoldsDataSet,validationSetIndex );
-		Double alpha 							= (Double)confValues.get(ConfKeys.alpha);
-		Double minEffiency 						= (Double)confValues.get(ConfKeys.minEffiency);
+		double alpha 							= (double)confValues.get(ConfKeys.alpha);
+		double minEffiency 						= (double)confValues.get(ConfKeys.minEffiency);
 		int stripLength 						= (int)confValues.get(ConfKeys.stripLength);
 		int trainType							= (int)confValues.get(ConfKeys.trainType);
 		int maxEpochs 							= (int)confValues.get(ConfKeys.maxEpochs);
