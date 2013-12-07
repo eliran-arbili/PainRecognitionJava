@@ -64,7 +64,7 @@ public class TrainingGui extends JDialog {
 	}
 
 	protected void onClickBrowse(ActionEvent e) {
-		JFileChooser jfc = new JFileChooser(System.getProperty("user.home"));
+		JFileChooser jfc = new JFileChooser(ProjectConfig.DATASETS_PATH);
 		jfc.setFileFilter(new CSVFileFilter());
 		jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		int retval = jfc.showOpenDialog(this);
