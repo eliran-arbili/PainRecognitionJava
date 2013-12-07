@@ -267,7 +267,6 @@ public class ServerGui extends JFrame{
 	}
 	
 	protected void onTrainingGuiExit() {
-		System.out.println("Here");
 		cmboxTags.removeAllItems();
 		for(File tag: ProjectConfig.getTrainingTags()){
 			cmboxTags.addItem(tag);
@@ -301,7 +300,7 @@ public class ServerGui extends JFrame{
 			JOptionPane.showMessageDialog(this, "Must Choose Tag, Please Do Training","Operation Couldn't Be Completed", JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
-		String annPath	= ProjectConfig.getPersistenceANNByTag(trainingTag).getAbsolutePath();
+		String annPath	= ProjectConfig.getANNFileByTag(trainingTag).getAbsolutePath();
 		String csvPath = ProjectConfig.getCSVByTag(trainingTag).getAbsolutePath();
 		ProjectConfig.setOpt("SERVER_PORT", portTxt);
 		ProjectConfig.setOpt("K_SIMILAR_CASES", kCasesTxt);

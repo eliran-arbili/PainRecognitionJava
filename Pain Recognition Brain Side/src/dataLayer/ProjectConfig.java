@@ -67,9 +67,11 @@ public class ProjectConfig {
 		defaultConf.put("AUS_NORM_MIN", "-0.44,-0.05,-0.05,-0.94,-1.28,-0.5,-1.2,-0.52,0,-0.49,-0.79");
 		defaultConf.put("AUS_NORM_MAX", "0.5,1.2,1.47,1,1.5,0.98,1,0.61,1,0.67,0.65");
 		defaultConf.put("OUTPUT_FIELDS","Result");
-		defaultConf.put("VENDOR_AUS","au_nose_wrinkler,au_jaw_z_push,au_jaw_x_push,au_jaw_drop,au_lower_lip_drop,au_upper_lip_raiser,au_lip_stretcher,au_lip_corner_depressor"+
-		"au_lip_presser,au_outer_brow_raiser,au_inner_brows_raiser,au_brow_lowerer,au_eyes_closed"+
-		"au_lid_tightener,au_upper_lid_raiser,au_rotate_eyes_left,au_rotate_eyes_down");
+		defaultConf.put("VENDOR_AUS",	
+				"au_nose_wrinkler,au_jaw_z_push,au_jaw_x_push,au_jaw_drop,au_lower_lip_drop," +
+				"au_upper_lip_raiser,au_lip_stretcher,au_lip_corner_depressor,au_lip_presser,"+
+				"au_outer_brow_raiser,au_inner_brows_raiser,au_brow_lowerer,au_eyes_closed,"+
+				"au_lid_tightener,au_upper_lid_raiser,au_rotate_eyes_left,au_rotate_eyes_down");
 		defaultConf.put("DEBUG_MODE", "true");
 		return defaultConf;
 	}
@@ -173,7 +175,7 @@ public class ProjectConfig {
 		return tagsDir.listFiles();
 	}
 	
-	public static File getPersistenceANNByTag(File tagDir){
+	public static File getANNFileByTag(File tagDir){
 		for(File f: tagDir.listFiles()){
 			if(f.getName().endsWith(".eg")){
 				return f;
