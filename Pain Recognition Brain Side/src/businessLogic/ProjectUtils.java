@@ -28,12 +28,22 @@ import org.encog.util.csv.ParseCSVLine;
 
 import dataLayer.ProjectConfig;
 
+/**
+ * ProjectUtils is  class that provide utilities for project by general functions that necessary preliminary phases  
+ * @author Eliran Arbili , Arie Gaon
+ */
 public class ProjectUtils {
 	
 	/**
+<<<<<<< HEAD
 	 * Assertion statement used to enforce integrity and semantics
 	 * @param statement
 	 * @param description
+=======
+	 * this function get statement and description ,check the statement and return exception with description if the statement is false
+	 * @param statement - boolean statement logic
+	 * @param description - description that display with the exception
+>>>>>>> branch 'master' of https://github.com/eliran-arbili/PainRecognitionJava.git
 	 */
 	public static void assertFalse(boolean statement, String description){
 		if(statement == true){

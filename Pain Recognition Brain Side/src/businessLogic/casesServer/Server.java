@@ -10,12 +10,15 @@ public class Server extends ObservableServer{
 	 * Instance variables 
 	 */
 	
-	/**
-	 * Pain Recognition CBR controller
-	 */
+	
 	private CBRController painCBR;
 	/*
 	 * Constructors
+	 */
+	
+	/**
+	 * Constructor - get port , initialize the server and instance of CBRController class
+	 * @param port
 	 */
 	public Server(int port) 
 	{
@@ -27,7 +30,9 @@ public class Server extends ObservableServer{
 	/*
 	 * Member functions
 	 */
-	
+	/**
+	 * this function get case from an face tracking system via socket , normalize runtime case , set the output from neural network and notify the server
+	 */
 	@Override
 	protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
 		double [] message 		= 	(double[])msg;

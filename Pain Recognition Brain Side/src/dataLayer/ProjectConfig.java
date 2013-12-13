@@ -7,10 +7,17 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.TreeMap;
+
 import org.encog.util.arrayutil.NormalizationAction;
 import org.encog.util.arrayutil.NormalizedField;
+
 import businessLogic.ProjectUtils;
 
+/**
+ * ProjectConfig is the class that responsible on the definition of project, the definition load from property file that exist in user home   
+ * @author Eliran Arbili , Arie Gaon
+ *
+ */
 
 public class ProjectConfig {
 	
@@ -38,7 +45,10 @@ public class ProjectConfig {
 	}
 	
 
-	
+	/**
+	 * This function initialize instance of properties class  that contain all project definition 
+	 * @return instance of  properties class
+	 */
 	private static Properties initProperties(){
 		Properties prop = new Properties();
 		try {
@@ -49,6 +59,11 @@ public class ProjectConfig {
 		}
 		return prop;
 	}
+	
+	/**
+	 * this function map the configuration properties
+	 * @return map that contain key definition and value of key
+	 */
 	private static TreeMap<String, String> initDefaultConfigurations() {
 		TreeMap<String,String> defaultConf = new TreeMap<String,String>();
 		defaultConf.put("AUS","au_nose_wrinkler,au_jaw_drop,au_upper_lip_raiser,au_lip_stretcher,au_lip_corner_depressor,au_outer_brow_raiser,au_inner_brows_raiser,au_brow_lowerer,au_eyes_closed,au_rotate_eyes_left,au_rotate_eyes_down");
@@ -73,9 +88,15 @@ public class ProjectConfig {
 				"au_outer_brow_raiser,au_inner_brows_raiser,au_brow_lowerer,au_eyes_closed,"+
 				"au_lid_tightener,au_upper_lid_raiser,au_rotate_eyes_left,au_rotate_eyes_down");
 		defaultConf.put("DEBUG_MODE", "true");
+		defaultConf.put("CASES_SAVE_HISTORY","20");
 		return defaultConf;
 	}
 	
+	/**
+	 * this function get property key and return property value as string
+	 * @param opt property key
+	 * @return property value as string
+	 */
 	public static String getOpt(String opt){
 		String property;
 		String defaultOpt = getDefaultOpt(opt);
@@ -87,6 +108,11 @@ public class ProjectConfig {
 		}
 		return property;
 	}
+	/**
+	 * this function get property key and return property value as array string
+	 * @param opt property key
+	 * @return property value as array string
+	 */
 	public static String [] getOptArray(String opt){
 		String rawProperty;
 		String [] propertyArray = null;
@@ -103,6 +129,11 @@ public class ProjectConfig {
 		return propertyArray;
 	}
 	
+	/**
+	 * this function get property key and return property value as Double
+	 * @param opt property key
+	 * @return property value as Double
+	 */
 	public static Double getOptDouble(String opt){
 		Double property = null;
 		try{
@@ -113,6 +144,12 @@ public class ProjectConfig {
 			return null;
 		}
 	}
+	
+	/**
+	 * this function get property key and return property value as array Double
+	 * @param opt property key
+	 * @return property value as array Double
+	 */
 	public static Double[] getOptDoubleArray(String opt){
 		Double [] property = null;
 		try{
@@ -127,6 +164,11 @@ public class ProjectConfig {
 		}
 	}
 	
+	/**
+	 * this function get property key and return property value as Integer
+	 * @param opt property key
+	 * @return property value as Integer
+	 */
 	public static Integer getOptInt(String opt){
 		Integer property = null;
 		try{
@@ -138,6 +180,11 @@ public class ProjectConfig {
 		}
 	}
 	
+	/**
+	 * this function get property key and return property value as Boolean
+	 * @param opt property key
+	 * @return property value as Boolean
+	 */
 	public static Boolean getOptBool(String opt){
 		String rawProperty = getOpt(opt);
 		Boolean property = null;
@@ -150,9 +197,19 @@ public class ProjectConfig {
 		return property;
 	}
 	
+	/**
+	 * this function get property key   value and set value for key
+	 * @param opt property key
+	 * @param value property value
+	 */
 	public static void setOpt(String opt, String value){
 		props.setProperty(opt, value);
 	}
+	
+	/**
+	 * this function store  properties file  
+	 * @return true if the store success , false if not
+	 */
 	public static boolean saveCurrentConfig() {
 		try 
 		{
@@ -165,10 +222,15 @@ public class ProjectConfig {
 		}
 	}
 	
-	
+	/**
+	 * this function get property key and return default value that generate in code 
+	 * @param opt property key
+	 * @return default value that generate in code
+	 */
 	public static String getDefaultOpt(String opt){
 		return defaultConfigurations.get(opt);
 	}
+	
 	
 	public static File [] getTrainingTags(){
 		File tagsDir = new File(TRAINING_TAGS_PATH);

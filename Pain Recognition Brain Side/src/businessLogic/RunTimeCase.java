@@ -6,6 +6,12 @@ import org.encog.util.arrayutil.NormalizedField;
 
 import dataLayer.ProjectConfig;
 
+/**
+ * RunTimeCase is  class that describe case , case contain action units and solution output   
+ * @author Eliran Arbeli , Arie Gaon
+ */
+
+
 public class RunTimeCase {
 	
 	/*
@@ -21,9 +27,12 @@ public class RunTimeCase {
 	private boolean normalized;
 
 	
-
 	/*
 	 * Constructors
+	 */
+	/**
+	 * Constructor - get array of action units and initialize class  members
+	 * @param actionUnits -  array that contain values that  describes the movement of muscles in face
 	 */
 	public RunTimeCase(double actionUnits[]){
 		this.origActionUnits = Arrays.copyOf(actionUnits, actionUnits.length);
@@ -32,14 +41,32 @@ public class RunTimeCase {
 		setNormalized(false);
 	}
 	
+	/**
+	 * Constructor - get array of action units and array of solution output and initialize class  members 
+	 * @param actionUnits - array that contain values that  describes the movement of muscles in face 
+	 * @param solution - Value represent the level of pain
+	 */
 	public RunTimeCase(double actionUnits[], double [] solution){
 		this(actionUnits);
 		solutionOutput = Arrays.copyOf(solution, solution.length);
 	}
+	
+	/**
+	 * Constructor - get array of action units,array of solution output and boolean normalize and  initialize class  members 
+	 * @param actionUnits - array that contain values that  describes the movement of muscles in face
+	 * @param solution -  value represent the level of pain
+	 * @param normalized -indicator  to know if action units are normalized or not
+	 */
 	public RunTimeCase(double actionUnits[], double [] solution, boolean normalized){
 		this(actionUnits,solution);
 		setNormalized(normalized);
 	}
+	
+	/**
+	 * Constructor - get array of action units and boolean normalize and  initialize class  members 
+	 * @param actionUnits - array that contain values that  describes the movement of muscles in face
+	 * @param normalized -indicator  to know if action units are normalized or not
+	 */
 	public RunTimeCase(double actionUnits[], boolean normalized){
 		this(actionUnits);
 		setNormalized(normalized);
@@ -48,20 +75,42 @@ public class RunTimeCase {
 	/*
 	 * Member functions
 	 */
+	/**
+	 * this function return solution output
+	 * @return copy of solution output array member
+	 */
 	public double[] getSolutionOutput() {
 		return Arrays.copyOf(solutionOutput, solutionOutput.length);
 	}
+	/**
+	 * this function get solution output and initialize solution output class member
+	 * @param solutionOutput -  value represent the level of pain
+	 */
 	public void setSolutionOutput(double[] solutionOutput) {
 		this.solutionOutput = Arrays.copyOf(solutionOutput, solutionOutput.length);
 	}
+	
+	/**
+	 * function that get index and return action unit
+	 * @param i - index 
+	 * @return specific action unit
+	 */
 	public double getActionUnit(int i){
 		return actionUnits[i];
 	}
+	/**
+	 * function that return array action units
+	 * @returncopy of action units array 
+	 */
 	public double [] getActionUnits()
 	{
 		return Arrays.copyOf(actionUnits,actionUnits.length);
 	}
 	
+	/**
+	 * Get copy of original action units 
+	 * @return copy of originl action units
+	 */
 	public double [] getOrigActionUnits(){
 		return Arrays.copyOf(origActionUnits,origActionUnits.length);
 	}
@@ -71,6 +120,10 @@ public class RunTimeCase {
 		return Arrays.toString(actionUnits);
 	}
 	
+	
+	/**
+	 * perform fuzzify process on action units
+	 */
 	public void fuzzify()
 	{
 		if(! isNormalized())
@@ -93,7 +146,11 @@ public class RunTimeCase {
 		}		
 	}
 	 
-	
+	/**
+	 * get runtime case and compute the value that represent the similarity between cases   
+	 * @param rtCase - runtime case , the current case that come from user
+	 * @return sum - value that represent the similarity between cases 
+	 */
 	public Double similarity(RunTimeCase rtCase) {
 		double sum	= 0;
 		Double [] auWeights = ProjectConfig.getOptDoubleArray("SIMILARITY_WEIGHTS");
@@ -105,14 +162,26 @@ public class RunTimeCase {
 		return sum;
 	}
 	
+	
+	/**
+	 *  return true if action units are normalized or false if not
+	 * @return normalized - value that used as indicator to know if action units are normalized
+	 */
 	public boolean isNormalized() {
 		return normalized;
 	}
 
+	/**
+	 *  set normalized parameter
+	 * @param normalized - value that used as indicator to know if action units are normalized
+	 */
 	public void setNormalized(boolean normalized) {
 		this.normalized = normalized;
 	}
 	
+	/**
+	 * this function compare action units of two cases and return true if equals and false else
+	 */
 	public boolean equals(Object obj)
 	{
 		if(obj == null){

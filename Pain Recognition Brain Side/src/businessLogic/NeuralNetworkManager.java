@@ -20,6 +20,11 @@ import org.encog.util.Format;
 import businessLogic.training.TrainingSession;
 import businessLogic.training.TrainingSession.ConfKeys;
 
+/**
+ * NeuralNetworkManager is the class that responsible on  neural network definitions
+ * @author Eliran Arbili , Arie Gaon
+ *
+ */
 public class NeuralNetworkManager {
 	
 	
@@ -52,6 +57,10 @@ public class NeuralNetworkManager {
 	/*
 	 * Constructors
 	 */
+	/**
+	 * The Constructor - get file with parameters and create instance of neural network 
+	 * @param networkParamaters - file that contain definition for create network
+	 */
 	private NeuralNetworkManager(File networkParamaters){
 		neuralNet = (ContainsFlat)EncogDirectoryPersistence.loadObject(networkParamaters);
 		HashMap<ConfKeys,Object> conf = getDefaultTrainConfigurations();
@@ -63,13 +72,19 @@ public class NeuralNetworkManager {
 	/*
 	 * Member functions
 	 */
-	
+	/**
+	 * this function restart the network weights to original weight
+	 */
 	public void ResetWeights()
 	{
 		 for(int i=0;i<originalWeights.length;i++)
 			 neuralNet.getFlat().getWeights()[i] = originalWeights[i];
 	}
 	
+	/**
+	 * this function get queue of k closest cases from casebase and  train the network 
+	 * @param kClosestCases - is the k closest cases in casebase that similar to current runtime case 
+	 */
 	public void trainKclosestCases(PriorityQueue<RunTimeCase> kClosestCases){
 		BasicMLDataSet trainingSet = constructTrainingSetFromCases(kClosestCases);
 		ProjectUtils.assertFalse(
@@ -81,17 +96,30 @@ public class NeuralNetworkManager {
 				"train output different from ANN output");
 		trainingSession.crossValidationTrain(neuralNet, trainingSet,ProjectConfig.getOptInt("RUN_TIME_K_FOLD"));
 	}
+	
+	/**
+	 * this function get runtime case as input for network and return the output 
+	 * @param rtCase - runtime case , the current case that come from user
+	 * @return an array of network results output
+	 */
 	public double[] computeOutput(RunTimeCase rtCase){
 		Integer outputCount = ProjectConfig.getOptInt("CASE_OUTPUT_COUNT");		
 		double [] output = new double[outputCount];
 		neuralNet.getFlat().compute(rtCase.getActionUnits(), output);
 		return output;
 	}
-
+	
+	/**
+	 * this function save the network with all new definitions 
+	 */
 	public void saveNet(){
 		EncogDirectoryPersistence.saveObject(networkParameters, neuralNet);
 	}
 	
+	/**
+	 * this function return neural network instance
+	 * @return instance of neural network 
+	 */
 	public ContainsFlat getNeuralNet() {
 		return neuralNet;
 	}
