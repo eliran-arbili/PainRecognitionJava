@@ -34,6 +34,8 @@ public class TrainingGui extends JDialog {
 	private TrainingSession currentTrainSession;
 	private String trainingTag;
 	private File dataSetFileToUse;
+	private JLabel background_side;
+	private ArrayList<ImageIcon> painIcons;
 
 	/**
 	 * Launch the application.
@@ -60,9 +62,20 @@ public class TrainingGui extends JDialog {
 
 	public TrainingGui(String trainingTag) {
 		this.trainingTag = trainingTag;
+		painIcons = getPainIcons();
 		initialize();
 	}
 
+private ArrayList<ImageIcon> getPainIcons() {
+		
+		ClassLoader loader = this.getClass().getClassLoader();
+		ArrayList<ImageIcon> list = new ArrayList<ImageIcon>();
+		for(int index = 1 ; index <= 10; index++){
+			list.add(new ImageIcon(loader.getResource("resources/painExpressions/pain"+index+".png")));
+		}
+		
+		return list;
+	}
 	protected void onClickBrowse(ActionEvent e) {
 		JFileChooser jfc = new JFileChooser(System.getProperty("user.home"));
 		jfc.setFileFilter(new CSVFileFilter());
@@ -89,7 +102,9 @@ public class TrainingGui extends JDialog {
 	}
 	
 	private void initialize(){
-		setBounds(100, 100, 575, 500);
+		setBounds(100, 100, 600, 600);
+		background_side=new JLabel(painIcons.get(9));
+		background_side.setBounds(60,60, 575, 500);
 		btnCancel = new JButton("Cancel");
 		btnCancel.setBounds(120, 398, 100, 34);
 		btnTrain = new JButton("Train");
@@ -128,7 +143,7 @@ public class TrainingGui extends JDialog {
 		textFieldDataSet.setColumns(10);
 
 		btnBrowse = new JButton("Browse");
-		btnBrowse.setBounds(468, 20, 81, 23);
+		btnBrowse.setBounds(460, 20, 81, 23);
 		btnBrowse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				onClickBrowse(e);
@@ -229,6 +244,7 @@ public class TrainingGui extends JDialog {
 		image.setImageObserver(iconLabel);
 		iconLabel.setVisible(false);
 		
+		getContentPane().add(background_side);
 		getContentPane().add(iconLabel);
 		getContentPane().setLayout(null);
 		getContentPane().add(btnCancel);
@@ -260,7 +276,7 @@ public class TrainingGui extends JDialog {
 		getContentPane().add(btnBrowse);
 		getContentPane().add(chckbxCSVHeaders);
 		getContentPane().add(scrollPane);
-		getContentPane().setBackground(Color.CYAN);
+		
 		this.setResizable(false);
 	}
 

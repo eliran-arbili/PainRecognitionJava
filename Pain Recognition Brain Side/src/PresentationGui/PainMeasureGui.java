@@ -7,28 +7,37 @@ import java.awt.event.WindowAdapter;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+
 import javax.swing.JFrame;
 
 import businessLogic.RunTimeCase;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import dataLayer.ProjectConfig;
 
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 public class PainMeasureGui  implements Observer{
 
-	private JFrame frame;
-	private JTextArea textArea;
-	private JScrollPane scrollPane;
-	private JLabel background;
 	private ImageIcon Image = new ImageIcon();
 	private ArrayList<ImageIcon> painIcons;
 	private int alarmCycle;
-	JSlider slider;
+	private boolean toPlay;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -54,7 +63,7 @@ public class PainMeasureGui  implements Observer{
 		alarmCycle=ProjectConfig.getOptInt("CYCLES_FOR_ALARM"); 
 		painIcons = getPainIcons();
 		initialize();
-
+		
 	}
 
 	private ArrayList<ImageIcon> getPainIcons() {
@@ -74,10 +83,12 @@ public class PainMeasureGui  implements Observer{
 	private void initialize() {
 		JLabel sliderMinPainImage;
 		JLabel sliderMaxPainImage;
+		iconPlay=new ImageIcon(this.getClass().getClassLoader().getResource("resources/play.png"));
+		iconPause=new ImageIcon(this.getClass().getClassLoader().getResource("resources/pause.png"));
 		frame = new JFrame();
-		background=new JLabel();
-		frame.setPreferredSize(new Dimension(500,700));
 		frame.setResizable(false);
+		lblFaceImage=new JLabel();
+		frame.setPreferredSize(new Dimension(500, 730));
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
             public void windowActivated(java.awt.event.WindowEvent e) {
@@ -99,25 +110,43 @@ public class PainMeasureGui  implements Observer{
 		slider.setMinimum(0);
 		slider.setMaximum(100);
 		
-		frame.setBounds(350, 50, 500, 700);
+		frame.setBounds(350, 50, 500, 737);
 		frame.getContentPane().setLayout(null);
-		background.setIcon(painIcons.get(0));
+		lblFaceImage.setIcon(painIcons.get(0));
 	  
-		background.setBounds(60, 10, 363, 302);
-		frame.add(background);
-		frame.add(slider);
-		frame.add(sliderMinPainImage);
-		frame.add(sliderMaxPainImage);
+		lblFaceImage.setBounds(60, 10, 363, 302);
+		frame.getContentPane().add(lblFaceImage);
+		frame.getContentPane().add(slider);
+		frame.getContentPane().add(sliderMinPainImage);
+		frame.getContentPane().add(sliderMaxPainImage);
 		frame.repaint();
 		
-		textArea = new JTextArea();
-		textArea.setBounds(25, 281, 422, 225);
-		textArea.setEditable(false);
-		
-		 scrollPane = new JScrollPane (textArea, 
+		lstLastCases = new JList<String>(new CasesListModel());
+		lstLastCases.setBounds(25, 281, 422, 225);
+		lstLastCases.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		lstLastCases.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e){
+				onClickCasesList(e);
+			}
+		});
+		 scrollPane = new JScrollPane (lstLastCases, 
 		   JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		 scrollPane.setBounds(25, 410, 422, 225);
+		 scrollPane.setBounds(26, 465, 422, 225);
 		frame.getContentPane().add(scrollPane);
+		
+		btnPlayPause = new JButton();
+		btnPlayPause.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				onClickPlayPause(arg0);
+			}
+		});
+		toPlay=false;
+		btnPlayPause.setIcon(iconPlay);
+		btnPlayPause.setBounds(198, 406, 89, 59);
+		btnPlayPause.setOpaque(false);
+		btnPlayPause.setContentAreaFilled(false);
+		btnPlayPause.setBorderPainted(false);
+		frame.getContentPane().add(btnPlayPause);
 		
 		frame.pack();
 		//frame.getContentPane().add(textArea);
@@ -126,8 +155,38 @@ public class PainMeasureGui  implements Observer{
 		
 		
 	}
+	protected void onClickCasesList(MouseEvent evt) {
+	    if(evt.getSource() != lstLastCases || toPlay==true){
+	    	return;
+	    }
+        if (evt.getClickCount() == 2 && ! evt.isConsumed()) {
+        	
+        	evt.consume();
+            RunTimeCase rtCase = ((CasesListModel)lstLastCases.getModel()).getCase(lstLastCases.getSelectedIndex());
+            System.out.println(rtCase.getSolutionOutput()[0]);
+        
+        } 	
+	}
+
+	protected void onClickPlayPause(ActionEvent arg0) {
+		
+		if(toPlay==false)
+		{
+			btnPlayPause.setIcon(iconPause);
+			toPlay=true;
+			lstLastCases.setToolTipText(null);
+		}
+		else
+		{
+			btnPlayPause.setIcon(iconPlay);
+			toPlay=false;
+			lstLastCases.setToolTipText("Select  To Revise");
+		}
+		
+	}
+
 	protected void onFrameLoading() {
-		textArea.setText("");
+		lstLastCases.removeAll();
 	}
 
 	public void openWindow(){
@@ -141,7 +200,7 @@ public class PainMeasureGui  implements Observer{
 	
 	@Override
 	public void update(Observable o, Object arg) {
-		if(!(arg instanceof RunTimeCase))
+		if(!(arg instanceof RunTimeCase) || toPlay==false)
 			return;
 		RunTimeCase rtCase=(RunTimeCase)arg;
 		double painMeasure =rtCase.getSolutionOutput()[0];
@@ -177,33 +236,40 @@ public class PainMeasureGui  implements Observer{
 		slider.setValue((int)(painMeasure*100));
 		
 		slider.repaint();
-		background.setIcon(Image);
-		background.repaint();
-		textArea.append(String.valueOf(painMeasure)+"\n");
+		lblFaceImage.setIcon(Image);
+		lblFaceImage.repaint();
+		((CasesListModel)lstLastCases.getModel()).add(rtCase);
 		if(painMeasure > ProjectConfig.getOptDouble("PAIN_SENSITIVITY")){
 			
 			alarmCycle--;
 			if(alarmCycle<=0)
 			{
-				textArea.append("\n Pain.. Pain..Pain..Pain!!\n");
-				textArea.setBackground(Color.red);
+				//lstLastCases.append("\n Pain.. Pain..Pain..Pain!!\n");
+				lstLastCases.setBackground(Color.red);
 					
 			}
 		}
 		else
 		{
 			alarmCycle=ProjectConfig.getOptInt("CYCLES_FOR_ALARM");
-			textArea.setBackground(Color.white);
-			
-		
-		
+			lstLastCases.setBackground(Color.white);
+
 		}
 		
-		final int length = textArea.getText().length();
-		textArea.setCaretPosition(length);
-		textArea.repaint();
-		
+		JScrollBar vertical = scrollPane.getVerticalScrollBar();
+		vertical.setValue( vertical.getMaximum() );
 		
 	}
-
+	/*
+	 * Gui Components
+	 */
+	private JFrame frame;
+	private JList<String> lstLastCases;
+	private JScrollPane scrollPane;
+	private JLabel lblFaceImage;
+	private JButton btnPlayPause;
+	private ImageIcon iconPlay;
+	private ImageIcon iconPause;
+	private JSlider slider;
+	
 }
