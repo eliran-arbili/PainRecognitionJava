@@ -31,7 +31,10 @@ public class DataBase {
 	/*
 	 * Constructors
 	 */
-
+	/**
+	 * initialize dataset file that will used for create database as arraylist
+	 * @param casesCSVFile
+	 */
 	public DataBase(File casesCSVFile) {
 		this.casesCSVFile = casesCSVFile;
 	}
@@ -56,6 +59,11 @@ public class DataBase {
 		Files.move(temp.toPath(), casesCSVFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 	}
 	
+	
+	/**
+	 * create arraylist that contain all cases , actually the arraylist is the database 
+	 * @return - arraylist that contain all cases
+	 */
 	public ArrayList<RunTimeCase> GetAllCases(){
 		
 		try{

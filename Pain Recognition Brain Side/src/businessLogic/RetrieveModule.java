@@ -8,7 +8,10 @@ import java.util.PriorityQueue;
 import dataLayer.DataBase;
 import dataLayer.ProjectConfig;
 
-
+/**
+ * RetriveModule is  class that responsible to retrieve cases from casebase  
+ * @author Eliran Arbili , Arie Gaon
+ */
 public class RetrieveModule {
 
 	/*
@@ -20,12 +23,18 @@ public class RetrieveModule {
 	/*
 	 * Constructors 
 	 */
+	/**
+	 * Constructor - initialize instance of casebase and array list  that contain all cases   
+	 */
     public RetrieveModule()
     {
     	caseDB  	= new DataBase(new File(ProjectConfig.getOpt("CSV_CASES_PATH")));
 		allCases	= caseDB.GetAllCases();
 	}
-    
+    /**
+     * Constructor - get array list that contain all cases and  initialize instance of casebase and array list  that contain all cases
+     * @param allCases - array list that contain all cases from casebase
+     */
 	public RetrieveModule( ArrayList<RunTimeCase> allCases)
 	{
 		caseDB 			= new DataBase(new File(ProjectConfig.getOpt("CSV_CASES_PATH")));
@@ -34,6 +43,11 @@ public class RetrieveModule {
 	
 	/*
 	 * Member functions
+	 */
+	/**
+	 * this function get runtime case and return k similar cases from casebase
+	 * @param rtCase - runtime case , the current case that come from user
+	 * @return
 	 */
 	public PriorityQueue<RunTimeCase> getKSimilarCases(final RunTimeCase rtCase)
 	{

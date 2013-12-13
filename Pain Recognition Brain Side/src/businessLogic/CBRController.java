@@ -5,16 +5,25 @@ import java.util.PriorityQueue;
 
 import dataLayer.ProjectConfig;
 
+/**
+ * CBRController is the class that responsible on the connection between neural network and casebase  
+ * @author Eliran Arbili , Arie Gaon
+ *
+ */
+
+
 public class CBRController {
 	
-	/*
-	 * Instance variables
-	 */
+	
 	private RetrieveModule retrieveModule;
 	private NeuralNetworkManager painRecAnn;
 	
 	/*
 	 * Constructors
+	 */
+	
+	/**
+	 * Constructor  - initialize instance of RetriveModule class for get cases from casebase , NeuralNetworkManager class for get neural network 
 	 */
 	public CBRController()
 	{
@@ -29,9 +38,9 @@ public class CBRController {
 	 */
 	
 	/**
-	 * Activate Case Based Reasoning cycle: retrieve, reuse.
-	 * @param rtCase
-	 * @return pain measure
+	 * The main function, this function get runtime case, train network by k closest cases from casebase, and return the network output
+	 * @param rtCase  - runtime case , the current case that come from user
+	 * @return  - an array of network results output
 	 */
 	public double[] doCycle(RunTimeCase rtCase){
 		if(ProjectConfig.fuzzyMode)
