@@ -30,6 +30,11 @@ import dataLayer.ProjectConfig;
 
 public class ProjectUtils {
 	
+	/**
+	 * Assertion statement used to enforce integrity and semantics
+	 * @param statement
+	 * @param description
+	 */
 	public static void assertFalse(boolean statement, String description){
 		if(statement == true){
 			return;
@@ -40,7 +45,12 @@ public class ProjectUtils {
 			System.exit(1);
 		}
 	}
-	
+	/**
+	 * Given a dataSet split it to k subsets
+	 * @param dataSet
+	 * @param k
+	 * @return
+	 */
 	public static ArrayList<BasicMLDataSet> splitDataSet(BasicMLDataSet dataSet, int k) {
 		ArrayList<BasicMLDataSet> kDataSets = new ArrayList<BasicMLDataSet>();
 		int index 			= 1;
@@ -66,8 +76,18 @@ public class ProjectUtils {
 		return kDataSets;
 	}
 
-	
-	public static ArrayList<File> splitDataSet(File dataSet, int k, int inputCount, int outputCount, boolean headers) throws IOException {
+	/**
+	 * Given datSet file, split the it into k complementary subsets files
+	 * The files saved in the same directory with sub<index> addition to file name.
+	 * @param dataSet
+	 * @param k
+	 * @param inputCount
+	 * @param outputCount
+	 * @param headers
+	 * @return
+	 * @throws IOException
+	 */
+	public static ArrayList<File> splitDataSet(File dataSet, int k, boolean headers) throws IOException {
 		ArrayList<File> kDataSets = new ArrayList<File>();
 		BufferedReader reader 				= Files.newBufferedReader(dataSet.toPath(),Charset.defaultCharset());
 		int 			numberOfFileLines 	= getNumberOFLines(dataSet);
@@ -115,6 +135,15 @@ public class ProjectUtils {
 		return kDataSets;
 	}
 
+	/**
+	 * Convert a CSV file to a BasicMLDataSet Object.
+	 * @param csvDataSet
+	 * @param inputCount
+	 * @param outputCount
+	 * @param headers
+	 * @return
+	 * @throws IOException
+	 */
 	public static BasicMLDataSet convertCSVToDateSet(File csvDataSet, int inputCount, int outputCount, boolean headers) throws IOException{
 		
 		CSVNeuralDataSet csvNeuralDataSet = new CSVNeuralDataSet(csvDataSet.getAbsolutePath(), inputCount, outputCount, headers);
@@ -124,13 +153,27 @@ public class ProjectUtils {
 	}
 	
 
-	
+	/**
+	 * Replace last matching of regex in the text with replacement.
+	 * @param text
+	 * @param regex
+	 * @param replacement
+	 * @return
+	 */
     public static String replaceLast(String text, String regex, String replacement) {
         return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
     }
     
     
-	
+	/**
+	 * Normalize CSV file according to the normalization configuration in config.properties file.
+	 * @param dataSetFile
+	 * @param inputCount
+	 * @param outputCount
+	 * @param headers
+	 * @return
+	 * @throws IOException
+	 */
 	public static File normalizeCSVFile(File dataSetFile, int inputCount, int outputCount, boolean headers) throws IOException{
 
 		int  numCols				= getNumberOFHeaderColumns(dataSetFile);
@@ -163,6 +206,12 @@ public class ProjectUtils {
 		return targetFile;
 	}
 	
+	/**
+	 * Used to get the analyzed fields of a given CSV data set file.
+	 * Those fields can be used to extract min/max values of each column. 
+	 * @param dataSetFile
+	 * @return
+	 */
 	public static List<AnalystField> getAnalystFieldsCSV(File dataSetFile){
 		EncogAnalyst analyst 	= new EncogAnalyst();
 		AnalystWizard wizard 	= new AnalystWizard(analyst);
@@ -175,6 +224,15 @@ public class ProjectUtils {
 		return analyst.getScript().getNormalize().getNormalizedFields();	
 	}
 
+	/**
+	 * Given a CSV dataSet file. use the RunTimeCase equality function to decide weather lines exists more than once.
+	 * @param dataSet
+	 * @param inputCount
+	 * @param outputCount
+	 * @param headers
+	 * @return
+	 * @throws IOException
+	 */
 	public static File removeDuplicateLines(File dataSet, int inputCount, int outputCount, boolean headers) throws IOException{
 		BufferedReader 	reader 		= Files.newBufferedReader(dataSet.toPath(),Charset.defaultCharset());
 		File 			newFile		= generateFile(dataSet,"_nodup");
@@ -201,6 +259,12 @@ public class ProjectUtils {
 		return newFile;
 	}
 	
+	/**
+	 * Concatenate paths into 1 single legal path.
+	 * @param path1
+	 * @param path2
+	 * @return
+	 */
 	public static String combine (String path1, String path2)
 	{
 	    File file1 = new File(path1);
@@ -208,6 +272,12 @@ public class ProjectUtils {
 	    return file2.getPath();
 	}
 	
+	/**
+	 * Creates a single string that join elements with delimiter
+	 * @param delimiter
+	 * @param elements
+	 * @return
+	 */
 	public static String join(CharSequence delimiter, Iterable<? extends Object> elements){
 	    StringBuilder builder = new StringBuilder();
 
@@ -229,6 +299,12 @@ public class ProjectUtils {
 	}
 	
 	
+	/**
+	 * Concatenate addition to file name before suffix.
+	 * @param source
+	 * @param addition
+	 * @return
+	 */
 	public static File generateFile(File source, String addition){
 		String targetFileName 		= source.getName();
 		String targetFileDir 		= source.getParent();

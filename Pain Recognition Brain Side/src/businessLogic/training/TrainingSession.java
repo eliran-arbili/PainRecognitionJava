@@ -85,7 +85,7 @@ public class TrainingSession {
 		ProjectUtils.assertFalse((k>=2), "Input Error k<2");
 		int inputCount 							= (int)confValues.get(ConfKeys.inputCount);
 		int outputCount							= (int)confValues.get(ConfKeys.outputCount);
-		ArrayList<File> kFoldsFiles 			= ProjectUtils.splitDataSet(dataSet, k, inputCount, outputCount,hasHeaders);
+		ArrayList<File> kFoldsFiles 			= ProjectUtils.splitDataSet(dataSet, k, hasHeaders);
 		ArrayList<BasicMLDataSet> kFoldsDataSet = new ArrayList<BasicMLDataSet>();
 		for(File fold: kFoldsFiles){
 			kFoldsDataSet.add(ProjectUtils.convertCSVToDateSet(fold,inputCount,outputCount,hasHeaders));
@@ -159,6 +159,7 @@ public class TrainingSession {
 		neuralNetDecriptor.setTrainIterations(train.getIteration());
 		return neuralNetDecriptor;
 	}
+	
 
 	/*
 	 * Auxiliary functions
