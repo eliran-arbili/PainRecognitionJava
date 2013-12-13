@@ -9,6 +9,7 @@ import java.io.LineNumberReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.encog.app.analyst.AnalystFileFormat;
@@ -155,6 +156,8 @@ public class ProjectUtils {
 		}
 		wizard.wizard(dataSetFile, true, AnalystFileFormat.DECPNT_COMMA);
 		
+		setNormLimits(analyst);
+		
 		fixEncogAnalystNormActionBug(analyst); /* Bug fix*/
 		
 		final AnalystNormalizeCSV norm = new AnalystNormalizeCSV();
@@ -233,6 +236,7 @@ public class ProjectUtils {
 	    }
 	    return builder.toString();
 	}
+	
 	
 	public static File generateFile(File source, String addition){
 		String targetFileName 		= source.getName();
@@ -315,12 +319,31 @@ public class ProjectUtils {
 			if(af.getAction() != NormalizationAction.Ignore){
 				af.setAction(NormalizationAction.Normalize);
 			}
-			if(af.getName().equals("au_eyes_closed")){ 
-				af.setActualHigh(1.0);
+		}
+	}
+	
+	private static void setNormLimits(EncogAnalyst analyst){
+		Double minLimits[] 	= ProjectConfig.getOptDoubleArray("AUS_NORM_MIN");
+		Double maxLimits[] 	= ProjectConfig.getOptDoubleArray("AUS_NORM_MAX");
+		String auNames[] 	= ProjectConfig.getOptArray("AUS");
+		for(AnalystField af : analyst.getScript().getNormalize().getNormalizedFields()){
+			int nameIndex = findNameIndex(auNames,af.getName());
+			if(nameIndex != -1){
+				af.setActualLow(minLimits[nameIndex]);
+				af.setActualHigh(maxLimits[nameIndex]);
 			}
 		}
 	}
 	
+	private static int findNameIndex(String[] names, String toFind) {
+		for(int index = 0 ; index < names.length; index++){
+			if(toFind.equalsIgnoreCase(names[index])){
+				return index;
+			}
+		}
+		return -1;
+	}
+
 	public static void main(String[] args){
 		File f = new File("C:\\Users\\earbili\\Desktop\\NeuralNets\\NEW_DataSet_FullAUS.csv");
 		try {

@@ -47,9 +47,8 @@ public class RunTimeCase {
 	 * @param solution - Value represent the level of pain
 	 */
 	public RunTimeCase(double actionUnits[], double [] solution){
-		this.actionUnits = Arrays.copyOf(actionUnits, actionUnits.length);
+		this(actionUnits);
 		solutionOutput = Arrays.copyOf(solution, solution.length);
-		setNormalized(false);
 	}
 	
 	/**
