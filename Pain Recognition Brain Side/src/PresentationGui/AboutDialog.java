@@ -6,6 +6,7 @@ import javax.swing.JDialog;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 
+@SuppressWarnings("serial")
 public class AboutDialog extends JDialog {
 
 	/**

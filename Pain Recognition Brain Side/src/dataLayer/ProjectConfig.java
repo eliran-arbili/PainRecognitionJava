@@ -33,16 +33,7 @@ public class ProjectConfig {
 	 * Default Configuration values
 	 */
 	public static boolean fuzzyMode = false;
-	
-	
-	
-	/*
-	 * The Following can be changed in start-up
-	 */
-	
-	private ProjectConfig()
-	{
-	}
+	private static File currentTag;
 	
 
 	/**
@@ -254,6 +245,14 @@ public class ProjectConfig {
 		return null;
 	}
 	
+	public static File getCurrentTag() {
+		return currentTag;
+	}
+	
+	public static void setCurrentTag(File trainingTag) {
+		currentTag = trainingTag;
+	}
+	
 	private static String getPropertiesRules(){
 		String rules = "# General Rules:\n---------------\n";
 		rules +=	"# 1) AUS must be a subset of VENDOR_AUS\n";
@@ -307,5 +306,7 @@ public class ProjectConfig {
 	public static void main(String[] args){
 		writeDefaultPropertiesFile();
 	}
+
+
 
 }

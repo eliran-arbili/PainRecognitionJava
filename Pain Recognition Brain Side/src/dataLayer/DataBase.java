@@ -44,19 +44,23 @@ public class DataBase {
 	 * Member functions
 	 */
 	
-	public void AddCase(Double[] actionUnits,Double [] solution) throws IOException{
+	public boolean AddCase(RunTimeCase rtCase) throws IOException{
+		if(rtCase.getSolutionOutput() == null){
+			return false;
+		}
 		File temp = ProjectUtils.generateFile(casesCSVFile, "_temp");
 		temp.createNewFile();
 		File f = Files.copy(casesCSVFile.toPath(), temp.toPath(), StandardCopyOption.REPLACE_EXISTING).toFile();
 		BufferedWriter 	writer		= Files.newBufferedWriter(f.toPath(), Charset.defaultCharset(),StandardOpenOption.APPEND);
 		String 			caseId		= "RunTimeCase";
 		writer.append(System.getProperty("line.separator"));
-		writer.append(ProjectUtils.join(",", Arrays.asList(actionUnits)));
+		writer.append(ProjectUtils.joinDoubles(",", rtCase.getActionUnits()));
 		writer.append(",");
-		writer.append(ProjectUtils.join(",",Arrays.asList(solution)));
+		writer.append(ProjectUtils.joinDoubles(",",rtCase.getSolutionOutput()));
 		writer.append(","+caseId);
 		writer.close();
 		Files.move(temp.toPath(), casesCSVFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		return true;
 	}
 	
 	

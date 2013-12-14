@@ -80,6 +80,9 @@ public class RunTimeCase {
 	 * @return copy of solution output array member
 	 */
 	public double[] getSolutionOutput() {
+		if(solutionOutput == null){
+			return null;
+		}
 		return Arrays.copyOf(solutionOutput, solutionOutput.length);
 	}
 	/**

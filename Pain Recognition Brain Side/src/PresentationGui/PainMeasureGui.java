@@ -7,23 +7,18 @@ import java.awt.event.WindowAdapter;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-
 import javax.swing.JFrame;
-
+import businessLogic.ReviseModule;
 import businessLogic.RunTimeCase;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
-import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import dataLayer.ProjectConfig;
 
 import java.awt.event.ActionListener;
@@ -33,6 +28,7 @@ import java.awt.event.MouseEvent;
 
 public class PainMeasureGui  implements Observer{
 
+	private ReviseModule reviseModule;
 	private ImageIcon Image = new ImageIcon();
 	private ArrayList<ImageIcon> painIcons;
 	private int alarmCycle;
@@ -60,6 +56,7 @@ public class PainMeasureGui  implements Observer{
 	 * Create the application.
 	 */
 	public PainMeasureGui() {
+		reviseModule = new ReviseModule();
 		alarmCycle=ProjectConfig.getOptInt("CYCLES_FOR_ALARM"); 
 		painIcons = getPainIcons();
 		initialize();
@@ -163,8 +160,28 @@ public class PainMeasureGui  implements Observer{
         	
         	evt.consume();
             RunTimeCase rtCase = ((CasesListModel)lstLastCases.getModel()).getCase(lstLastCases.getSelectedIndex());
-            System.out.println(rtCase.getSolutionOutput()[0]);
-        
+            String newSolOutput = JOptionPane.showInputDialog(this.frame, "Case is: "+rtCase+"\nEnter Your Solution","Revise System Solution",JOptionPane.OK_CANCEL_OPTION);
+            if(newSolOutput == null){
+            	return;
+            }
+            try{
+            	String [] sols = newSolOutput.split(",");
+                double [] newSol = new double[sols.length];
+                for(int i = 0 ; i < newSol.length; i++){
+                	newSol[i] = Double.parseDouble(sols[i]);
+                }
+                boolean isSuccess = reviseModule.revise(rtCase, newSol);
+                if(isSuccess == true){
+        			JOptionPane.showMessageDialog(this.frame, " Revise Successfuly Done!", "Revise", JOptionPane.INFORMATION_MESSAGE);
+                }
+                else{
+        			JOptionPane.showMessageDialog(this.frame, "Error Ocured!, Cannot Revise", "Revise", JOptionPane.INFORMATION_MESSAGE);
+                }
+
+            }
+            catch(NumberFormatException ex){
+                JOptionPane.showMessageDialog(this.frame, "Wrong Number Format, Please Try Again","Operation Couldn't be completed",JOptionPane.ERROR_MESSAGE);
+            }
         } 	
 	}
 

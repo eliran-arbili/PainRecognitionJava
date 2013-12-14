@@ -1,12 +1,9 @@
 package PresentationGui;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.io.IOException;
 
@@ -24,6 +21,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
+@SuppressWarnings("serial")
 public class MainFrame extends JFrame {
 
 	private JPanel contentPane;

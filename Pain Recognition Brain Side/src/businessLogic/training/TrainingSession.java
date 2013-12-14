@@ -109,10 +109,10 @@ public class TrainingSession {
 		return generatedNetworks;
 	}
 	
-	public void crossValidationTrain(ContainsFlat neuralNet, BasicMLDataSet dataSet,int partitions){
+	public void crossValidationTrain(ContainsFlat neuralNet, BasicMLDataSet dataSet,int partitions, int validationIndex){
 		ProjectUtils.assertFalse((partitions>=2), "Input Error k<2");
 		ArrayList<BasicMLDataSet> kFoldsDataSet = ProjectUtils.splitDataSet(dataSet, partitions);
-		doTraining(neuralNet,kFoldsDataSet,0);
+		doTraining(neuralNet,kFoldsDataSet,validationIndex);
 		Encog.getInstance().shutdown();
 	}
 	

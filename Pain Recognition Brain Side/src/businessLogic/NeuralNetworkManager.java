@@ -15,8 +15,6 @@ import org.encog.ml.data.basic.BasicMLDataPair;
 import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.neural.networks.ContainsFlat;
 import org.encog.persist.EncogDirectoryPersistence;
-import org.encog.util.Format;
-
 import businessLogic.training.TrainingSession;
 import businessLogic.training.TrainingSession.ConfKeys;
 
@@ -68,6 +66,7 @@ public class NeuralNetworkManager {
 		originalWeights=Arrays.copyOf(neuralNet.getFlat().getWeights(), neuralNet.getFlat().getWeights().length);
 	}
 	
+	
 
 	/*
 	 * Member functions
@@ -86,15 +85,7 @@ public class NeuralNetworkManager {
 	 * @param kClosestCases - is the k closest cases in casebase that similar to current runtime case 
 	 */
 	public void trainKclosestCases(PriorityQueue<RunTimeCase> kClosestCases){
-		BasicMLDataSet trainingSet = constructTrainingSetFromCases(kClosestCases);
-		ProjectUtils.assertFalse(
-				trainingSet.getInputSize() == neuralNet.getFlat().getInputCount(), 	
-				"train input different from ANN input");
-		
-		ProjectUtils.assertFalse(
-				trainingSet.getIdealSize() == neuralNet.getFlat().getOutputCount(), 	
-				"train output different from ANN output");
-		trainingSession.crossValidationTrain(neuralNet, trainingSet,ProjectConfig.getOptInt("RUN_TIME_K_FOLD"));
+		trainByDataSet(kClosestCases,ProjectConfig.getOptInt("RUN_TIME_K_FOLD"),0);
 	}
 	
 	/**
@@ -124,6 +115,21 @@ public class NeuralNetworkManager {
 		return neuralNet;
 	}
 	
+	public void trainByDataSet(Iterable<RunTimeCase> dataSetCases, int partitions, int validationSetIndex){
+
+		BasicMLDataSet trainingSet = constructTrainingSetFromCases(dataSetCases);
+		
+		ProjectUtils.assertFalse(
+				trainingSet.getInputSize() == neuralNet.getFlat().getInputCount(), 	
+				"train input different from ANN input");
+		
+		ProjectUtils.assertFalse(
+				trainingSet.getIdealSize() == neuralNet.getFlat().getOutputCount(), 	
+				"train output different from ANN output");
+		
+		trainingSession.crossValidationTrain(neuralNet, trainingSet,partitions,validationSetIndex);
+	}
+	
 	/*
 	 * Class functions
 	 */
@@ -143,10 +149,11 @@ public class NeuralNetworkManager {
 		}
 	}
 	
+	
 	/*
 	 * Auxiliary methods
 	 */
-	private BasicMLDataSet constructTrainingSetFromCases(PriorityQueue<RunTimeCase> kClosestCases){
+	private BasicMLDataSet constructTrainingSetFromCases(Iterable<RunTimeCase> kClosestCases){
 		ArrayList<MLDataPair> trainingPairs = new ArrayList<MLDataPair>();
 		for(RunTimeCase rtCase: kClosestCases){
 			trainingPairs.add(new BasicMLDataPair(

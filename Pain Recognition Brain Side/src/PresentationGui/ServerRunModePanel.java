@@ -7,21 +7,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.LayoutStyle;
-import javax.swing.GroupLayout.Alignment;
-
 import businessLogic.casesServer.Server;
 import dataLayer.ProjectConfig;
 
+@SuppressWarnings("serial")
 public class ServerRunModePanel extends BackgroundPanel {
 
 	
@@ -130,39 +125,41 @@ public class ServerRunModePanel extends BackgroundPanel {
 	 */
 
 	protected void btnStartStopOnClick(ActionEvent arg0) {
-		String portTxt		= txtFldPort.getText();
-		String kCasesTxt 	= txtFldKCases.getText();
-		if(! isFieldsOK(portTxt,kCasesTxt)){
-			return;
-		}
-		File trainingTag = (File)cmboxTags.getSelectedItem();
-		if(trainingTag == null){
-			JOptionPane.showMessageDialog(this, "Must Choose Tag, Please Do Training","Operation Couldn't Be Completed", JOptionPane.INFORMATION_MESSAGE);
-			return;
-		}
-		String annPath	= ProjectConfig.getANNFileByTag(trainingTag).getAbsolutePath();
-		String csvPath = ProjectConfig.getCSVByTag(trainingTag).getAbsolutePath();
-		ProjectConfig.setOpt("SERVER_PORT", portTxt);
-		ProjectConfig.setOpt("K_SIMILAR_CASES", kCasesTxt);
-		ProjectConfig.setOpt("ANN_PARAMETERS_PATH", annPath);
-		ProjectConfig.setOpt("CSV_CASES_PATH", csvPath);
-		ProjectConfig.setOpt("FUZZY_MODE", String.valueOf(chkboxFuzzyMode.isSelected()));
-
-		if(painRecognitionServer == null){
-			painRecognitionServer = new Server(ProjectConfig.getOptInt("SERVER_PORT"));
-			painRecognitionServer.addObserver(painGui);
-		}
-		try {
-			painRecognitionServer.listen();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		if(btnStartStop.getText().equalsIgnoreCase("Start")){
+			String portTxt		= txtFldPort.getText();
+			String kCasesTxt 	= txtFldKCases.getText();
+			if(! isFieldsOK(portTxt,kCasesTxt)){
+				return;
+			}
+			File trainingTag = (File)cmboxTags.getSelectedItem();
+			if(trainingTag == null){
+				JOptionPane.showMessageDialog(this, "Must Choose Tag, Please Do Training","Operation Couldn't Be Completed", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+			String annPath	= ProjectConfig.getANNFileByTag(trainingTag).getAbsolutePath();
+			String csvPath = ProjectConfig.getCSVByTag(trainingTag).getAbsolutePath();
+			ProjectConfig.setOpt("SERVER_PORT", portTxt);
+			ProjectConfig.setOpt("K_SIMILAR_CASES", kCasesTxt);
+			ProjectConfig.setOpt("ANN_PARAMETERS_PATH", annPath);
+			ProjectConfig.setOpt("CSV_CASES_PATH", csvPath);
+			ProjectConfig.setOpt("FUZZY_MODE", String.valueOf(chkboxFuzzyMode.isSelected()));
+
+			if(painRecognitionServer == null){
+				painRecognitionServer = new Server(ProjectConfig.getOptInt("SERVER_PORT"));
+				painRecognitionServer.addObserver(painGui);
+			}
+			try {
+				painRecognitionServer.listen();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			ProjectConfig.setCurrentTag(trainingTag);
 			painGui.openWindow();
 			lblServerStatus.setText("ON");
 			lblServerStatus.setForeground(Color.GREEN);
 			btnStartStop.setText("Stop");
 		}
+
 		else{
 			lblServerStatus.setText("OFF");
 			lblServerStatus.setForeground(Color.RED);

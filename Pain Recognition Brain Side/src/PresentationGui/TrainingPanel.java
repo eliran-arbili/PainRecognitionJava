@@ -263,7 +263,6 @@ public class TrainingPanel extends BackgroundPanel {
 		}
 		
 		try{
-			iconLabel.setVisible(true);
 			repaint();
 			final int inputCount 		= (int)configurations.get(ConfKeys.inputCount);
 			final int outputCount		= (int)configurations.get(ConfKeys.outputCount);
@@ -273,6 +272,7 @@ public class TrainingPanel extends BackgroundPanel {
 				@Override
 				public void run() {
 					ArrayList<NeuralTrainDesciptor> trainedNets;
+					iconLabel.setVisible(true);
 					try {
 						File noDupsCSVSet		= ProjectUtils.removeDuplicateLines(new File(textFieldDataSet.getText()), inputCount, outputCount, headers);
 						dataSetFileToUse		= ProjectUtils.normalizeCSVFile(noDupsCSVSet, inputCount, outputCount, headers);
@@ -281,13 +281,13 @@ public class TrainingPanel extends BackgroundPanel {
 						if(ProjectConfig.getOptBool("DEBUG_MODE") == false){
 							noDupsCSVSet.delete();
 						}
-						iconLabel.setVisible(false);
 						tableTrainedNetworks.addMouseListener(tableClickListener);
 					} 
 					catch (IOException e) 
 					{
 						e.printStackTrace();
 					}
+					iconLabel.setVisible(false);
 				}
 				
 			};
@@ -324,7 +324,7 @@ public class TrainingPanel extends BackgroundPanel {
 			{
 				JOptionPane.showMessageDialog(this, ex.getMessage(), "Operation Couldn't Be Completed", JOptionPane.ERROR_MESSAGE);
 			}
-			JOptionPane.showMessageDialog(this, "Training Tag Successfuly Created!", "Training", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(this, " Tag Successfuly Created!", "Training", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 	

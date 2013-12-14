@@ -9,7 +9,6 @@ import java.io.LineNumberReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.encog.app.analyst.AnalystFileFormat;
@@ -303,6 +302,20 @@ public class ProjectUtils {
 	                    .append( delimiter )
 	                    .append( String.valueOf( iter.next() ) );
 	            }
+	        }
+	    }
+	    return builder.toString();
+	}
+	
+	public static String joinDoubles(CharSequence delimiter, double [] elements){
+	    StringBuilder builder = new StringBuilder();
+	    if (elements != null && elements.length > 1)
+	    {
+            builder.append( String.valueOf( elements[0] ) );
+	    	for(int i = 1 ; i < elements.length;i++){
+	                
+	    		builder.append( delimiter )
+	                   .append( String.valueOf( elements[i] ) );
 	        }
 	    }
 	    return builder.toString();
