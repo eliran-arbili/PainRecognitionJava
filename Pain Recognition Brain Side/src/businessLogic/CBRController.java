@@ -1,6 +1,7 @@
 package businessLogic;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 import dataLayer.ProjectConfig;
@@ -58,6 +59,21 @@ public class CBRController {
 			}
 		}*/
 		return caseResult;
+	}
+	
+	public boolean revise(RunTimeCase newCase, double[] newSol){
+		newCase.setSolutionOutput(newSol);
+		if(newCase.isNormalized() == false){
+			newCase.normalize();
+		}
+		boolean isSuccess = retrieveModule.addNewCase(newCase);
+		if(isSuccess == false){
+			return false;
+		}
+		
+		ArrayList<RunTimeCase> allCases = retrieveModule.getAllCases();
+		painRecAnn.trainByDataSet(allCases, 2, 1);
+		return true;
 	}
 	
 	public void handleShutDown(){

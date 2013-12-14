@@ -32,7 +32,6 @@ public class ServerRunModePanel extends BackgroundPanel {
 	public ServerRunModePanel(Image image) {
 		super(image);
 		initialize();
-		painGui = new PainMeasureGui();
 	}
 	
 	private void initialize()
@@ -143,9 +142,10 @@ public class ServerRunModePanel extends BackgroundPanel {
 			ProjectConfig.setOpt("ANN_PARAMETERS_PATH", annPath);
 			ProjectConfig.setOpt("CSV_CASES_PATH", csvPath);
 			ProjectConfig.setOpt("FUZZY_MODE", String.valueOf(chkboxFuzzyMode.isSelected()));
-
+			
 			if(painRecognitionServer == null){
 				painRecognitionServer = new Server(ProjectConfig.getOptInt("SERVER_PORT"));
+				painGui = new PainMeasureGui(painRecognitionServer);
 				painRecognitionServer.addObserver(painGui);
 			}
 			try {

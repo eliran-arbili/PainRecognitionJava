@@ -45,6 +45,11 @@ public class Server extends ObservableServer{
 		setChanged();
 		notifyObservers(rtCase);
 	}
+	
+	public boolean handleReviseRequest(RunTimeCase newCase, double [] newSol){
+		return painCBR.revise(newCase, newSol);
+
+	}
 
 	
 	public void sendMsgToClient(ConnectionToClient client, Object msg){
@@ -73,7 +78,7 @@ public class Server extends ObservableServer{
 	synchronized protected void clientException(ConnectionToClient client, Throwable exception){
 		exception.printStackTrace();
 	}
-	  protected void clientConnected(ConnectionToClient client) {
+	protected void clientConnected(ConnectionToClient client) {
 		  System.out.println("Client Connected");
-	  }
+	}
 }

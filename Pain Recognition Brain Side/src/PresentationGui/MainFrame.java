@@ -78,7 +78,6 @@ public class MainFrame extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				if(tabbedPane.getSelectedComponent() == serverRunModePanel){
 					serverRunModePanel.refreshTags();
-					System.out.println("Chnaged");
 				}
 			}
 		});

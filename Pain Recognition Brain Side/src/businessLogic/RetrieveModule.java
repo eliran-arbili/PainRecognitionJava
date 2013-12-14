@@ -1,10 +1,12 @@
 package businessLogic;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.PriorityQueue;
+
 import dataLayer.DataBase;
 import dataLayer.ProjectConfig;
 
@@ -76,6 +78,27 @@ public class RetrieveModule {
 		}
 		
 		return kSimilarCases;
+	}
+	
+	public boolean addNewCase(RunTimeCase rtCase){
+		try 
+		{
+			caseDB.AddCase(rtCase);
+			if(ProjectConfig.getOptBool("FUZZY_MODE") == true){
+				rtCase.fuzzify();
+			}
+			allCases.add(rtCase);
+			return true;
+		} 
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public ArrayList<RunTimeCase> getAllCases(){
+		return allCases;
 	}
 	
 	

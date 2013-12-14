@@ -2,14 +2,16 @@ package PresentationGui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.event.WindowAdapter;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+
 import javax.swing.JFrame;
-import businessLogic.ReviseModule;
+
 import businessLogic.RunTimeCase;
+import businessLogic.casesServer.Server;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -19,6 +21,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.ListSelectionModel;
+
 import dataLayer.ProjectConfig;
 
 import java.awt.event.ActionListener;
@@ -28,35 +31,19 @@ import java.awt.event.MouseEvent;
 
 public class PainMeasureGui  implements Observer{
 
-	private ReviseModule reviseModule;
+	
+	private Server painRecognitionServer ;
 	private ImageIcon Image = new ImageIcon();
 	private ArrayList<ImageIcon> painIcons;
 	private int alarmCycle;
 	private boolean toPlay;
 	
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					PainMeasureGui window = new PainMeasureGui();
-					window.frame.setVisible(true);
-					
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the application.
 	 */
-	public PainMeasureGui() {
-		reviseModule = new ReviseModule();
+	public PainMeasureGui(Server painRecognitionServer) {
+		this.painRecognitionServer = painRecognitionServer;
 		alarmCycle=ProjectConfig.getOptInt("CYCLES_FOR_ALARM"); 
 		painIcons = getPainIcons();
 		initialize();
@@ -147,10 +134,6 @@ public class PainMeasureGui  implements Observer{
 		
 		frame.pack();
 		//frame.getContentPane().add(textArea);
-		
-		
-		
-		
 	}
 	protected void onClickCasesList(MouseEvent evt) {
 	    if(evt.getSource() != lstLastCases || toPlay==true){
@@ -170,14 +153,13 @@ public class PainMeasureGui  implements Observer{
                 for(int i = 0 ; i < newSol.length; i++){
                 	newSol[i] = Double.parseDouble(sols[i]);
                 }
-                boolean isSuccess = reviseModule.revise(rtCase, newSol);
-                if(isSuccess == true){
-        			JOptionPane.showMessageDialog(this.frame, " Revise Successfuly Done!", "Revise", JOptionPane.INFORMATION_MESSAGE);
+                boolean isSuccess = painRecognitionServer.handleReviseRequest(rtCase, newSol);
+                if(isSuccess){
+                	JOptionPane.showMessageDialog(this.frame, "Revise Done!", "Revise", JOptionPane.INFORMATION_MESSAGE);
                 }
                 else{
-        			JOptionPane.showMessageDialog(this.frame, "Error Ocured!, Cannot Revise", "Revise", JOptionPane.INFORMATION_MESSAGE);
+                	JOptionPane.showMessageDialog(this.frame, "Revise Failed!", "Revise", JOptionPane.ERROR_MESSAGE);
                 }
-
             }
             catch(NumberFormatException ex){
                 JOptionPane.showMessageDialog(this.frame, "Wrong Number Format, Please Try Again","Operation Couldn't be completed",JOptionPane.ERROR_MESSAGE);
@@ -261,7 +243,6 @@ public class PainMeasureGui  implements Observer{
 			alarmCycle--;
 			if(alarmCycle<=0)
 			{
-				//lstLastCases.append("\n Pain.. Pain..Pain..Pain!!\n");
 				lstLastCases.setBackground(Color.red);
 					
 			}
