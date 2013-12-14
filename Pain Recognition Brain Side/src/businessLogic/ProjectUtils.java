@@ -309,7 +309,7 @@ public class ProjectUtils {
 	
 	public static String joinDoubles(CharSequence delimiter, double [] elements){
 	    StringBuilder builder = new StringBuilder();
-	    if (elements != null && elements.length > 1)
+	    if (elements != null && elements.length > 0)
 	    {
             builder.append( String.valueOf( elements[0] ) );
 	    	for(int i = 1 ; i < elements.length;i++){
@@ -366,7 +366,8 @@ public class ProjectUtils {
 		ParseCSVLine    		csvParser	= new ParseCSVLine(CSVFormat.ENGLISH);
 		File					tempFile	= new File(toFile.getAbsoluteFile()+".temp");
 		String 					line		= "";
-		ArrayList<String>	toAdd			= new ArrayList<String>();
+		ArrayList<String>		toAdd		= new ArrayList<String>();
+		int 					numOfLines	= getNumberOFLines(fromFile);
 		while((line = reader.readLine()) != null){
 			String addRow = "";
 			List<String> lineStrings = csvParser.parse(line);
@@ -381,8 +382,11 @@ public class ProjectUtils {
 		int index					= 0;
 		while((line = reader.readLine()) != null){
 			line += toAdd.get(index);
-			writer.append(line + System.getProperty("line.separator"));
+			writer.append(line);
 			index++;
+			if(index < numOfLines){
+				 writer.append(System.getProperty("line.separator"));
+			}
 		}
 		writer.close();
 		reader.close();
@@ -399,7 +403,7 @@ public class ProjectUtils {
 		int numOFLines = lnr.getLineNumber();
 		lnr.close();
 		frLines.close();
-		return numOFLines;
+		return numOFLines +1;
 	}
 	
 	/* This method is hard-coded workaround in order to fix Encog Bug*/
@@ -435,8 +439,10 @@ public class ProjectUtils {
 	}
 
 	public static void main(String[] args){
-		File f = new File("C:\\Users\\earbili\\Desktop\\NeuralNets\\NEW_DataSet_FullAUS.csv");
+		File f = new File("C:\\Users\\earbili\\Desktop\\NeuralNets\\NEW_DataSet_FullAUS- Edited.csv");
+		
 		try {
+			System.out.println(getNumberOFLines(f));
 /*			List<AnalystField> l = getAnalystFieldsCSV(f);
 			for(AnalystField af: l){
 				System.out.println(af);
