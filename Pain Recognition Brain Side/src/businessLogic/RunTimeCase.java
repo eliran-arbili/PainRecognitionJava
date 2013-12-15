@@ -31,8 +31,8 @@ public class RunTimeCase {
 	 * Constructors
 	 */
 	/**
-	 * Constructor - get array of action units and initialize class  members
-	 * @param actionUnits -  array that contain values that  describes the movement of muscles in face
+	 * Initialize run time case 
+	 * @param actionUnits -  array that contain action units
 	 */
 	public RunTimeCase(double actionUnits[]){
 		this.origActionUnits = Arrays.copyOf(actionUnits, actionUnits.length);
@@ -42,9 +42,9 @@ public class RunTimeCase {
 	}
 	
 	/**
-	 * Constructor - get array of action units and array of solution output and initialize class  members 
-	 * @param actionUnits - array that contain values that  describes the movement of muscles in face 
-	 * @param solution - Value represent the level of pain
+	 * Initialize run time case
+	 * @param actionUnits - array that contain action units 
+	 * @param solution - array that contain case solution output
 	 */
 	public RunTimeCase(double actionUnits[], double [] solution){
 		this(actionUnits);
@@ -52,10 +52,10 @@ public class RunTimeCase {
 	}
 	
 	/**
-	 * Constructor - get array of action units,array of solution output and boolean normalize and  initialize class  members 
-	 * @param actionUnits - array that contain values that  describes the movement of muscles in face
-	 * @param solution -  value represent the level of pain
-	 * @param normalized -indicator  to know if action units are normalized or not
+	 * Initialize run time case
+	 * @param actionUnits - array that contain action units
+	 * @param solution -  array that contain case solution output
+	 * @param normalized - indicator to know if action units are normalized or not
 	 */
 	public RunTimeCase(double actionUnits[], double [] solution, boolean normalized){
 		this(actionUnits,solution);
@@ -63,9 +63,9 @@ public class RunTimeCase {
 	}
 	
 	/**
-	 * Constructor - get array of action units and boolean normalize and  initialize class  members 
-	 * @param actionUnits - array that contain values that  describes the movement of muscles in face
-	 * @param normalized -indicator  to know if action units are normalized or not
+	 * Initialize run time case 
+	 * @param actionUnits - array that contain action units
+	 * @param normalized - indicator to know if action units are normalized or not
 	 */
 	public RunTimeCase(double actionUnits[], boolean normalized){
 		this(actionUnits);
@@ -76,7 +76,7 @@ public class RunTimeCase {
 	 * Member functions
 	 */
 	/**
-	 * this function return solution output
+	 * Get solution output
 	 * @return copy of solution output array member
 	 */
 	public double[] getSolutionOutput() {
@@ -86,24 +86,25 @@ public class RunTimeCase {
 		return Arrays.copyOf(solutionOutput, solutionOutput.length);
 	}
 	/**
-	 * this function get solution output and initialize solution output class member
-	 * @param solutionOutput -  value represent the level of pain
+	 * Set solution output
+	 * @param solutionOutput -  array that contain case solution output
 	 */
 	public void setSolutionOutput(double[] solutionOutput) {
 		this.solutionOutput = Arrays.copyOf(solutionOutput, solutionOutput.length);
 	}
 	
 	/**
-	 * function that get index and return action unit
-	 * @param i - index 
-	 * @return specific action unit
+	 * Get specific action unit value
+	 * @param i - index for action units array
+	 * @return specific action unit value
 	 */
 	public double getActionUnit(int i){
 		return actionUnits[i];
 	}
+	
 	/**
-	 * function that return array action units
-	 * @returncopy of action units array 
+	 * Get action units 
+	 * @return action units array 
 	 */
 	public double [] getActionUnits()
 	{
@@ -111,13 +112,16 @@ public class RunTimeCase {
 	}
 	
 	/**
-	 * Get copy of original action units 
-	 * @return copy of originl action units
+	 * Get original action units 
+	 * @return originl action units array
 	 */
 	public double [] getOrigActionUnits(){
 		return Arrays.copyOf(origActionUnits,origActionUnits.length);
 	}
 	
+	/**
+	 * Print action units
+	 */
 	public String toString()
 	{
 		return Arrays.toString(actionUnits);
@@ -125,7 +129,7 @@ public class RunTimeCase {
 	
 	
 	/**
-	 * perform fuzzify process on action units
+	 * Perform fuzzify process on action units
 	 */
 	public void fuzzify()
 	{
@@ -150,9 +154,9 @@ public class RunTimeCase {
 	}
 	 
 	/**
-	 * get runtime case and compute the value that represent the similarity between cases   
-	 * @param rtCase - runtime case , the current case that come from user
-	 * @return sum - value that represent the similarity between cases 
+	 * Get similarity value between cases   
+	 * @param rtCase - runtime case
+	 * @return  value that represent the similarity between cases 
 	 */
 	public Double similarity(RunTimeCase rtCase) {
 		double sum	= 0;
@@ -167,24 +171,22 @@ public class RunTimeCase {
 	
 	
 	/**
-	 *  return true if action units are normalized or false if not
-	 * @return normalized - value that used as indicator to know if action units are normalized
+	 *  Get value that used as indicator to know if action units are normalized
+	 * @return true if this case is isNormalized, false else
 	 */
 	public boolean isNormalized() {
 		return normalized;
 	}
 
 	/**
-	 *  set normalized parameter
-	 * @param normalized - value that used as indicator to know if action units are normalized
+	 * Set value that used as indicator to know if action units are normalized
+	 * @param True if this case is normalized, false else
 	 */
 	public void setNormalized(boolean normalized) {
 		this.normalized = normalized;
 	}
 	
-	/**
-	 * this function compare action units of two cases and return true if equals and false else
-	 */
+	
 	public boolean equals(Object obj)
 	{
 		if(obj == null){
@@ -209,6 +211,7 @@ public class RunTimeCase {
 		
 		return true;
 	}
+	
 	
 	public  void normalize(){
 		if(isNormalized()){

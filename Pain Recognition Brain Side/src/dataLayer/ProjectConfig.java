@@ -37,8 +37,8 @@ public class ProjectConfig {
 	
 
 	/**
-	 * This function initialize instance of properties class  that contain all project definition 
-	 * @return instance of  properties class
+	 * Initialize properties file
+	 * @return instance of Properties 
 	 */
 	private static Properties initProperties(){
 		Properties prop = new Properties();
@@ -52,8 +52,8 @@ public class ProjectConfig {
 	}
 	
 	/**
-	 * this function map the configuration properties
-	 * @return map that contain key definition and value of key
+	 * Initialize default project configuration 
+	 * @return TreeMap that contain key and value definition
 	 */
 	private static TreeMap<String, String> initDefaultConfigurations() {
 		TreeMap<String,String> defaultConf = new TreeMap<String,String>();
@@ -83,10 +83,11 @@ public class ProjectConfig {
 		return defaultConf;
 	}
 	
+	
 	/**
-	 * this function get property key and return property value as string
-	 * @param opt property key
-	 * @return property value as string
+	 * Get property value as String
+	 * @param opt - property key
+	 * @return property value 
 	 */
 	public static String getOpt(String opt){
 		String property;
@@ -99,10 +100,11 @@ public class ProjectConfig {
 		}
 		return property;
 	}
+	
 	/**
-	 * this function get property key and return property value as array string
-	 * @param opt property key
-	 * @return property value as array string
+	 * Get property values as array String
+	 * @param opt - property key
+	 * @return  property values 
 	 */
 	public static String [] getOptArray(String opt){
 		String rawProperty;
@@ -121,9 +123,9 @@ public class ProjectConfig {
 	}
 	
 	/**
-	 * this function get property key and return property value as Double
-	 * @param opt property key
-	 * @return property value as Double
+	 * Get property value as Double
+	 * @param opt - property key
+	 * @return  property value 
 	 */
 	public static Double getOptDouble(String opt){
 		Double property = null;
@@ -137,9 +139,9 @@ public class ProjectConfig {
 	}
 	
 	/**
-	 * this function get property key and return property value as array Double
-	 * @param opt property key
-	 * @return property value as array Double
+	 * Get property values as array Double
+	 * @param opt - property key
+	 * @return property value
 	 */
 	public static Double[] getOptDoubleArray(String opt){
 		Double [] property = null;
@@ -156,9 +158,9 @@ public class ProjectConfig {
 	}
 	
 	/**
-	 * this function get property key and return property value as Integer
-	 * @param opt property key
-	 * @return property value as Integer
+	 * Get property value as Integer
+	 * @param opt  - property key
+	 * @return property value
 	 */
 	public static Integer getOptInt(String opt){
 		Integer property = null;
@@ -172,9 +174,9 @@ public class ProjectConfig {
 	}
 	
 	/**
-	 * this function get property key and return property value as Boolean
-	 * @param opt property key
-	 * @return property value as Boolean
+	 * Get property value as boolean 
+	 * @param opt  - property key
+	 * @return property value
 	 */
 	public static Boolean getOptBool(String opt){
 		String rawProperty = getOpt(opt);
@@ -189,17 +191,17 @@ public class ProjectConfig {
 	}
 	
 	/**
-	 * this function get property key   value and set value for key
-	 * @param opt property key
-	 * @param value property value
+	 * Set property value 
+	 * @param opt - property key 
+	 * @param value - property value 
 	 */
 	public static void setOpt(String opt, String value){
 		props.setProperty(opt, value);
 	}
 	
 	/**
-	 * this function store  properties file  
-	 * @return true if the store success , false if not
+	 * Create Properties file configuration 
+	 * @return True if file creation success , flase else
 	 */
 	public static boolean saveCurrentConfig() {
 		try 
@@ -214,13 +216,14 @@ public class ProjectConfig {
 	}
 	
 	/**
-	 * this function get property key and return default value that generate in code 
-	 * @param opt property key
-	 * @return default value that generate in code
+	 * Get default property value as String
+	 * @param opt - default property key
+	 * @return default property value
 	 */
 	public static String getDefaultOpt(String opt){
 		return defaultConfigurations.get(opt);
 	}
+	
 	
 	
 	public static File [] getTrainingTags(){

@@ -7,7 +7,7 @@ import java.util.PriorityQueue;
 import dataLayer.ProjectConfig;
 
 /**
- * CBRController is the class that responsible on the connection between neural network and casebase  
+ * Responsible to manage all Case Base Reasoning neural network cycle  
  * @author Eliran Arbili , Arie Gaon
  *
  */
@@ -19,12 +19,9 @@ public class CBRController {
 	private RetrieveModule retrieveModule;
 	private NeuralNetworkManager painRecAnn;
 	
-	/*
-	 * Constructors
-	 */
 	
 	/**
-	 * Constructor  - initialize instance of RetriveModule class for get cases from casebase , NeuralNetworkManager class for get neural network 
+	 * Create CBRController with initialization of all needed components
 	 */
 	public CBRController()
 	{
@@ -39,9 +36,9 @@ public class CBRController {
 	 */
 	
 	/**
-	 * The main function, this function get runtime case, train network by k closest cases from casebase, and return the network output
+	 * CBRcycle: retrieve, reuse(train neural network) and suggest solution as pain measure
 	 * @param rtCase  - runtime case , the current case that come from user
-	 * @return  - an array of network results output
+	 * @return  array of network solution output
 	 */
 	public double[] doCycle(RunTimeCase rtCase){
 		if(ProjectConfig.fuzzyMode)
@@ -50,19 +47,18 @@ public class CBRController {
 		painRecAnn.trainKclosestCases(kClosestCases);
 		double [] caseResult = painRecAnn.computeOutput(rtCase);
 		painRecAnn.ResetWeights();
-/*		if(caseResult > ProjectConfig.PAIN_SENSITIVITY){
-			System.out.println("NetSolution:"+caseResult);
-			for(RunTimeCase r: kClosestCases){
-				System.out.println("case: "+r);
-				System.out.println("sol: "+r.getSolutionOutput());
-				System.out.println("sim: "+r.similarity(rtCase));
-			}
-		}*/
 		return caseResult;
 	}
 	
+	/**
+	 * Add new RunTimeCase to casebase together with training the network
+	 * @param newCase - runtime case , the current case that come from user
+	 * @param newSol - solution for rtcase
+	 * @return True if Revise success , false else
+	 */
 	public boolean revise(RunTimeCase newCase, double[] newSol){
 		newCase.setSolutionOutput(newSol);
+		
 		if(newCase.isNormalized() == false){
 			newCase.normalize();
 		}

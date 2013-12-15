@@ -26,7 +26,7 @@ public class RetrieveModule {
 	 * Constructors 
 	 */
 	/**
-	 * Constructor - initialize instance of casebase and array list  that contain all cases   
+	 * Initialize instance of casebase and array list  that contain all cases   
 	 */
     public RetrieveModule()
     {
@@ -34,7 +34,7 @@ public class RetrieveModule {
 		allCases	= caseDB.GetAllCases();
 	}
     /**
-     * Constructor - get array list that contain all cases and  initialize instance of casebase and array list  that contain all cases
+     * Initialize instance of casebase and array list  that contain all cases 
      * @param allCases - array list that contain all cases from casebase
      */
 	public RetrieveModule( ArrayList<RunTimeCase> allCases)
@@ -47,9 +47,9 @@ public class RetrieveModule {
 	 * Member functions
 	 */
 	/**
-	 * this function get runtime case and return k similar cases from casebase
-	 * @param rtCase - runtime case , the current case that come from user
-	 * @return
+	 * Get k similar cases from casebase for a run time case
+	 * @param rtCase - runtime case 
+	 * @return Priority Queue that contain k closest cases from casebase
 	 */
 	public PriorityQueue<RunTimeCase> getKSimilarCases(final RunTimeCase rtCase)
 	{
@@ -80,6 +80,12 @@ public class RetrieveModule {
 		return kSimilarCases;
 	}
 	
+	
+	/**
+	 * Add new run time case to casebase
+	 * @param rtCase - runtime case
+	 * @return True if Added case success , false else
+	 */
 	public boolean addNewCase(RunTimeCase rtCase){
 		try 
 		{
@@ -97,6 +103,11 @@ public class RetrieveModule {
 		}
 	}
 	
+	
+	/**
+	 * Get all cases from casebase
+	 * @return Array List that contain all cases
+	 */
 	public ArrayList<RunTimeCase> getAllCases(){
 		return allCases;
 	}

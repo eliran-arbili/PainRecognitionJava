@@ -19,7 +19,7 @@ import businessLogic.training.TrainingSession;
 import businessLogic.training.TrainingSession.ConfKeys;
 
 /**
- * NeuralNetworkManager is the class that responsible on  neural network definitions
+ * Handles all neural network definitions and functionalities
  * @author Eliran Arbili , Arie Gaon
  *
  */
@@ -56,14 +56,15 @@ public class NeuralNetworkManager {
 	 * Constructors
 	 */
 	/**
-	 * The Constructor - get file with parameters and create instance of neural network 
-	 * @param networkParamaters - file that contain definition for create network
+	 * Create NeuralNetworkManager given by a persistence Encog neural network file 
+	 * @param networkParamaters - file that contain user definitions for neural network
 	 */
 	private NeuralNetworkManager(File networkParamaters){
 		neuralNet = (ContainsFlat)EncogDirectoryPersistence.loadObject(networkParamaters);
 		HashMap<ConfKeys,Object> conf = getDefaultTrainConfigurations();
 		trainingSession = new TrainingSession(conf);
 		originalWeights=Arrays.copyOf(neuralNet.getFlat().getWeights(), neuralNet.getFlat().getWeights().length);
+	
 	}
 	
 	
@@ -72,7 +73,7 @@ public class NeuralNetworkManager {
 	 * Member functions
 	 */
 	/**
-	 * this function restart the network weights to original weight
+	 * Restart the neural network weights with original weights
 	 */
 	public void ResetWeights()
 	{
@@ -81,17 +82,18 @@ public class NeuralNetworkManager {
 	}
 	
 	/**
-	 * this function get queue of k closest cases from casebase and  train the network 
-	 * @param kClosestCases - is the k closest cases in casebase that similar to current runtime case 
+	 * Train neural network with k closest cases.
+	 * The k closest cases should retrieved by the retrieve module 
+	 * @param kClosestCases - Priority Queue that contain k closest cases from cases base after retrieve phase 
 	 */
 	public void trainKclosestCases(PriorityQueue<RunTimeCase> kClosestCases){
 		trainByDataSet(kClosestCases,ProjectConfig.getOptInt("RUN_TIME_K_FOLD"),0);
 	}
 	
 	/**
-	 * this function get runtime case as input for network and return the output 
-	 * @param rtCase - runtime case , the current case that come from user
-	 * @return an array of network results output
+	 * Get neural network solution output  
+	 * @param rtCase - run time case
+	 * @return array of neural network solution output
 	 */
 	public double[] computeOutput(RunTimeCase rtCase){
 		Integer outputCount = ProjectConfig.getOptInt("CASE_OUTPUT_COUNT");		
@@ -101,20 +103,26 @@ public class NeuralNetworkManager {
 	}
 	
 	/**
-	 * this function save the network with all new definitions 
+	 * Save the neural network
 	 */
 	public void saveNet(){
 		EncogDirectoryPersistence.saveObject(networkParameters, neuralNet);
 	}
 	
 	/**
-	 * this function return neural network instance
+	 * Get neural network instance
 	 * @return instance of neural network 
 	 */
 	public ContainsFlat getNeuralNet() {
 		return neuralNet;
 	}
 	
+	/**
+	 * Train neural network 
+	 * @param dataSetCases - array list of all cases 
+	 * @param partitions - number of  partitions for cross validation training approach  
+	 * @param validationSetIndex - index of  validation group 
+	 */
 	public void trainByDataSet(Iterable<RunTimeCase> dataSetCases, int partitions, int validationSetIndex){
 
 		BasicMLDataSet trainingSet = constructTrainingSetFromCases(dataSetCases);
@@ -130,8 +138,10 @@ public class NeuralNetworkManager {
 		trainingSession.crossValidationTrain(neuralNet, trainingSet,partitions,validationSetIndex);
 	}
 	
-	/*
-	 * Class functions
+	/**
+	 * Get neural network instance
+	 * @param networkParameters - file that contain user definitions for neural network
+	 * @return instance of neural network
 	 */
 	public static NeuralNetworkManager createInstance(File networkParameters){
 		if(activeNetworks.containsKey(networkParameters.getAbsolutePath())){
@@ -164,6 +174,10 @@ public class NeuralNetworkManager {
 		return new BasicMLDataSet(trainingPairs);
 	}
 	
+	/**
+	 * Get neural network default definitions
+	 * @return hash map that contain all neural network definitions
+	 */
 	private HashMap<ConfKeys, Object> getDefaultTrainConfigurations() {
 		HashMap<ConfKeys,Object> conf = new HashMap<ConfKeys,Object>();
 		conf.put(ConfKeys.activationFunction, new ActivationSigmoid());

@@ -32,8 +32,8 @@ public class DataBase {
 	 * Constructors
 	 */
 	/**
-	 * initialize dataset file that will used for create database as arraylist
-	 * @param casesCSVFile
+	 * Initialize dataset file
+	 * @param casesCSVFile file that contain all cases
 	 */
 	public DataBase(File casesCSVFile) {
 		this.casesCSVFile = casesCSVFile;
@@ -43,7 +43,12 @@ public class DataBase {
 	/*
 	 * Member functions
 	 */
-	
+	/**
+	 * Add new run time case to casebase
+	 * @param rtCase - run time case
+	 * @return True if added case success , false else
+	 * @throws IOException
+	 */
 	public boolean AddCase(RunTimeCase rtCase) throws IOException{
 		if(rtCase.getSolutionOutput() == null){
 			return false;
@@ -65,7 +70,7 @@ public class DataBase {
 	
 	
 	/**
-	 * create arraylist that contain all cases , actually the arraylist is the database 
+	 * Get all cases from case base 
 	 * @return - arraylist that contain all cases
 	 */
 	public ArrayList<RunTimeCase> GetAllCases(){
