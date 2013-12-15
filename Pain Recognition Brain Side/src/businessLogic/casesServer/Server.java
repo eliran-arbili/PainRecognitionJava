@@ -16,8 +16,9 @@ public class Server extends ObservableServer{
 	 * Constructors
 	 */
 	
+
 	/**
-	 * Constructor - get port , initialize the server and instance of CBRController class
+	 * CInitialize the server and instance of CBRController class
 	 * @param port
 	 */
 	public Server(int port) 
@@ -30,9 +31,7 @@ public class Server extends ObservableServer{
 	/*
 	 * Member functions
 	 */
-	/**
-	 * this function get case from an face tracking system via socket , normalize runtime case , set the output from neural network and notify the server
-	 */
+	
 	@Override
 	protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
 		double [] message 		= 	(double[])msg;
@@ -62,6 +61,15 @@ public class Server extends ObservableServer{
 			e.printStackTrace();
 		}
 	}
+	
+	public CBRController getPainCBR() {
+		return painCBR;
+	}
+
+	public void setPainCBR(CBRController painCBR) {
+		this.painCBR = painCBR;
+	}
+	
 	protected void serverStarted() {
 		System.out.println("Server Started...");
 	}

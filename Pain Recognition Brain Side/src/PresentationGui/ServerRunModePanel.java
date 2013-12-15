@@ -7,12 +7,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+
+import businessLogic.CBRController;
 import businessLogic.casesServer.Server;
 import dataLayer.ProjectConfig;
 
@@ -147,6 +150,11 @@ public class ServerRunModePanel extends BackgroundPanel {
 				painRecognitionServer = new Server(ProjectConfig.getOptInt("SERVER_PORT"));
 				painGui = new PainMeasureGui(painRecognitionServer);
 				painRecognitionServer.addObserver(painGui);
+			}
+			else{
+				if(! ProjectConfig.getCurrentTag().equals(trainingTag)) {
+					painRecognitionServer.setPainCBR(new CBRController());
+				}
 			}
 			try {
 				painRecognitionServer.listen();
