@@ -22,6 +22,12 @@ import java.awt.Image;
 
 
 @SuppressWarnings("serial")
+
+/**
+ * GUI panel for easy neural networks creation by configurable trainings
+ * @author Eliran Arbeli , Arie Gaon
+ *
+ */
 public class TrainingPanel extends BackgroundPanel {
 
 	
@@ -35,7 +41,10 @@ public class TrainingPanel extends BackgroundPanel {
 	/*
 	 * Constructors
 	 */
-
+	/**
+	 * Create new TrainingPanel with a background image
+	 * @param image
+	 */
 	public TrainingPanel(Image image) {
 		super(image);
 		initialize();

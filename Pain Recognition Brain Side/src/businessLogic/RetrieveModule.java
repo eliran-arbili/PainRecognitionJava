@@ -26,7 +26,7 @@ public class RetrieveModule {
 	 * Constructors 
 	 */
 	/**
-	 * Initialize instance of casebase and array list  that contain all cases   
+	 * Create new RetriveModule that can be used to access casebase   
 	 */
     public RetrieveModule()
     {
@@ -34,7 +34,7 @@ public class RetrieveModule {
 		allCases	= caseDB.GetAllCases();
 	}
     /**
-     * Initialize instance of casebase and array list  that contain all cases 
+     * Create new RetriveModule with initial cases that can be used to access casebase
      * @param allCases - array list that contain all cases from casebase
      */
 	public RetrieveModule( ArrayList<RunTimeCase> allCases)
@@ -47,7 +47,9 @@ public class RetrieveModule {
 	 * Member functions
 	 */
 	/**
-	 * Get k similar cases from casebase for a run time case
+	 * Get k similar cases from casebase for a given run time case
+	 * The retrieval is done by exaine the similarity between the given case and the cases in casebase
+	 * Those with lowest similarity to this case will be in the final queue
 	 * @param rtCase - runtime case 
 	 * @return Priority Queue that contain k closest cases from casebase
 	 */

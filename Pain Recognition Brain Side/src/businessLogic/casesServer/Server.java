@@ -12,13 +12,14 @@ public class Server extends ObservableServer{
 	
 	
 	private CBRController painCBR;
+	
+	
 	/*
 	 * Constructors
-	 */
-	
+	 */	
 
 	/**
-	 * CInitialize the server and instance of CBRController class
+	 * Create new Pain Recognition Sever instance
 	 * @param port
 	 */
 	public Server(int port) 
@@ -31,19 +32,6 @@ public class Server extends ObservableServer{
 	/*
 	 * Member functions
 	 */
-	
-	@Override
-	protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
-		double [] message 		= 	(double[])msg;
-		double [] actionUnits 	= 	Arrays.copyOfRange(message, 0, message.length);
-		RunTimeCase rtCase = new RunTimeCase(actionUnits);
-		rtCase.normalize();
-		
-		double [] painMeasure = painCBR.doCycle(rtCase);
-		rtCase.setSolutionOutput(painMeasure);
-		setChanged();
-		notifyObservers(rtCase);
-	}
 	
 	public boolean handleReviseRequest(RunTimeCase newCase, double [] newSol){
 		return painCBR.revise(newCase, newSol);
@@ -62,12 +50,40 @@ public class Server extends ObservableServer{
 		}
 	}
 	
+	/**
+	 * Get the CBRController instance
+	 * @return CBRController
+	 */
 	public CBRController getPainCBR() {
 		return painCBR;
 	}
-
+	
+	/**
+	 * Set CBRController
+	 * @param painCBR
+	 */
 	public void setPainCBR(CBRController painCBR) {
 		this.painCBR = painCBR;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see businessLogic.casesServer.ObservableServer#handleMessageFromClient(java.lang.Object, businessLogic.casesServer.ConnectionToClient)
+	 * 
+	 * Extreact a given RunTine case from the message Object and activate the CBR cycle
+	 * Notify all observers for the pain measure results
+	 */
+	@Override
+	protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
+		double [] message 		= 	(double[])msg;
+		double [] actionUnits 	= 	Arrays.copyOfRange(message, 0, message.length);
+		RunTimeCase rtCase = new RunTimeCase(actionUnits);
+		rtCase.normalize();
+		
+		double [] painMeasure = painCBR.doCycle(rtCase);
+		rtCase.setSolutionOutput(painMeasure);
+		setChanged();
+		notifyObservers(rtCase);
 	}
 	
 	protected void serverStarted() {

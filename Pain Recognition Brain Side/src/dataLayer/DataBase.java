@@ -1,7 +1,6 @@
 package dataLayer;
 
 
-import java.awt.List;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,28 +10,31 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.csv.ReadCSV;
 
 import businessLogic.ProjectUtils;
 import businessLogic.RunTimeCase;
 
-
+/**
+ * Implement the casebase   
+ * @author Eliran Arbili , Arie Gaon
+ *
+ */
 public class DataBase {
 	
 	/*
 	 * Instance Variables
 	 */
-	public File casesCSVFile ;
+	private File casesCSVFile ;
 	
 
 	/*
 	 * Constructors
 	 */
 	/**
-	 * Initialize dataset file
+	 * Create new DataBase from CSV file
+	 * The CSV file should contain a collection of cases and all data access is done from and to this file
 	 * @param casesCSVFile file that contain all cases
 	 */
 	public DataBase(File casesCSVFile) {
@@ -44,7 +46,9 @@ public class DataBase {
 	 * Member functions
 	 */
 	/**
-	 * Add new run time case to casebase
+	 * Add new RunTimeCase to casebase
+	 * The case will be added to the CSV file 
+	 * it's critical that the CSV file will not have blank like at end of file.
 	 * @param rtCase - run time case
 	 * @return True if added case success , false else
 	 * @throws IOException
@@ -70,8 +74,8 @@ public class DataBase {
 	
 	
 	/**
-	 * Get all cases from case base 
-	 * @return - arraylist that contain all cases
+	 * Get all cases from casebase 
+	 * @return - all cases within the CSV file
 	 */
 	public ArrayList<RunTimeCase> GetAllCases(){
 		

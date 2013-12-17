@@ -7,11 +7,10 @@ import java.util.PriorityQueue;
 import dataLayer.ProjectConfig;
 
 /**
- * Responsible to manage all Case Base Reasoning neural network cycle  
+ * Responsible to manage all Case Base Reasoning and Neural Network cycle  
  * @author Eliran Arbili , Arie Gaon
  *
  */
-
 
 public class CBRController {
 	
@@ -36,12 +35,12 @@ public class CBRController {
 	 */
 	
 	/**
-	 * CBRcycle: retrieve, reuse(train neural network) and suggest solution as pain measure
+	 * Performing a CBR cycle: retrieve, reuse(train neural network) and suggest solution as pain measure
 	 * @param rtCase  - runtime case , the current case that come from user
 	 * @return  array of network solution output
 	 */
 	public double[] doCycle(RunTimeCase rtCase){
-		if(ProjectConfig.fuzzyMode)
+		if(ProjectConfig.getOptBool("FUZZT_MODE") == true)
 			rtCase.fuzzify();
 		PriorityQueue<RunTimeCase> kClosestCases = retrieveModule.getKSimilarCases(rtCase);
 		painRecAnn.trainKclosestCases(kClosestCases);
@@ -72,6 +71,9 @@ public class CBRController {
 		return true;
 	}
 	
+	/**
+	 * Call this method before instance goes out of scope to save current state
+	 */
 	public void handleShutDown(){
 		//painRecAnn.saveNet();
 	}

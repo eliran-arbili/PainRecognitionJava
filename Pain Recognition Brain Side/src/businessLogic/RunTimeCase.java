@@ -7,11 +7,9 @@ import org.encog.util.arrayutil.NormalizedField;
 import dataLayer.ProjectConfig;
 
 /**
- * RunTimeCase is  class that describe case , case contain action units and solution output   
+ * Describe case that used in RunTime manipulations, a case contain action units and solution output   
  * @author Eliran Arbeli , Arie Gaon
  */
-
-
 public class RunTimeCase {
 	
 	/*
@@ -31,7 +29,7 @@ public class RunTimeCase {
 	 * Constructors
 	 */
 	/**
-	 * Initialize run time case 
+	 * Create new RunTimeCase with given action units
 	 * @param actionUnits -  array that contain action units
 	 */
 	public RunTimeCase(double actionUnits[]){
@@ -42,7 +40,7 @@ public class RunTimeCase {
 	}
 	
 	/**
-	 * Initialize run time case
+	 * Create new RunTimeCase with action units and ready solution
 	 * @param actionUnits - array that contain action units 
 	 * @param solution - array that contain case solution output
 	 */
@@ -52,7 +50,7 @@ public class RunTimeCase {
 	}
 	
 	/**
-	 * Initialize run time case
+	 * Create new RunTimeCase with given action units, ready solution and specify normalization status 
 	 * @param actionUnits - array that contain action units
 	 * @param solution -  array that contain case solution output
 	 * @param normalized - indicator to know if action units are normalized or not
@@ -63,9 +61,9 @@ public class RunTimeCase {
 	}
 	
 	/**
-	 * Initialize run time case 
+	 * Create new RunTimeCase with given action units and specify normalization status
 	 * @param actionUnits - array that contain action units
-	 * @param normalized - indicator to know if action units are normalized or not
+	 * @param normalized - indicator for normalization of action units status
 	 */
 	public RunTimeCase(double actionUnits[], boolean normalized){
 		this(actionUnits);
@@ -120,7 +118,7 @@ public class RunTimeCase {
 	}
 	
 	/**
-	 * Print action units
+	 * Return String representation of action units
 	 */
 	public String toString()
 	{
@@ -129,7 +127,7 @@ public class RunTimeCase {
 	
 	
 	/**
-	 * Perform fuzzify process on action units
+	 * Perform fuzzification process on action units
 	 */
 	public void fuzzify()
 	{
@@ -171,7 +169,7 @@ public class RunTimeCase {
 	
 	
 	/**
-	 *  Get value that used as indicator to know if action units are normalized
+	 *  Get action units normalization indicator
 	 * @return true if this case is isNormalized, false else
 	 */
 	public boolean isNormalized() {
@@ -179,14 +177,16 @@ public class RunTimeCase {
 	}
 
 	/**
-	 * Set value that used as indicator to know if action units are normalized
+	 * Set action units normalization indicator
 	 * @param True if this case is normalized, false else
 	 */
 	public void setNormalized(boolean normalized) {
 		this.normalized = normalized;
 	}
 	
-	
+	/**
+	 * Check cases equality by comparing  action units and solution
+	 */
 	public boolean equals(Object obj)
 	{
 		if(obj == null){
@@ -212,7 +212,9 @@ public class RunTimeCase {
 		return true;
 	}
 	
-	
+	/**
+	 * Normalize this case
+	 */
 	public  void normalize(){
 		if(isNormalized()){
 			return;

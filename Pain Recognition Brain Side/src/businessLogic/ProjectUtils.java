@@ -34,15 +34,9 @@ import dataLayer.ProjectConfig;
 public class ProjectUtils {
 	
 	/**
-<<<<<<< HEAD
 	 * Assertion statement used to enforce integrity and semantics
-	 * @param statement
-	 * @param description
-=======
-	 * this function get statement and description ,check the statement and return exception with description if the statement is false
-	 * @param statement - boolean statement logic
-	 * @param description - description that display with the exception
->>>>>>> branch 'master' of https://github.com/eliran-arbili/PainRecognitionJava.git
+	 * @param statement to check
+	 * @param description- what to report when statement does not hold
 	 */
 	public static void assertFalse(boolean statement, String description){
 		if(statement == true){
@@ -55,10 +49,10 @@ public class ProjectUtils {
 		}
 	}
 	/**
-	 * Given a dataSet split it to k subsets
-	 * @param dataSet
-	 * @param k
-	 * @return
+	 * Given a BasicMLDataSet Object split it to k subsets
+	 * @param dataSet to split  
+	 * @param k- number of split partitions
+	 * @return list of complementary subsets data sets BasicMLDataSet Objects
 	 */
 	public static ArrayList<BasicMLDataSet> splitDataSet(BasicMLDataSet dataSet, int k) {
 		ArrayList<BasicMLDataSet> kDataSets = new ArrayList<BasicMLDataSet>();
@@ -88,13 +82,13 @@ public class ProjectUtils {
 	/**
 	 * Given datSet file, split the it into k complementary subsets files
 	 * The files saved in the same directory with sub<index> addition to file name.
-	 * @param dataSet
-	 * @param k
-	 * @param inputCount
-	 * @param outputCount
-	 * @param headers
-	 * @return
-	 * @throws IOException
+	 * @param dataSet to split
+	 * @param k- number of split partitions
+	 * @param inputCount- number of inputs to neural network that targeted for this data set
+	 * @param outputCount- number of outputs to neural network that targeted for this data set
+	 * @param headers- weather file contain headers
+	 * @return list of complementary subsets data sets files
+	 * @throws IOException if any IO failure occur
 	 */
 	public static ArrayList<File> splitDataSet(File dataSet, int k, boolean headers) throws IOException {
 		ArrayList<File> kDataSets = new ArrayList<File>();
@@ -146,12 +140,12 @@ public class ProjectUtils {
 
 	/**
 	 * Convert a CSV file to a BasicMLDataSet Object.
-	 * @param csvDataSet
-	 * @param inputCount
-	 * @param outputCount
-	 * @param headers
-	 * @return
-	 * @throws IOException
+	 * @param csvDataSet to convert
+	 * @param inputCount- number of inputs to neural network that targeted for this data set
+	 * @param outputCount- number of outputs to neural network that targeted for this data set
+	 * @param headers- weather file contain headers
+	 * @return A BasicMLDataSet Object that contain a pairs of input,output for each case
+	 * @throws IOException if any IO failure occur
 	 */
 	public static BasicMLDataSet convertCSVToDateSet(File csvDataSet, int inputCount, int outputCount, boolean headers) throws IOException{
 		
@@ -164,10 +158,10 @@ public class ProjectUtils {
 
 	/**
 	 * Replace last matching of regex in the text with replacement.
-	 * @param text
-	 * @param regex
-	 * @param replacement
-	 * @return
+	 * @param text for replacing
+	 * @param regex- the last pattern to replace
+	 * @param replacement for pattern
+	 * @return String with replacement
 	 */
     public static String replaceLast(String text, String regex, String replacement) {
         return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
@@ -176,12 +170,13 @@ public class ProjectUtils {
     
 	/**
 	 * Normalize CSV file according to the normalization configuration in config.properties file.
-	 * @param dataSetFile
-	 * @param inputCount
-	 * @param outputCount
-	 * @param headers
-	 * @return
-	 * @throws IOException
+	 * The range of normalization and the minimum and maximum values for each AU is determined in config file
+	 * @param dataSetFile to normalize
+	 * @param inputCount- number of inputs to neural network that targeted for this data set
+	 * @param outputCount- number of outputs to neural network that targeted for this data set
+	 * @param headers- weather file contain headers
+	 * @return Normalized file that can be used to train neural network
+	 * @throws IOException if any IO failure occur
 	 */
 	public static File normalizeCSVFile(File dataSetFile, int inputCount, int outputCount, boolean headers) throws IOException{
 
@@ -216,10 +211,10 @@ public class ProjectUtils {
 	}
 	
 	/**
-	 * Used to get the analyzed fields of a given CSV data set file.
-	 * Those fields can be used to extract min/max values of each column. 
-	 * @param dataSetFile
-	 * @return
+	 * Used to get the analyzed fields of a given CSV data set file
+	 * Those fields can be used to extract min/max values of each column
+	 * @param dataSetFile to analyze fields on
+	 * @return list of AnalystField objects
 	 */
 	public static List<AnalystField> getAnalystFieldsCSV(File dataSetFile){
 		EncogAnalyst analyst 	= new EncogAnalyst();
@@ -235,12 +230,12 @@ public class ProjectUtils {
 
 	/**
 	 * Given a CSV dataSet file. use the RunTimeCase equality function to decide weather lines exists more than once.
-	 * @param dataSet
-	 * @param inputCount
-	 * @param outputCount
-	 * @param headers
-	 * @return
-	 * @throws IOException
+	 * @param dataSet to remove duplicate lines from
+	 * @param inputCount- number of inputs to neural network that targeted for this data set
+	 * @param outputCount- number of outputs to neural network that targeted for this data set
+	 * @param headers- weather file contain headers
+	 * @return File without duplicated cases
+	 * @throws IOException if any IO failure occur
 	 */
 	public static File removeDuplicateLines(File dataSet, int inputCount, int outputCount, boolean headers) throws IOException{
 		BufferedReader 	reader 		= Files.newBufferedReader(dataSet.toPath(),Charset.defaultCharset());
@@ -270,9 +265,9 @@ public class ProjectUtils {
 	
 	/**
 	 * Concatenate paths into 1 single legal path.
-	 * @param path1
-	 * @param path2
-	 * @return
+	 * @param path1- first path
+	 * @param path2- second path
+	 * @return concatenated path String
 	 */
 	public static String combine (String path1, String path2)
 	{
@@ -283,9 +278,9 @@ public class ProjectUtils {
 	
 	/**
 	 * Creates a single string that join elements with delimiter
-	 * @param delimiter
-	 * @param elements
-	 * @return
+	 * @param delimiter- will be joined between any 2 elements 
+	 * @param elements to join into single String
+	 * @return String joined by the delimiter
 	 */
 	public static String join(CharSequence delimiter, Iterable<? extends Object> elements){
 	    StringBuilder builder = new StringBuilder();
@@ -307,6 +302,12 @@ public class ProjectUtils {
 	    return builder.toString();
 	}
 	
+	/**
+	 * Creates a single string that join double primitive array elements with delimiter
+	 * @param delimiter- will be joined between any 2 elements 
+	 * @param elements to join into single string
+	 * @return String joined by the delimiter
+	 */
 	public static String joinDoubles(CharSequence delimiter, double [] elements){
 	    StringBuilder builder = new StringBuilder();
 	    if (elements != null && elements.length > 0)
@@ -323,10 +324,10 @@ public class ProjectUtils {
 	
 	
 	/**
-	 * Concatenate addition to file name before suffix.
-	 * @param source
-	 * @param addition
-	 * @return
+	 * Concatenate 'addition' param to file name before suffix.
+	 * @param source file
+	 * @param addition to file name
+	 * @return new File with the name addition
 	 */
 	public static File generateFile(File source, String addition){
 		String targetFileName 		= source.getName();

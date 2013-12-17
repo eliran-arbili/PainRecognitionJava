@@ -21,6 +21,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
+/**
+ * The main window of application
+ * @author Eliran Arbeli , Arie Gaon
+ *
+ */
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame {
 
@@ -47,7 +52,7 @@ public class MainFrame extends JFrame {
 	}
 
 	/**
-	 * Create the frame.
+	 * Create the frame
 	 */
 	public MainFrame() {		
 		initialize();
