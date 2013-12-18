@@ -20,6 +20,12 @@ import businessLogic.casesServer.Server;
 import dataLayer.ProjectConfig;
 
 @SuppressWarnings("serial")
+
+/**
+ * GUI panel for server controlling and initial configuration
+ * @author Eliran Arbeli , Arie Gaon
+ *
+ */
 public class ServerRunModePanel extends BackgroundPanel {
 
 	
@@ -30,7 +36,7 @@ public class ServerRunModePanel extends BackgroundPanel {
 	private PainMeasureGui painGui;
 	
 	/**
-	 * Create the panel.
+	 * Create new ServerRunModePanel with a background image
 	 */
 	public ServerRunModePanel(Image image) {
 		super(image);
@@ -109,6 +115,9 @@ public class ServerRunModePanel extends BackgroundPanel {
 	 * Member functions
 	 */
 	
+	/**
+	 * Used to show the current training tags that within the installation folder
+	 */
 	public void refreshTags() {
 		cmboxTags.removeAllItems();
 		for(File tag: ProjectConfig.getTrainingTags()){
@@ -116,6 +125,10 @@ public class ServerRunModePanel extends BackgroundPanel {
 		}
 	}
 	
+	/**
+	 * Close the server
+	 * @throws IOException if any IO socket failure occur
+	 */
 	public void closeServer() throws IOException{
 		if(painRecognitionServer != null){
 			painRecognitionServer.close();

@@ -39,16 +39,14 @@ public class NeuralNetworkManager {
 	 
 	private File networkParameters;
 	
-	// Radial basis neural network
-	
-	//private RBFNetwork neuralNet; // Currently Using MLP
-	
+	// The neural network
 	private ContainsFlat neuralNet;
 	
+	// save the initial weights here
 	private double [] originalWeights;
 	
 	/*
-	 * handle training with our configurations
+	 * handle training
 	 */
 	TrainingSession trainingSession;
 	
@@ -56,8 +54,8 @@ public class NeuralNetworkManager {
 	 * Constructors
 	 */
 	/**
-	 * Create NeuralNetworkManager given by a persistence Encog neural network file 
-	 * @param networkParamaters - file that contain user definitions for neural network
+	 * Create NeuralNetworkManager by a persistence Encog neural network file 
+	 * @param networkParamaters - Encog .eg cross-platform file that can be read to construct ContainsFlat object.
 	 */
 	private NeuralNetworkManager(File networkParamaters){
 		neuralNet = (ContainsFlat)EncogDirectoryPersistence.loadObject(networkParamaters);

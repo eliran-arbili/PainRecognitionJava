@@ -24,6 +24,10 @@ import org.encog.neural.rbf.RBFNetwork;
 import dataLayer.ProjectConfig;
 import businessLogic.ProjectUtils;
 
+/**
+ * Handles Training ANN functionalities 
+ * @author Eliran Arbili , Arie Gaon
+ */
 public class TrainingSession {
 	/*
 	 * Class variables
@@ -40,10 +44,8 @@ public class TrainingSession {
 
 
 
-
-
-	/*
-	 * configurations used to 
+	/**
+	 * Possible configurations keys
 	 */
 	public enum ConfKeys{
 		neyType,
@@ -58,28 +60,39 @@ public class TrainingSession {
 		stripLength,
 	};
 	
-	/*
-	 * Constructors
+	/**
+	 * Create new TrainingSession object 
 	 */
 	public TrainingSession() {
 	}
+	
+	/**
+	 * Create new TrainingSession object with given configurations
+	 */
 	public TrainingSession(HashMap<ConfKeys,Object> configurations){
 		this.confValues = configurations;
 	}
 	
-	
 	/*
 	 * Member functions
+	 */
+	/**
+	 * Set the training configuration map
+	 * @param trainingConfigurations
 	 */
 	public void configureTraining(HashMap<ConfKeys,Object> trainingConfigurations){
 		this.confValues = trainingConfigurations;
 	}
 	
 	/**
+	 * Using data set file to make a k-folds cross-validation training.
+	 * The data set split into k complementary subsets and k neural networks is constructed
+	 * New k networks are constructed with a different validation set for each net, and it wrapped by NeuralTrainDescriptor
+	 * that contain the training information
 	 * @param dataSet - CSV file contains data, assuming normalized
 	 * @param k-  for k-folds data sets  
 	 * @return The list of NeuralTrainDescriptors
-	 * @throws IOException 
+	 * @throws IOException if IO error occur when reading the CSV data set file
 	 */
 	public ArrayList<NeuralTrainDesciptor> kFoldsCrossValidationTrain(File dataSet, int k, boolean hasHeaders) throws IOException{
 		ProjectUtils.assertFalse((k>=2), "Input Error k<2");
@@ -109,6 +122,13 @@ public class TrainingSession {
 		return generatedNetworks;
 	}
 	
+	/**
+	 * Training a neural network in  a cross-validation approach
+	 * @param neuralNet- ANN to train
+	 * @param dataSet- Encog data set format
+	 * @param partitions- number of complementary subsets of data
+	 * @param validationIndex- the index of the subset that will use in validation
+	 */
 	public void crossValidationTrain(ContainsFlat neuralNet, BasicMLDataSet dataSet,int partitions, int validationIndex){
 		ProjectUtils.assertFalse((partitions>=2), "Input Error k<2");
 		ArrayList<BasicMLDataSet> kFoldsDataSet = ProjectUtils.splitDataSet(dataSet, partitions);
@@ -116,7 +136,14 @@ public class TrainingSession {
 		Encog.getInstance().shutdown();
 	}
 	
-	
+	/**
+	 * Actual training to an existing ANN done here.
+	 * The training using the EarlyStopping approach for avoiding overfitting   
+	 * @param neuralNet- ANN to train
+	 * @param kFoldsDataSet- complementary subsets of the original data set
+	 * @param validationSetIndex- the index of the validation subset from the list of subsets
+	 * @return
+	 */
 	public NeuralTrainDesciptor doTraining(ContainsFlat neuralNet,ArrayList<BasicMLDataSet> kFoldsDataSet, int validationSetIndex){
 		BasicMLDataSet validationSet 			= kFoldsDataSet.get(validationSetIndex);
 		BasicMLDataSet trainingSet 				= unionDataSets(kFoldsDataSet,validationSetIndex );

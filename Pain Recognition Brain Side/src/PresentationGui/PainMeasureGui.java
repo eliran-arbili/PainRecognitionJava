@@ -1,6 +1,5 @@
 package PresentationGui;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -8,21 +7,15 @@ import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.Stroke;
 import java.awt.event.WindowAdapter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
-
 import javax.swing.JFrame;
-
 import businessLogic.RunTimeCase;
 import businessLogic.casesServer.Server;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -30,9 +23,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.basic.BasicSliderUI;
 
 import dataLayer.ProjectConfig;
@@ -43,6 +33,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
+/**
+ * A GUI for representing the actual pain recognition
+ * @author Eliran Arbeli , Arie Gaon
+ *
+ */
 public class PainMeasureGui  implements Observer{
 
 	
@@ -54,7 +49,7 @@ public class PainMeasureGui  implements Observer{
 	
 
 	/**
-	 * Create the application.
+	 * Create new PainMEasureGui window.
 	 */
 	public PainMeasureGui(Server painRecognitionServer) {
 		this.painRecognitionServer = painRecognitionServer;

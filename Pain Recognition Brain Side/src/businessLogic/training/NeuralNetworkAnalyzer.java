@@ -20,6 +20,12 @@ import businessLogic.ProjectUtils;
 import businessLogic.RunTimeCase;
 import dataLayer.ProjectConfig;
 
+/**
+ * Analyzing Neural Network
+ * It using the Appache POI  for working on Microsoft Excel file formats   
+ * @author Eliran Arbili , Arie Gaon
+ *
+ */
 public class NeuralNetworkAnalyzer {
 	
 	/*
@@ -32,7 +38,11 @@ public class NeuralNetworkAnalyzer {
 	/*
 	 * Constructors
 	 */
-	
+	/**
+	 * Crate new NeuralNetworkAnalyzer with a neural network defined by Encog ContainsFlat Interface
+	 * @param neuralNet
+	 * @param targetDirectory
+	 */
 	public NeuralNetworkAnalyzer(ContainsFlat neuralNet, File targetDirectory) {
 		this.neuralNet = neuralNet;
 		targetFile = new File(ProjectUtils.combine(targetDirectory.getAbsolutePath(), "ann_analys.xls"));
@@ -41,6 +51,11 @@ public class NeuralNetworkAnalyzer {
 	
 	/*
 	 * Member Functions
+	 */
+	
+	/**
+	 * Save all analyzed results till far to a Microsoft Excel .xls file format
+	 * @return true if success, else false
 	 */
 	public boolean saveWork(){
 	    try 
@@ -58,7 +73,14 @@ public class NeuralNetworkAnalyzer {
 	}
 	
 	
-	
+	/**
+	 * Generate a sequence of testings by the combinations of different ActionUnits
+	 * Each test contain increased or decreased values from neutral case to a specific AU's combinations.
+	 * A calculation of the new output for the new case is made so the effect by this change can be seen.
+	 * @param neutralCase- case that represent neutral face
+	 * @param combinations- define the size of each test sequence. limited to 4
+	 * @throws Exception
+	 */
 	public void analyzeCombinations(RunTimeCase neutralCase, int combinations) throws Exception{
 
 		String [] auNames = ProjectConfig.getOptArray("AUS");
@@ -145,6 +167,13 @@ public class NeuralNetworkAnalyzer {
 
 	}
 	
+	/**
+	 * Print a short description for the effect of adding the addPercents values to the neutral case
+	 * for example: if neutralCase is array of[0.1,0.2,0.3] and addPercents is [0,0,0.5]
+	 * so the test case will be [0.1,0.2,0.45] and the network will be evaluated with this case
+	 * @param neutralCase
+	 * @param addPercents
+	 */
 	public void printAnalyzeByArray(RunTimeCase neutralCase, double [] addPercents){
 		String [] auNames = ProjectConfig.getOptArray("AUS");
 		double [] auNeutralValues = neutralCase.getActionUnits();

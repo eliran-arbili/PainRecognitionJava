@@ -14,31 +14,226 @@ import org.encog.util.arrayutil.NormalizedField;
 import businessLogic.ProjectUtils;
 
 /**
- * ProjectConfig is the class that responsible on the definition of project, the definition load from property file that exist in user home   
+ * Responsible on the definition of project configuration. 
+ * Most of configurations loaded from properties file that exist in installation folder in user home   
  * @author Eliran Arbili , Arie Gaon
  *
  */
 
 public class ProjectConfig {
 	
+	/*
+	 * Variables holds the path locations of major project components
+	 */
+	public  static String INSTALL_PATH  = createInstallationFolders() ;
+	public 	static String TRAINING_TAGS_PATH;
+	public  static String DATASETS_PATH;
+	private static String PROPERTIES_PATH;
+
 	private static TreeMap<String,String> defaultConfigurations = initDefaultConfigurations();
-	public  static String INSTALL_PATH =  getInstallPath() ;
-	public 	static String TRAINING_TAGS_PATH	= ProjectUtils.combine(INSTALL_PATH, "Training_Tags");
-	private static String PROPERTIES_PATH = ProjectUtils.combine(INSTALL_PATH,"config.properties");
-	public  static String DATASETS_PATH	= ProjectUtils.combine(INSTALL_PATH,"Data_Sets");
 	private static Properties props = initProperties();
 	public  static HashMap<String,NormalizedField> AUNormFields = mapAuRanges();
+	private static File currentTag;
+
+	/*
+	 * Member functions
+	 */
+	
+	/**
+	 * Get configuration as string given key opt
+	 * @param opt property key
+	 * @return property value as string or null if not exists
+	 */
+	public static String getOpt(String opt){
+		String property;
+		String defaultOpt = getDefaultOpt(opt);
+		if(defaultOpt != null){
+			property = props.getProperty(opt, defaultOpt);
+		}
+		else{
+			property = props.getProperty(opt);
+		}
+		return property;
+	}
+	/**
+	 * Get configuration as string array given key opt
+	 * @param opt property key
+	 * @return property value as array string or null if not exists
+	 */
+	public static String [] getOptArray(String opt){
+		String rawProperty;
+		String [] propertyArray = null;
+		String defaultOpt = getDefaultOpt(opt);
+		if(defaultOpt != null){
+			rawProperty = props.getProperty(opt,defaultOpt);
+		}
+		else{
+			rawProperty = props.getProperty(opt);
+		}
+		if(rawProperty != null){
+			propertyArray = rawProperty.split(",");
+		}
+		return propertyArray;
+	}
+	
+	/**
+	 * Get configuration as Double given key opt
+	 * @param opt property key
+	 * @return property value as Double or null if not exists
+	 */
+	public static Double getOptDouble(String opt){
+		Double property = null;
+		try{
+			property = Double.parseDouble(getOpt(opt));
+			return property;
+		}
+		catch(NumberFormatException ex){
+			return null;
+		}
+	}
+	
+	/**
+	 * Get configuration as Double array given key opt
+	 * @param opt property key
+	 * @return property value as Double array or null if not exists
+	 */
+	public static Double[] getOptDoubleArray(String opt){
+		Double [] property = null;
+		try{
+			String [] stringArrayProps = getOptArray(opt);
+			property = new Double[stringArrayProps.length];
+			for(int i = 0 ; i < property.length ; i++){
+				property[i] = Double.parseDouble(stringArrayProps[i]);
+			}
+			return property;
+		}catch(NumberFormatException ex){
+			return null;
+		}
+	}
+	
+	/**
+	 * Get configuration as Integer given key opt
+	 * @param opt property key
+	 * @return property value as Integer or null if not exists
+	 */
+	public static Integer getOptInt(String opt){
+		Integer property = null;
+		try{
+			property = Integer.parseInt(getOpt(opt));
+			return property;
+		}
+		catch(NumberFormatException ex){
+			return null;
+		}
+	}
+	
+	/**
+	 * Get configuration as Boolean given key opt
+	 * @param opt property key
+	 * @return property value as Boolean or null if not exist
+	 */
+	public static Boolean getOptBool(String opt){
+		String rawProperty = getOpt(opt);
+		Boolean property = null;
+		if(rawProperty.equalsIgnoreCase("false")){
+			property =  false;
+		}
+		else if (rawProperty.equalsIgnoreCase("true")){
+			property =  true;
+		}
+		return property;
+	}
+	
+	/**
+	 * Set configuration value given a key opt
+	 * @param opt property key
+	 * @param value property value
+	 */
+	public static void setOpt(String opt, String value){
+		props.setProperty(opt, value);
+	}
+	
+	/**
+	 * Store  properties file  
+	 * @return true if the store success , false if not
+	 */
+	public static boolean saveCurrentConfig() {
+		try 
+		{
+			props.store(new FileOutputStream(PROPERTIES_PATH),getPropertiesRules());
+			return true;
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * Get property key and return default value defined within the default project configurations
+	 * @param opt property key
+	 * @return default value that generate in code
+	 */
+	public static String getDefaultOpt(String opt){
+		return defaultConfigurations.get(opt);
+	}
+	
+	/**
+	 * Get the current training Tags defined by the User earlier.
+	 * @return list of tag files
+	 */
+	public static File [] getTrainingTags(){
+		File tagsDir = new File(TRAINING_TAGS_PATH);
+		return tagsDir.listFiles();
+	}
+	
+	/**
+	 * Get the persistence Encog Neural network file correspond to a tag folder
+	 * The network can be loaded later to an actual Object
+	 * @param tagDir
+	 * @return Encog Persistence neural network file
+	 */
+	public static File getANNFileByTag(File tagDir){
+		for(File f: tagDir.listFiles()){
+			if(f.getName().endsWith(".eg")){
+				return f;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Get the CSV dataset correspond to a tag folder.
+	 * @param tagDir
+	 * @return CSV dataset file
+	 */
+	public static File getCSVByTag(File tagDir){
+		for(File f: tagDir.listFiles()){
+			if(f.getName().endsWith(".csv")){
+				return f;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Get the current used tag
+	 * @return tag folder
+	 */
+	public static File getCurrentTag() {
+		return currentTag;
+	}
+	
+	/**
+	 * update the current used tag
+	 * @param trainingTag
+	 */
+	public static void setCurrentTag(File trainingTag) {
+		currentTag = trainingTag;
+	}
 	
 	/*
-	 * Default Configuration values
-	 */
-	public static boolean fuzzyMode = false;
-	private static File currentTag;
-	
-
-	/**
-	 * Initialize properties file
-	 * @return instance of Properties 
+	 * Auxiliary methods
 	 */
 	private static Properties initProperties(){
 		Properties prop = new Properties();
@@ -51,10 +246,6 @@ public class ProjectConfig {
 		return prop;
 	}
 	
-	/**
-	 * Initialize default project configuration 
-	 * @return TreeMap that contain key and value definition
-	 */
 	private static TreeMap<String, String> initDefaultConfigurations() {
 		TreeMap<String,String> defaultConf = new TreeMap<String,String>();
 		defaultConf.put("AUS","au_nose_wrinkler,au_jaw_drop,au_upper_lip_raiser,au_lip_stretcher,au_lip_corner_depressor,au_outer_brow_raiser,au_inner_brows_raiser,au_brow_lowerer,au_eyes_closed,au_rotate_eyes_left,au_rotate_eyes_down");
@@ -82,179 +273,6 @@ public class ProjectConfig {
 		defaultConf.put("CASES_SAVE_HISTORY","20");
 		defaultConf.put("QUALITY_THRESHOLD","0.75");
 		return defaultConf;
-	}
-	
-	
-	/**
-	 * Get property value as String
-	 * @param opt - property key
-	 * @return property value 
-	 */
-	public static String getOpt(String opt){
-		String property;
-		String defaultOpt = getDefaultOpt(opt);
-		if(defaultOpt != null){
-			property = props.getProperty(opt, defaultOpt);
-		}
-		else{
-			property = props.getProperty(opt);
-		}
-		return property;
-	}
-	
-	/**
-	 * Get property values as array String
-	 * @param opt - property key
-	 * @return  property values 
-	 */
-	public static String [] getOptArray(String opt){
-		String rawProperty;
-		String [] propertyArray = null;
-		String defaultOpt = getDefaultOpt(opt);
-		if(defaultOpt != null){
-			rawProperty = props.getProperty(opt,defaultOpt);
-		}
-		else{
-			rawProperty = props.getProperty(opt);
-		}
-		if(rawProperty != null){
-			propertyArray = rawProperty.split(",");
-		}
-		return propertyArray;
-	}
-	
-	/**
-	 * Get property value as Double
-	 * @param opt - property key
-	 * @return  property value 
-	 */
-	public static Double getOptDouble(String opt){
-		Double property = null;
-		try{
-			property = Double.parseDouble(getOpt(opt));
-			return property;
-		}
-		catch(NumberFormatException ex){
-			return null;
-		}
-	}
-	
-	/**
-	 * Get property values as array Double
-	 * @param opt - property key
-	 * @return property value
-	 */
-	public static Double[] getOptDoubleArray(String opt){
-		Double [] property = null;
-		try{
-			String [] stringArrayProps = getOptArray(opt);
-			property = new Double[stringArrayProps.length];
-			for(int i = 0 ; i < property.length ; i++){
-				property[i] = Double.parseDouble(stringArrayProps[i]);
-			}
-			return property;
-		}catch(NumberFormatException ex){
-			return null;
-		}
-	}
-	
-	/**
-	 * Get property value as Integer
-	 * @param opt  - property key
-	 * @return property value
-	 */
-	public static Integer getOptInt(String opt){
-		Integer property = null;
-		try{
-			property = Integer.parseInt(getOpt(opt));
-			return property;
-		}
-		catch(NumberFormatException ex){
-			return null;
-		}
-	}
-	
-	/**
-	 * Get property value as boolean 
-	 * @param opt  - property key
-	 * @return property value
-	 */
-	public static Boolean getOptBool(String opt){
-		String rawProperty = getOpt(opt);
-		Boolean property = null;
-		if(rawProperty.equalsIgnoreCase("false")){
-			property =  false;
-		}
-		else if (rawProperty.equalsIgnoreCase("true")){
-			property =  true;
-		}
-		return property;
-	}
-	
-	/**
-	 * Set property value 
-	 * @param opt - property key 
-	 * @param value - property value 
-	 */
-	public static void setOpt(String opt, String value){
-		props.setProperty(opt, value);
-	}
-	
-	/**
-	 * Create Properties file configuration 
-	 * @return True if file creation success , flase else
-	 */
-	public static boolean saveCurrentConfig() {
-		try 
-		{
-			props.store(new FileOutputStream(PROPERTIES_PATH),getPropertiesRules());
-			return true;
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
-	/**
-	 * Get default property value as String
-	 * @param opt - default property key
-	 * @return default property value
-	 */
-	public static String getDefaultOpt(String opt){
-		return defaultConfigurations.get(opt);
-	}
-	
-	
-	
-	public static File [] getTrainingTags(){
-		File tagsDir = new File(TRAINING_TAGS_PATH);
-		return tagsDir.listFiles();
-	}
-	
-	public static File getANNFileByTag(File tagDir){
-		for(File f: tagDir.listFiles()){
-			if(f.getName().endsWith(".eg")){
-				return f;
-			}
-		}
-		return null;
-	}
-	public static File getCSVByTag(File tagDir){
-		for(File f: tagDir.listFiles()){
-			if(f.getName().endsWith(".csv")){
-				return f;
-			}
-		}
-		return null;
-	}
-	
-	public static File getCurrentTag() {
-		return currentTag;
-	}
-	
-	public static void setCurrentTag(File trainingTag) {
-		currentTag = trainingTag;
 	}
 	
 	private static String getPropertiesRules(){
@@ -293,20 +311,38 @@ public class ProjectConfig {
 		TreeMap<String, String> defaultProps = initDefaultConfigurations();
 		prop.putAll(defaultProps);
 		try{
-			String propertiesLocation = ProjectUtils.combine(INSTALL_PATH, "config.properties");
-			prop.store(new FileOutputStream(propertiesLocation),getPropertiesRules());
+			prop.store(new FileOutputStream(PROPERTIES_PATH),getPropertiesRules());
 		}catch(IOException ex){
 			ex.printStackTrace();
 		}
 	}
 	
 	
-	private static String getInstallPath(){
+	private static String createInstallationFolders(){
 	     javax.swing.JFileChooser fr = new javax.swing.JFileChooser();
 	     javax.swing.filechooser.FileSystemView fw = fr.getFileSystemView();
-	     return ProjectUtils.combine(fw.getDefaultDirectory().getAbsolutePath(), "PainRecognition");
+	     INSTALL_PATH = ProjectUtils.combine(fw.getDefaultDirectory().getAbsolutePath(), "PainRecognition");
+	     TRAINING_TAGS_PATH	= ProjectUtils.combine(INSTALL_PATH, "Training_Tags");
+	     DATASETS_PATH	= ProjectUtils.combine(INSTALL_PATH,"Data_Sets");
+	     PROPERTIES_PATH = ProjectUtils.combine(INSTALL_PATH,"config.properties");
+	     checkAndCreateFolders(INSTALL_PATH,TRAINING_TAGS_PATH,DATASETS_PATH);
+	     
+	     if(! new File(PROPERTIES_PATH).exists()){
+	    	 writeDefaultPropertiesFile();
+	     }
+	     return INSTALL_PATH;
 	}
 	
+	
+	private static void checkAndCreateFolders(String ...paths) {
+		for(String p:paths){
+			File f = new File(p);
+			if(! f.isDirectory()){
+				f.mkdirs();
+			}
+		}
+		
+	}
 	public static void main(String[] args){
 		writeDefaultPropertiesFile();
 	}
