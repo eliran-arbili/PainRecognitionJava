@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
+import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -41,7 +42,12 @@ public class MainFrame extends JFrame {
 			            // Set System L&F
 					UIManager.setLookAndFeel(
 			            UIManager.getSystemLookAndFeelClassName());
-
+					File visageProgram = new File("C:\\Program Files (x86)\\Visage Technologies\\visageSDK\\bin\\FaceTracker2_d.exe");
+					if(visageProgram.exists()){
+						Runtime r = Runtime.getRuntime();
+						r.exec(new String[] {visageProgram.getAbsolutePath()});
+					}
+					
 					MainFrame frame = new MainFrame();
 					frame.setVisible(true);
 				} catch (Exception e) {
