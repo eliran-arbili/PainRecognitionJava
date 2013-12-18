@@ -25,10 +25,10 @@ public class ProjectConfig {
 	/*
 	 * Variables holds the path locations of major project components
 	 */
-	public  static String INSTALL_PATH =  getInstallPath() ;
-	public 	static String TRAINING_TAGS_PATH	= ProjectUtils.combine(INSTALL_PATH, "Training_Tags");
-	public  static String DATASETS_PATH	= ProjectUtils.combine(INSTALL_PATH,"Data_Sets");
-	private static String PROPERTIES_PATH = ProjectUtils.combine(INSTALL_PATH,"config.properties");
+	public  static String INSTALL_PATH  = createInstallationFolders() ;
+	public 	static String TRAINING_TAGS_PATH;
+	public  static String DATASETS_PATH;
+	private static String PROPERTIES_PATH;
 
 	private static TreeMap<String,String> defaultConfigurations = initDefaultConfigurations();
 	private static Properties props = initProperties();
@@ -310,21 +310,38 @@ public class ProjectConfig {
 		TreeMap<String, String> defaultProps = initDefaultConfigurations();
 		prop.putAll(defaultProps);
 		try{
-			String propertiesLocation = ProjectUtils.combine(INSTALL_PATH, "config.properties");
-			prop.store(new FileOutputStream(propertiesLocation),getPropertiesRules());
+			prop.store(new FileOutputStream(PROPERTIES_PATH),getPropertiesRules());
 		}catch(IOException ex){
 			ex.printStackTrace();
 		}
 	}
 	
 	
-	private static String getInstallPath(){
+	private static String createInstallationFolders(){
 	     javax.swing.JFileChooser fr = new javax.swing.JFileChooser();
 	     javax.swing.filechooser.FileSystemView fw = fr.getFileSystemView();
-	     return ProjectUtils.combine(fw.getDefaultDirectory().getAbsolutePath(), "PainRecognition");
+	     INSTALL_PATH = ProjectUtils.combine(fw.getDefaultDirectory().getAbsolutePath(), "PainRecognition");
+	     TRAINING_TAGS_PATH	= ProjectUtils.combine(INSTALL_PATH, "Training_Tags");
+	     DATASETS_PATH	= ProjectUtils.combine(INSTALL_PATH,"Data_Sets");
+	     PROPERTIES_PATH = ProjectUtils.combine(INSTALL_PATH,"config.properties");
+	     checkAndCreateFolders(INSTALL_PATH,TRAINING_TAGS_PATH,DATASETS_PATH);
+	     
+	     if(! new File(PROPERTIES_PATH).exists()){
+	    	 writeDefaultPropertiesFile();
+	     }
+	     return INSTALL_PATH;
 	}
 	
 	
+	private static void checkAndCreateFolders(String ...paths) {
+		for(String p:paths){
+			File f = new File(p);
+			if(! f.isDirectory()){
+				f.mkdirs();
+			}
+		}
+		
+	}
 	public static void main(String[] args){
 		writeDefaultPropertiesFile();
 	}
