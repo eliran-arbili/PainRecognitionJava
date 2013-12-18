@@ -80,6 +80,7 @@ public class ProjectConfig {
 				"au_lid_tightener,au_upper_lid_raiser,au_rotate_eyes_left,au_rotate_eyes_down");
 		defaultConf.put("DEBUG_MODE", "true");
 		defaultConf.put("CASES_SAVE_HISTORY","20");
+		defaultConf.put("QUALITY_THRESHOLD","0.75");
 		return defaultConf;
 	}
 	
