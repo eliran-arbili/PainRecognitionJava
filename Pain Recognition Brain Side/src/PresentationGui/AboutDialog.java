@@ -9,6 +9,9 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
+import java.awt.Font;
+import java.awt.Color;
+import java.awt.SystemColor;
 
 @SuppressWarnings("serial")
 public class AboutDialog extends JDialog {
@@ -51,9 +54,12 @@ public class AboutDialog extends JDialog {
 		scrollPane.setBounds(10, 20, 370, 221);
 		getContentPane().add(scrollPane);
 		
-		JTextArea textArea = new JTextArea();
-		textArea.setEditable(false);
-		scrollPane.setViewportView(textArea);
+		JTextArea txtrPainRecognitionSystem = new JTextArea();
+		txtrPainRecognitionSystem.setForeground(new Color(102, 0, 0));
+		txtrPainRecognitionSystem.setFont(new Font("Consolas", Font.BOLD, 12));
+		txtrPainRecognitionSystem.setText("Pain Recognition System\r\nVersion 1.0\r\n\r\nFinal Project Ort Braude College Of Engineering\r\nBy Arbili Eliran & Gaon Arie\r\n\r\n\r\n");
+		txtrPainRecognitionSystem.setEditable(false);
+		scrollPane.setViewportView(txtrPainRecognitionSystem);
 
 	}
 }
