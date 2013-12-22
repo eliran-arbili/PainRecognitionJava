@@ -140,7 +140,25 @@ public class ServerRunModePanel extends BackgroundPanel {
 	 */
 
 	protected void btnStartStopOnClick(ActionEvent arg0) {
+		
 		if(btnStartStop.getText().equalsIgnoreCase("Start")){
+			handleServerStart();
+		}
+		else{
+			handleServerClose();
+		}
+
+	}
+	
+	private void handleServerClose() {
+		lblServerStatus.setText("OFF");
+		lblServerStatus.setForeground(Color.RED);
+		btnStartStop.setText("Start");
+		painGui.closeWindow();		
+	}
+
+	private void handleServerStart(){
+		
 			String portTxt		= txtFldPort.getText();
 			String kCasesTxt 	= txtFldKCases.getText();
 			if(! isFieldsOK(portTxt,kCasesTxt)){
@@ -169,24 +187,20 @@ public class ServerRunModePanel extends BackgroundPanel {
 					painRecognitionServer.setPainCBR(new CBRController());
 				}
 			}
-			try {
+			try 
+			{
 				painRecognitionServer.listen();
-			} catch (IOException e) {
+			} 
+			catch (IOException e) 
+			{
 				e.printStackTrace();
 			}
+			
 			ProjectConfig.setCurrentTag(trainingTag);
 			painGui.openWindow();
 			lblServerStatus.setText("ON");
 			lblServerStatus.setForeground(Color.GREEN);
 			btnStartStop.setText("Stop");
-		}
-
-		else{
-			lblServerStatus.setText("OFF");
-			lblServerStatus.setForeground(Color.RED);
-			btnStartStop.setText("Start");
-			painGui.closeWindow();
-		}
 	}
 	
 	
