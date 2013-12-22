@@ -272,6 +272,8 @@ public class ProjectConfig {
 		defaultConf.put("DEBUG_MODE", "true");
 		defaultConf.put("CASES_SAVE_HISTORY","20");
 		defaultConf.put("QUALITY_THRESHOLD","0.75");
+		defaultConf.put("SERVER_ADDRESS", "localhost");
+		defaultConf.put("GRABBING_RATE", "4");
 		return defaultConf;
 	}
 	
