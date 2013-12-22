@@ -40,7 +40,7 @@ public class CBRController {
 	 * @return  array of network solution output
 	 */
 	public double[] doCycle(RunTimeCase rtCase){
-		if(ProjectConfig.getOptBool("FUZZT_MODE") == true)
+		if(ProjectConfig.getOptBool("FUZZY_MODE") == true)
 			rtCase.fuzzify();
 		PriorityQueue<RunTimeCase> kClosestCases = retrieveModule.getKSimilarCases(rtCase);
 		painRecAnn.trainKclosestCases(kClosestCases);
