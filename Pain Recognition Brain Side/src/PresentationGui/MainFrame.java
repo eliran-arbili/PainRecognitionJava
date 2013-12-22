@@ -22,6 +22,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
+import dataLayer.ProjectConfig;
+import businessLogic.TrackerProcess;
+
 /**
  * The main window of application
  * @author Eliran Arbeli , Arie Gaon
@@ -31,7 +34,7 @@ import javax.swing.WindowConstants;
 public class MainFrame extends JFrame {
 
 	private JPanel contentPane;
-
+	private TrackerProcess tracker;
 	/**
 	 * Launch the application.
 	 */
@@ -42,12 +45,6 @@ public class MainFrame extends JFrame {
 			            // Set System L&F
 					UIManager.setLookAndFeel(
 			            UIManager.getSystemLookAndFeelClassName());
-					File visageProgram = new File("C:\\Program Files (x86)\\Visage Technologies\\visageSDK\\bin\\FaceTracker2_d.exe");
-					if(visageProgram.exists()){
-						Runtime r = Runtime.getRuntime();
-						r.exec(new String[] {visageProgram.getAbsolutePath()});
-					}
-					
 					MainFrame frame = new MainFrame();
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -62,6 +59,7 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame() {		
 		initialize();
+		tracker = new TrackerProcess(new File(ProjectConfig.getOpt("TRACKER_PROGRAM")));
 	}
 	
 	private void initialize()
@@ -71,6 +69,8 @@ public class MainFrame extends JFrame {
 		mnFile 				= new JMenu("File");
 		mntmExit 			= new JMenuItem("Exit");
 		mnHelp 				= new JMenu("Help");
+		mnTracking			= new JMenu("Tracking");
+		mntmOpenTracker		= new JMenuItem("Open Tracker");
 		mntmAbout 			= new JMenuItem("About");
 		contentPane 		= new JPanel();
 		tabbedPane 			= new JTabbedPane(JTabbedPane.TOP);
@@ -95,7 +95,8 @@ public class MainFrame extends JFrame {
 		
 		setBounds(100, 100, 662, 650);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		this.addWindowListener(new WindowAdapter() {	
+		setResizable(false);
+		this.addWindowListener(new WindowAdapter() {
 			@Override
             public void windowClosing(java.awt.event.WindowEvent e) {
 				onApplicationExit();
@@ -116,11 +117,21 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
+		mntmOpenTracker.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				onClickOpenTracker(arg0);
+				
+			}
+		});
+		
 		setJMenuBar(menuBar);
 		menuBar.add(mnFile);
 		mnFile.add(mntmExit);
 		menuBar.add(mnHelp);
 		mnHelp.add(mntmAbout);
+		mnTracking.add(mntmOpenTracker);
+		menuBar.add(mnTracking);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
@@ -131,6 +142,19 @@ public class MainFrame extends JFrame {
 		contentPane.add(tabbedPane);	
 		footerPanel.setBounds(10, 514, 626, 76);
 		contentPane.add(footerPanel);
+	}
+	
+	/* 
+	 * Components Call backs
+	 */
+
+	protected void onClickOpenTracker(ActionEvent arg0) {
+		if(tracker.isAlive()){
+			JOptionPane.showMessageDialog(this, "Tracker Already Opened!", "Warnning", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		tracker.start();
+		
 	}
 
 	protected void onAboutClick() {
@@ -144,10 +168,11 @@ public class MainFrame extends JFrame {
                 JOptionPane.QUESTION_MESSAGE, null, null, null);
         
         if (confirm == JOptionPane.YES_OPTION) {
-    			try 
+    			try
     			{
     				serverRunModePanel.closeServer();
-    			} 
+    				tracker.killTracker();
+    			}
     			catch (IOException e) 
     			{
     				e.printStackTrace();
@@ -165,6 +190,8 @@ public class MainFrame extends JFrame {
 	private JMenuItem 			mntmExit;
 	private JMenu 				mnHelp;
 	private JMenuItem 			mntmAbout;
+	private JMenu				mnTracking;
+	private JMenuItem			mntmOpenTracker;
 	private JTabbedPane 		tabbedPane;
 	private JPanel 				footerPanel;
 	private ServerRunModePanel 	serverRunModePanel;

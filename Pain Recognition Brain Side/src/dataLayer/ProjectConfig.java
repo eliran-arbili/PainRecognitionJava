@@ -274,6 +274,7 @@ public class ProjectConfig {
 		defaultConf.put("QUALITY_THRESHOLD","0.75");
 		defaultConf.put("SERVER_ADDRESS", "localhost");
 		defaultConf.put("GRABBING_RATE", "4");
+		defaultConf.put("TRACKER_PROGRAM", "C:\\Program Files (x86)\\Visage Technologies\\visageSDK\\bin\\FaceTracker2_d.exe");
 		return defaultConf;
 	}
 	
