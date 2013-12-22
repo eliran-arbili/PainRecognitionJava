@@ -11,9 +11,12 @@ import java.awt.event.WindowAdapter;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+
 import javax.swing.JFrame;
+
 import businessLogic.RunTimeCase;
-import businessLogic.casesServer.Server;
+import businessLogic.painServer.Server;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;

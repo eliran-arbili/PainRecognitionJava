@@ -1,4 +1,4 @@
-package businessLogic.casesServer;
+package businessLogic.painServer;
 import java.io.IOException;
 import java.util.Arrays;
 import businessLogic.*;

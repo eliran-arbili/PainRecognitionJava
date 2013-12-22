@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import businessLogic.CBRController;
-import businessLogic.casesServer.Server;
+import businessLogic.painServer.Server;
 import dataLayer.ProjectConfig;
 
 @SuppressWarnings("serial")
