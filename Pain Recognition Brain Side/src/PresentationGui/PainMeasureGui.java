@@ -49,7 +49,7 @@ public class PainMeasureGui  implements Observer{
 	private ArrayList<ImageIcon> painIcons;
 	private int alarmCycle;
 	private boolean toPlay;
-	
+	private ReviseDialog reviseDialog;
 
 	/**
 	 * Create new PainMEasureGui window.
@@ -58,6 +58,7 @@ public class PainMeasureGui  implements Observer{
 		this.painRecognitionServer = painRecognitionServer;
 		alarmCycle=ProjectConfig.getOptInt("CYCLES_FOR_ALARM"); 
 		painIcons = getPainIcons();
+		reviseDialog=new ReviseDialog();
 		initialize();
 		
 	}
@@ -171,27 +172,17 @@ public class PainMeasureGui  implements Observer{
         	
         	evt.consume();
             RunTimeCase rtCase = ((CasesListModel)lstLastCases.getModel()).getCase(lstLastCases.getSelectedIndex());
-            String newSolOutput = JOptionPane.showInputDialog(this.frame, "Case is: "+rtCase+"\nEnter Your Solution","Revise System Solution",JOptionPane.OK_CANCEL_OPTION);
-            if(newSolOutput == null){
+            double[] newSol=reviseDialog.showReviseDialog(rtCase);
+            if(newSol==null)
             	return;
+            boolean isSuccess = painRecognitionServer.handleReviseRequest(rtCase,  newSol);
+            if(isSuccess){
+            	JOptionPane.showMessageDialog(this.frame, "Revise Done!", "Revise", JOptionPane.INFORMATION_MESSAGE);
             }
-            try{
-            	String [] sols = newSolOutput.split(",");
-                double [] newSol = new double[sols.length];
-                for(int i = 0 ; i < newSol.length; i++){
-                	newSol[i] = Double.parseDouble(sols[i]);
-                }
-                boolean isSuccess = painRecognitionServer.handleReviseRequest(rtCase, newSol);
-                if(isSuccess){
-                	JOptionPane.showMessageDialog(this.frame, "Revise Done!", "Revise", JOptionPane.INFORMATION_MESSAGE);
-                }
-                else{
-                	JOptionPane.showMessageDialog(this.frame, "Revise Failed!", "Revise", JOptionPane.ERROR_MESSAGE);
-                }
+            else{
+            	JOptionPane.showMessageDialog(this.frame, "Revise Failed!", "Revise", JOptionPane.ERROR_MESSAGE);
             }
-            catch(NumberFormatException ex){
-                JOptionPane.showMessageDialog(this.frame, "Wrong Number Format, Please Try Again","Operation Couldn't be completed",JOptionPane.ERROR_MESSAGE);
-            }
+            
         } 	
 	}
 
