@@ -93,7 +93,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		setBounds(100, 100, 662, 650);
+		setBounds(100, 100, 649, 650);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setResizable(false);
 		this.addWindowListener(new WindowAdapter() {
@@ -140,7 +140,15 @@ public class MainFrame extends JFrame {
 		tabbedPane.addTab("<html><body leftmargin=15 topmargin=8 marginwidth=15 marginheight=5><span style='font-size:14pt;font-weight:bold;font-family:Arial'>Training</span></body></html>", trainingPanel);
 		
 		contentPane.add(tabbedPane);	
-		footerPanel.setBounds(10, 514, 626, 76);
+		footerPanel.setBounds(10, 505, 623, 96);
+		JPanel backgroundPanel;
+		try {
+			backgroundPanel = new BackgroundPanel(ImageIO.read(this.getClass().getClassLoader().getResource("resources/footer.jpg")));
+			footerPanel.add(backgroundPanel);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		contentPane.add(footerPanel);
 	}
 	
