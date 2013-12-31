@@ -308,15 +308,27 @@ public class ProjectUtils {
 	 * @param elements to join into single string
 	 * @return String joined by the delimiter
 	 */
-	public static String joinDoubles(CharSequence delimiter, double [] elements){
+	public static String joinDoubles(CharSequence delimiter, double [] elements, String format){
 	    StringBuilder builder = new StringBuilder();
 	    if (elements != null && elements.length > 0)
 	    {
-            builder.append( String.valueOf( elements[0] ) );
+    		String append ;
+	    	if(format != null && !format.isEmpty()){
+	    		append = String.format(format,elements[0]);
+	    	}
+	    	else{
+	            append = String.valueOf( elements[0] ) ;
+	    	}
+            builder.append( append);
 	    	for(int i = 1 ; i < elements.length;i++){
-	                
+		    	if(format != null && !format.isEmpty()){
+		    		append = String.format(format,elements[i]);
+		    	}
+		    	else{
+		            append = String.valueOf( elements[i] ) ;
+		    	}
 	    		builder.append( delimiter )
-	                   .append( String.valueOf( elements[i] ) );
+	                   .append( append );
 	        }
 	    }
 	    return builder.toString();

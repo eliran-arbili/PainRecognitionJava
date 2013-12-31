@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import javax.swing.AbstractListModel;
 
 import dataLayer.ProjectConfig;
+import businessLogic.ProjectUtils;
 import businessLogic.RunTimeCase;
 
 @SuppressWarnings("serial")
@@ -39,9 +40,7 @@ public class CasesListModel extends AbstractListModel<String> {
 	 */
 	@Override
 	public String getElementAt(int arg0) {
-		return Arrays.toString(modelCases.get(arg0).getSolutionOutput());
-		
-		//return String.valueOf(modelCases.size());
+		return ProjectUtils.joinDoubles("", modelCases.get(arg0).getSolutionOutput(), "%.4f");
 	}
 	
 	/**

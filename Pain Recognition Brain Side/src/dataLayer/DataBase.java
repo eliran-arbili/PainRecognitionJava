@@ -63,9 +63,9 @@ public class DataBase {
 		BufferedWriter 	writer		= Files.newBufferedWriter(f.toPath(), Charset.defaultCharset(),StandardOpenOption.APPEND);
 		String 			caseId		= "RunTimeCase";
 		writer.append(System.getProperty("line.separator"));
-		writer.append(ProjectUtils.joinDoubles(",", rtCase.getActionUnits()));
+		writer.append(ProjectUtils.joinDoubles(",", rtCase.getActionUnits(),null));
 		writer.append(",");
-		writer.append(ProjectUtils.joinDoubles(",",rtCase.getSolutionOutput()));
+		writer.append(ProjectUtils.joinDoubles(",",rtCase.getSolutionOutput(),null));
 		writer.append(","+caseId);
 		writer.close();
 		Files.move(temp.toPath(), casesCSVFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
