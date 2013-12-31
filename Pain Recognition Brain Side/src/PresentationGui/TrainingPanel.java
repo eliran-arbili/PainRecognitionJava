@@ -1,7 +1,6 @@
 package PresentationGui;
 
 import javax.swing.*;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.encog.engine.network.activation.ActivationSigmoid;
@@ -261,6 +260,7 @@ public class TrainingPanel extends BackgroundPanel {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	protected void onClickTrain(ActionEvent e) {
 		
 		if(btnTrain.getText().equals("Stop")){

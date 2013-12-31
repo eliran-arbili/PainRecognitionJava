@@ -100,14 +100,12 @@ public class PainMeasureGui  implements Observer{
 			backgroundPanel = new BackgroundPanel(ImageIO.read(this.getClass().getClassLoader().getResource("resources/PainMeasureBG.jpg")));
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		backgroundPanel.setBounds(0,0,624,424);
 		backgroundPanel.setLayout(null);
 		frame.getContentPane().add(backgroundPanel);
 		frameBackground.setBounds(0,0,700,730);
-		
 		
 		
 		frame.addWindowListener(new WindowAdapter() {
@@ -144,8 +142,8 @@ public class PainMeasureGui  implements Observer{
 		backgroundPanel.add(sliderMinPainImage);
 		backgroundPanel.add(sliderMaxPainImage);
 		frame.repaint();
-		 scrollPane = new JScrollPane (JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		 scrollPane.setBounds(453, 29, 66, 290);
+		 scrollPane = new JScrollPane (JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		 scrollPane.setBounds(457, 22, 66, 290);
 		 backgroundPanel.add(scrollPane);
 		
 		btnPlayPause = new JButton();
@@ -156,22 +154,20 @@ public class PainMeasureGui  implements Observer{
 		});
 		toPlay=false;
 		btnPlayPause.setIcon(iconPlay);
-		btnPlayPause.setBounds(444, 336, 89, 59);
+		btnPlayPause.setBounds(443, 320, 89, 59);
 		btnPlayPause.setOpaque(false);
 		btnPlayPause.setContentAreaFilled(false);
 		btnPlayPause.setBorderPainted(false);
 		backgroundPanel.add(btnPlayPause);
 		
-		lstLastCases = new JList<String>(new CasesListModel());
-		backgroundPanel.add(lstLastCases);
-		lstLastCases.setBounds(453, 29, 49, 268);
-		lstLastCases.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		lstLastCases.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e){
-				onClickCasesList(e);
-			}
-		});
-		
+		 lstLastCases = new JList<String>(new CasesListModel());
+		 scrollPane.setViewportView(lstLastCases);
+		 lstLastCases.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		 lstLastCases.addMouseListener(new MouseAdapter() {
+		 	public void mouseClicked(MouseEvent e){
+		 		onClickCasesList(e);
+		 	}
+		 });
 		
 		
 		
@@ -207,6 +203,7 @@ public class PainMeasureGui  implements Observer{
 			btnPlayPause.setIcon(iconPause);
 			toPlay=true;
 			lstLastCases.setToolTipText(null);
+			lstLastCases.clearSelection();
 		}
 		else
 		{
