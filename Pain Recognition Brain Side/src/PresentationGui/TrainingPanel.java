@@ -1,13 +1,18 @@
 package PresentationGui;
 
 import javax.swing.*;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.table.DefaultTableCellRenderer;
+
 import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.engine.network.activation.ActivationTANH;
+
 import dataLayer.ProjectConfig;
 import businessLogic.ProjectUtils;
 import businessLogic.training.NeuralTrainDesciptor;
 import businessLogic.training.TrainingSession;
 import businessLogic.training.TrainingSession.ConfKeys;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -37,6 +42,8 @@ public class TrainingPanel extends BackgroundPanel {
 	private MouseListener tableClickListener;
 	private TrainingSession currentTrainSession;
 	private File dataSetFileToUse;
+	private Thread trainWorker;
+
 
 	/*
 	 * Constructors
@@ -255,6 +262,14 @@ public class TrainingPanel extends BackgroundPanel {
 	}
 	
 	protected void onClickTrain(ActionEvent e) {
+		
+		if(btnTrain.getText().equals("Stop")){
+			trainWorker.stop();
+			btnTrain.setText("Train");
+			iconLabel.setVisible(false);
+			return;
+		}
+		
 		if(! isFieldsOK()){
 			return;
 		}
@@ -287,6 +302,13 @@ public class TrainingPanel extends BackgroundPanel {
 						dataSetFileToUse		= ProjectUtils.normalizeCSVFile(noDupsCSVSet, inputCount, outputCount, headers);
 						trainedNets = currentTrainSession.kFoldsCrossValidationTrain(dataSetFileToUse, kFolds, headers);
 						tableTrainedNetworks.setModel(new TrainingTableModel(trainedNets));
+						DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+						centerRenderer.setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
+						tableTrainedNetworks.getColumn("Training Error");
+						for(int i = 0 ; i < tableTrainedNetworks.getModel().getColumnCount(); i++){
+							String columnName = tableTrainedNetworks.getModel().getColumnName(i);
+							tableTrainedNetworks.getColumn(columnName).setCellRenderer(centerRenderer);;
+						}
 						if(ProjectConfig.getOptBool("DEBUG_MODE") == false){
 							noDupsCSVSet.delete();
 						}
@@ -300,7 +322,8 @@ public class TrainingPanel extends BackgroundPanel {
 				}
 				
 			};
-			Thread trainWorker = new Thread(run);
+			btnTrain.setText("Stop");
+			trainWorker = new Thread(run);
 			trainWorker.start();
 		} 
 		catch (Exception ex) 

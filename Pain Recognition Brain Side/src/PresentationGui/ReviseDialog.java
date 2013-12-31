@@ -118,12 +118,18 @@ public class ReviseDialog extends JDialog {
 		backgroundPanel_1.add(lblRevise);
 		
 		JButton btnOk = new JButton("OK");
+		btnOk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				onClickOK();
+			}
+		});
 		btnOk.setBounds(128, 293, 65, 23);
 		backgroundPanel_1.add(btnOk);
 		
 		JButton btnNewButton = new JButton("Cancel");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				onClickCancle();
 			}
 		});
 		btnNewButton.setBounds(280, 293, 65, 23);
@@ -132,16 +138,37 @@ public class ReviseDialog extends JDialog {
 
 	}
 
+	protected void onClickCancle() {
+		this.dispose();
+	}
+
+	protected void onClickOK() {
+		 
+		String [] userSolutions= textSolutionsOutput.getText().split(",");
+		if(userSolutions.length!=ProjectConfig.getOptInt("CASE_OUTPUT_COUNT"))
+		{
+			JOptionPane.showMessageDialog(this, "The number of your solutions not equal to CASE_OUTPUT_COUNT in properties file!", "Revise", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		solution = new double[userSolutions.length];
+		for(int i=0;i<userSolutions.length;i++)
+			solution[i]=Double.parseDouble(userSolutions[i]);
+		
+		this.dispose();
+		
+	}
+
 	public double []  showReviseDialog(RunTimeCase rtCase)
 	{
 		solution=null;
+		textSolutionsOutput.setText("");
 		for(int i=0;i<auNames.length;i++)
 		{
 			model.setValueAt(auNames[i], i, 0);
 			model.setValueAt((Double)(rtCase.getActionUnit(i)), i, 1);
 		}
 
-		txtcaseResult.setText(ProjectUtils.joinDoubles(",",rtCase.getSolutionOutput()));
+		txtcaseResult.setText(ProjectUtils.joinDoubles(",",rtCase.getSolutionOutput(), "%.4f"));
 
 		this.setModal(true);
 		this.setVisible(true);

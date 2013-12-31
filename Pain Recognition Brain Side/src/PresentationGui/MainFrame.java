@@ -128,10 +128,11 @@ public class MainFrame extends JFrame {
 		setJMenuBar(menuBar);
 		menuBar.add(mnFile);
 		mnFile.add(mntmExit);
-		menuBar.add(mnHelp);
-		mnHelp.add(mntmAbout);
 		mnTracking.add(mntmOpenTracker);
 		menuBar.add(mnTracking);
+		menuBar.add(mnHelp);
+		mnHelp.add(mntmAbout);
+		
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
