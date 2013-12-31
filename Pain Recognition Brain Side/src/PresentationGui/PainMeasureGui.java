@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import businessLogic.RunTimeCase;
@@ -22,6 +23,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -35,6 +37,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.io.IOException;
 
 /**
  * A GUI for representing the actual pain recognition
@@ -45,12 +48,12 @@ public class PainMeasureGui  implements Observer{
 
 	
 	private Server painRecognitionServer ;
-	private ImageIcon Image = new ImageIcon();
+	private ImageIcon Image = new ImageIcon();;
 	private ArrayList<ImageIcon> painIcons;
 	private int alarmCycle;
 	private boolean toPlay;
 	private ReviseDialog reviseDialog;
-
+	private JPanel backgroundPanel;
 	/**
 	 * Create new PainMEasureGui window.
 	 */
@@ -78,6 +81,7 @@ public class PainMeasureGui  implements Observer{
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
 		JLabel sliderMinPainImage;
 		JLabel sliderMaxPainImage;
 		JLabel frameBackground=new JLabel();
@@ -90,9 +94,20 @@ public class PainMeasureGui  implements Observer{
 		
 		frame.setResizable(false);
 		lblFaceImage=new JLabel();
-		frame.setPreferredSize(new Dimension(500, 730));
-		frameBackground.setBounds(0,10,470,700);
-		frame.setContentPane(frameBackground);
+		frame.setPreferredSize(new Dimension(624,464));
+		
+		try {
+			backgroundPanel = new BackgroundPanel(ImageIO.read(this.getClass().getClassLoader().getResource("resources/PainMeasureBG.jpg")));
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		backgroundPanel.setBounds(0,0,624,424);
+		backgroundPanel.setLayout(null);
+		frame.getContentPane().add(backgroundPanel);
+		frameBackground.setBounds(0,0,700,730);
+		
 		
 		
 		frame.addWindowListener(new WindowAdapter() {
@@ -111,38 +126,27 @@ public class PainMeasureGui  implements Observer{
 		slider.setMajorTickSpacing(25);
 		slider.setMinorTickSpacing(10);
 		slider.setBounds(150, 350, 180, 45);
-		
 		sliderMinPainImage.setBounds(50,320,100,82);
 		sliderMaxPainImage.setBounds(333,320,100,82);
 		slider.setMinimum(0);
 		slider.setMaximum(100);
 		
-		frame.setBounds(350, 50, 500, 737);
+		
 		frame.getContentPane().setLayout(null);
 		lblFaceImage.setIcon(painIcons.get(0));
 	  
-		lblFaceImage.setBounds(60, 10, 363, 302);
-		frame.getContentPane().add(lblFaceImage);
+		lblFaceImage.setBounds(74, 29, 349, 283);
+		backgroundPanel.add(lblFaceImage);
 		
 		slider.setUI(new MySliderUI(slider));
-			    
-		frame.getContentPane().add(slider);
-		frame.getContentPane().add(sliderMinPainImage);
-		frame.getContentPane().add(sliderMaxPainImage);
+		slider.setOpaque(false);
+		backgroundPanel.add(slider);
+		backgroundPanel.add(sliderMinPainImage);
+		backgroundPanel.add(sliderMaxPainImage);
 		frame.repaint();
-		
-		lstLastCases = new JList<String>(new CasesListModel());
-		lstLastCases.setBounds(25, 281, 422, 225);
-		lstLastCases.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		lstLastCases.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e){
-				onClickCasesList(e);
-			}
-		});
-		 scrollPane = new JScrollPane (lstLastCases, 
-		   JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		 scrollPane.setBounds(26, 465, 422, 225);
-		frame.getContentPane().add(scrollPane);
+		 scrollPane = new JScrollPane (JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		 scrollPane.setBounds(453, 29, 66, 290);
+		 backgroundPanel.add(scrollPane);
 		
 		btnPlayPause = new JButton();
 		btnPlayPause.addActionListener(new ActionListener() {
@@ -152,11 +156,21 @@ public class PainMeasureGui  implements Observer{
 		});
 		toPlay=false;
 		btnPlayPause.setIcon(iconPlay);
-		btnPlayPause.setBounds(198, 406, 89, 59);
+		btnPlayPause.setBounds(444, 336, 89, 59);
 		btnPlayPause.setOpaque(false);
 		btnPlayPause.setContentAreaFilled(false);
 		btnPlayPause.setBorderPainted(false);
-		frame.getContentPane().add(btnPlayPause);
+		backgroundPanel.add(btnPlayPause);
+		
+		lstLastCases = new JList<String>(new CasesListModel());
+		backgroundPanel.add(lstLastCases);
+		lstLastCases.setBounds(453, 29, 49, 268);
+		lstLastCases.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		lstLastCases.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e){
+				onClickCasesList(e);
+			}
+		});
 		
 		
 		
@@ -336,6 +350,7 @@ public class PainMeasureGui  implements Observer{
 
 	    public MySliderUI(JSlider slider) {
 	        super(slider);
+	        
 	    }
 
 	    @Override
