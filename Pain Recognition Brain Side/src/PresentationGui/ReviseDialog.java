@@ -164,8 +164,8 @@ public class ReviseDialog extends JDialog {
 		textSolutionsOutput.setText("");
 		for(int i=0;i<auNames.length;i++)
 		{
-			model.setValueAt(auNames[i], i, 0);
-			model.setValueAt((Double)(rtCase.getActionUnit(i)), i, 1);
+			String strAuValue=String.format("%.4f",rtCase.getActionUnit(i));
+			model.setValueAt(strAuValue, i, 1);
 		}
 
 		txtcaseResult.setText(ProjectUtils.joinDoubles(",",rtCase.getSolutionOutput(), "%.4f"));
