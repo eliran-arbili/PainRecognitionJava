@@ -313,6 +313,7 @@ public class TrainingPanel extends BackgroundPanel {
 							noDupsCSVSet.delete();
 						}
 						tableTrainedNetworks.addMouseListener(tableClickListener);
+						btnTrain.setText("Train");
 					} 
 					catch (IOException e) 
 					{
