@@ -188,7 +188,7 @@ public class NeuralNetworkManager {
 		return conf;
 	}
 
-	public static void main (String[] args){
+	/*public static void main (String[] args){
 		
 		RunTimeCase rt = new RunTimeCase(new double[]{0.073, 0.962, 0.55, -0.676, 0.0, -0.006, 0.108, -0.029, 1.0, 0.0, 0.0});
 		rt.normalize();
@@ -196,6 +196,6 @@ public class NeuralNetworkManager {
 		BasicMLData dataInput = new BasicMLData(rt.getActionUnits());
 		org.encog.ml.data.MLData solutionOutput = net.compute(dataInput);
 		System.out.println(solutionOutput.getData(0));
-	}
+	}*/
 	
 }

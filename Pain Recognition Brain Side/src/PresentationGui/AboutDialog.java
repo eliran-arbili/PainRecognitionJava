@@ -4,14 +4,12 @@ import java.awt.EventQueue;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import java.awt.Font;
 import java.awt.Color;
-import java.awt.SystemColor;
 
 @SuppressWarnings("serial")
 public class AboutDialog extends JDialog {
@@ -42,13 +40,10 @@ public class AboutDialog extends JDialog {
 			backgroundPanel = new BackgroundPanel(ImageIO.read(this.getClass().getClassLoader().getResource("resources/background.png")));
 			setContentPane(backgroundPanel);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
-		ImageIcon iconBackground=new ImageIcon(this.getClass().getClassLoader().getResource("resources/aboutBG.jpg"));
-		//paneBackground.setIcon(iconBackground);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(10, 20, 370, 221);

@@ -229,25 +229,4 @@ public class RunTimeCase {
 		}
 		setNormalized(true);
 	}
-	
-	/*
-	 * Testing Unit
-	 */
-	public static void main(String[] args) {
-		
-		double [] actionUnitsInput		=	{0.938,0.75,0.6,0.397,0.116,0,0.114,0.588,0.799,0.9,0.98};
-		double [] fuzzyExpectedOutput 	= 	{1,    0.8, 0.6,0.4,  0.2,    0,0.2,  0.6,0.8,  1,1};    
-		RunTimeCase rtCase 				= 	new RunTimeCase(actionUnitsInput);
-		rtCase.fuzzify();
-		double [] testResult 			= 	rtCase.getActionUnits();
-		double epsilon 					= 	0.0001;
-		for(int i = 0 ; i< testResult.length ; i++){
-			ProjectUtils.assertFalse((Math.abs(testResult[i] - fuzzyExpectedOutput[i]) < epsilon), "Test Failed");
-		}
-		System.out.println("Test Passed!");
-		
-	}
-	
-	
-	
 }

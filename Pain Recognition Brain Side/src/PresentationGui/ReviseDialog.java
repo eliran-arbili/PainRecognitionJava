@@ -1,7 +1,5 @@
 package PresentationGui;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -10,7 +8,6 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import businessLogic.ProjectUtils;
@@ -23,12 +20,11 @@ import dataLayer.ProjectConfig;
 import java.awt.Font;
 
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.xml.ws.handler.MessageContext;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+@SuppressWarnings("serial")
 public class ReviseDialog extends JDialog {
 
 	private double [] solution;
@@ -37,7 +33,7 @@ public class ReviseDialog extends JDialog {
 	String [] auNames;
 	private JTextField txtcaseResult;
 	private JTextField textSolutionsOutput;
-	private JPanel backgroundPanel_1;
+	private JPanel backgroundPanel;
 	/**
 	 * Launch the application.
 	 */
@@ -55,13 +51,10 @@ public class ReviseDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	public ReviseDialog() {
-		JPanel backgroundPanel=null;
-
 		try {
-			backgroundPanel_1 = new BackgroundPanel(ImageIO.read(this.getClass().getClassLoader().getResource("resources/background.png")));
-			setContentPane(backgroundPanel_1);
+			backgroundPanel = new BackgroundPanel(ImageIO.read(this.getClass().getClassLoader().getResource("resources/background.png")));
+			setContentPane(backgroundPanel);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		setBounds(100, 100, 475, 390);
@@ -82,40 +75,40 @@ public class ReviseDialog extends JDialog {
 		table=new JTable();
 		table.setModel(model);
 		table.setBounds(22, 71, 225, 211);
-		backgroundPanel_1.add(table);
+		backgroundPanel.add(table);
 
 		JLabel lblActionUnits = new JLabel("Action Units:");
 		lblActionUnits.setFont(new Font("Arial", Font.BOLD, 14));
 		lblActionUnits.setBounds(22, 44, 108, 23);
-		backgroundPanel_1.add(lblActionUnits);
+		backgroundPanel.add(lblActionUnits);
 
 		JLabel lblCaseResult = new JLabel("Case Result");
 		lblCaseResult.setFont(new Font("Arial", Font.BOLD, 14));
 		lblCaseResult.setBounds(280, 104, 108, 23);
-		backgroundPanel_1.add(lblCaseResult);
+		backgroundPanel.add(lblCaseResult);
 
 
 		txtcaseResult = new JTextField();
 		txtcaseResult.setEnabled(false);
 		txtcaseResult.setBounds(280, 138, 108, 20);
-		backgroundPanel_1.add(txtcaseResult);
+		backgroundPanel.add(txtcaseResult);
 		txtcaseResult.setColumns(10);
 
 		JLabel lblNewSolutionsOutput = new JLabel("New Solution Output");
 		lblNewSolutionsOutput.setFont(new Font("Arial", Font.BOLD, 14));
 		lblNewSolutionsOutput.setBounds(257, 169, 144, 23);
-		backgroundPanel_1.add(lblNewSolutionsOutput);
+		backgroundPanel.add(lblNewSolutionsOutput);
 
 
 		textSolutionsOutput = new JTextField();
 		textSolutionsOutput.setBounds(280, 203, 108, 23);
-		backgroundPanel_1.add(textSolutionsOutput);
+		backgroundPanel.add(textSolutionsOutput);
 		textSolutionsOutput.setColumns(10);
 
 		JLabel lblRevise = new JLabel("Revise");
 		lblRevise.setFont(new Font("Arial", Font.BOLD, 18));
 		lblRevise.setBounds(214, 23, 108, 23);
-		backgroundPanel_1.add(lblRevise);
+		backgroundPanel.add(lblRevise);
 		
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
@@ -124,7 +117,7 @@ public class ReviseDialog extends JDialog {
 			}
 		});
 		btnOk.setBounds(128, 293, 65, 23);
-		backgroundPanel_1.add(btnOk);
+		backgroundPanel.add(btnOk);
 		
 		JButton btnNewButton = new JButton("Cancel");
 		btnNewButton.addActionListener(new ActionListener() {
@@ -133,7 +126,7 @@ public class ReviseDialog extends JDialog {
 			}
 		});
 		btnNewButton.setBounds(280, 293, 65, 23);
-		backgroundPanel_1.add(btnNewButton);
+		backgroundPanel.add(btnNewButton);
 
 
 	}

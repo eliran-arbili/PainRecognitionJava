@@ -450,20 +450,5 @@ public class ProjectUtils {
 		}
 		return -1;
 	}
-
-	public static void main(String[] args){
-		File f = new File("C:\\Users\\earbili\\Desktop\\NeuralNets\\NEW_DataSet_FullAUS- Edited.csv");
-		
-		try {
-			System.out.println(getNumberOFLines(f));
-/*			List<AnalystField> l = getAnalystFieldsCSV(f);
-			for(AnalystField af: l){
-				System.out.println(af);
-			}*/
-			File norm = normalizeCSVFile(f, 11, 1, true);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 	
 }
