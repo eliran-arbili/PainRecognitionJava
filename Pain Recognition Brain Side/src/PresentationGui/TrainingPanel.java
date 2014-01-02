@@ -135,46 +135,46 @@ public class TrainingPanel extends BackgroundPanel {
 
 		textFieldStripLength = new JTextField();
 		textFieldStripLength.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldStripLength.setBounds(160, 182, 36, 20);
+		textFieldStripLength.setBounds(160, 182, 46, 20);
 		textFieldStripLength.setColumns(10);
 		textFieldStripLength.setToolTipText("Typical value: 1");
 
 		textFieldMaxEpochs = new JTextField();
 		textFieldMaxEpochs.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldMaxEpochs.setBounds(160, 151, 36, 20);
+		textFieldMaxEpochs.setBounds(160, 151, 46, 20);
 		textFieldMaxEpochs.setColumns(10);
 		textFieldMaxEpochs.setToolTipText("Typical value: 15,000");
 
 		textFieldMinEffiency = new JTextField();
 		textFieldMinEffiency.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldMinEffiency.setBounds(160, 211, 36, 20);
+		textFieldMinEffiency.setBounds(160, 211, 46, 20);
 		textFieldMinEffiency.setColumns(10);
 		textFieldMinEffiency.setToolTipText("Typical value: 0.1");
 
 		textFieldAlpha = new JTextField();
 		textFieldAlpha.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldAlpha.setBounds(160, 242, 36, 20);
+		textFieldAlpha.setBounds(160, 242, 46, 20);
 		textFieldAlpha.setColumns(10);
 		textFieldAlpha.setToolTipText("Typical value: ");
 
 		textFieldKFolds = new JTextField();
 		textFieldKFolds.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldKFolds.setBounds(160, 273, 36, 20);
+		textFieldKFolds.setBounds(160, 273, 46, 20);
 		textFieldKFolds.setColumns(10);
 
 		textFieldOutputNeurons = new JTextField();
 		textFieldOutputNeurons.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldOutputNeurons.setBounds(160, 305, 36, 20);
+		textFieldOutputNeurons.setBounds(160, 305, 46, 20);
 		textFieldOutputNeurons.setColumns(10);
 
 		textFieldHiddenNeurons = new JTextField();
 		textFieldHiddenNeurons.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldHiddenNeurons.setBounds(160, 336, 36, 20);
+		textFieldHiddenNeurons.setBounds(160, 336, 46, 20);
 		textFieldHiddenNeurons.setColumns(10);
 
 		textFieldInputNeurons = new JTextField();
 		textFieldInputNeurons.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldInputNeurons.setBounds(160, 367, 36, 20);
+		textFieldInputNeurons.setBounds(160, 367, 46, 20);
 		textFieldInputNeurons.setColumns(10);
 
 
