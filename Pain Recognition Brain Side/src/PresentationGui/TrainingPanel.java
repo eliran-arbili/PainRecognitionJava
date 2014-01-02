@@ -155,7 +155,7 @@ public class TrainingPanel extends BackgroundPanel {
 		textFieldAlpha.setFont(new Font("Arial", Font.PLAIN, 12));
 		textFieldAlpha.setBounds(160, 242, 46, 20);
 		textFieldAlpha.setColumns(10);
-		textFieldAlpha.setToolTipText("Typical value: ");
+		textFieldAlpha.setToolTipText("Typical value: 20");
 
 		textFieldKFolds = new JTextField();
 		textFieldKFolds.setFont(new Font("Arial", Font.PLAIN, 12));
