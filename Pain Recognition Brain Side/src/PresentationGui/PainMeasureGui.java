@@ -66,16 +66,6 @@ public class PainMeasureGui  implements Observer{
 		
 	}
 
-	private ArrayList<ImageIcon> getPainIcons() {
-		
-		ClassLoader loader = this.getClass().getClassLoader();
-		ArrayList<ImageIcon> list = new ArrayList<ImageIcon>();
-		for(int index = 1 ; index <= 9; index++){
-			list.add(new ImageIcon(loader.getResource("resources/painExpressions/pain"+index+".png")));
-		}
-		
-		return list;
-	}
 
 	/**
 	 * Initialize the contents of the frame.
@@ -174,6 +164,62 @@ public class PainMeasureGui  implements Observer{
 		frame.pack();
 		//frame.getContentPane().add(textArea);
 	}
+	
+	
+	/*
+	 * Member Functions
+	 */
+	
+	public void openWindow(){
+		
+		this.frame.setVisible(true);
+	}
+
+	public void closeWindow(){
+		this.frame.setVisible(false);
+	}
+	
+	@Override
+	public void update(Observable o, Object arg) {
+		if(arg instanceof String){
+			handleServerStatus((String)arg);
+		}
+		
+		
+		if(!(arg instanceof RunTimeCase) || toPlay==false)
+			return;
+		RunTimeCase rtCase=(RunTimeCase)arg;
+		double painMeasure =rtCase.getSolutionOutput()[0];
+		
+		setImageFace(painMeasure);
+		setSliderValue(painMeasure);
+		
+		/* Determine action here */
+		((CasesListModel)lstLastCases.getModel()).add(rtCase);
+		if(painMeasure > ProjectConfig.getOptDouble("PAIN_SENSITIVITY")){
+			
+			alarmCycle--;
+			if(alarmCycle<=0)
+			{
+				lstLastCases.setBackground(Color.red);
+			}
+		}
+		else
+		{
+			alarmCycle=ProjectConfig.getOptInt("CYCLES_FOR_ALARM");
+			lstLastCases.setBackground(Color.white);
+
+		}
+		
+		JScrollBar vertical = scrollPane.getVerticalScrollBar();
+		vertical.setValue( vertical.getMaximum() );
+		
+	}
+	
+
+	/*
+	 * Components CallBacks
+	 */
 	protected void onClickCasesList(MouseEvent evt) {
 	    if(evt.getSource() != lstLastCases || toPlay==true){
 	    	return;
@@ -218,21 +264,39 @@ public class PainMeasureGui  implements Observer{
 		lstLastCases.removeAll();
 	}
 
-	public void openWindow(){
+	
+	/*
+	 * Auxiliary Functions
+	 */
+	
+	private ArrayList<ImageIcon> getPainIcons() {
 		
-		this.frame.setVisible(true);
-	}
-
-	public void closeWindow(){
-		this.frame.setVisible(false);
+		ClassLoader loader = this.getClass().getClassLoader();
+		ArrayList<ImageIcon> list = new ArrayList<ImageIcon>();
+		for(int index = 1 ; index <= 9; index++){
+			list.add(new ImageIcon(loader.getResource("resources/painExpressions/pain"+index+".png")));
+		}
+		
+		return list;
 	}
 	
-	@Override
-	public void update(Observable o, Object arg) {
-		if(!(arg instanceof RunTimeCase) || toPlay==false)
+	private void handleServerStatus(String arg) {
+		if(arg.equals(Server.SERVER_STOPPED) || arg.equals(Server.SERVER_CLOSED)){
+			closeWindow();
 			return;
-		RunTimeCase rtCase=(RunTimeCase)arg;
-		double painMeasure =rtCase.getSolutionOutput()[0];
+		}
+		if(arg.equals(Server.SERVER_STARTED)){
+			openWindow();
+			return;
+		}
+	}
+	
+	private void setSliderValue(double painMeasure) {
+		slider.setValue((int)(painMeasure*100));
+		slider.repaint();
+	}
+
+	private void setImageFace(double painMeasure){
 		if(painMeasure < 0.2)
 		{
 			Image = painIcons.get(0);
@@ -261,32 +325,8 @@ public class PainMeasureGui  implements Observer{
 		if(painMeasure > 0.95){
 			Image = painIcons.get(6);	
 		}
-		
-		slider.setValue((int)(painMeasure*100));
-		
-		slider.repaint();
 		lblFaceImage.setIcon(Image);
 		lblFaceImage.repaint();
-		((CasesListModel)lstLastCases.getModel()).add(rtCase);
-		if(painMeasure > ProjectConfig.getOptDouble("PAIN_SENSITIVITY")){
-			
-			alarmCycle--;
-			if(alarmCycle<=0)
-			{
-				lstLastCases.setBackground(Color.red);
-					
-			}
-		}
-		else
-		{
-			alarmCycle=ProjectConfig.getOptInt("CYCLES_FOR_ALARM");
-			lstLastCases.setBackground(Color.white);
-
-		}
-		
-		JScrollBar vertical = scrollPane.getVerticalScrollBar();
-		vertical.setValue( vertical.getMaximum() );
-		
 	}
 	/*
 	 * Gui Components
@@ -299,46 +339,6 @@ public class PainMeasureGui  implements Observer{
 	private ImageIcon iconPlay;
 	private ImageIcon iconPause;
 	private JSlider slider;
-	
-	/*
-	public class CustomSliderUI extends BasicSliderUI {
-
-	    private BasicStroke stroke = new BasicStroke(1f, BasicStroke.CAP_ROUND, 
-	            BasicStroke.JOIN_ROUND, 0f, new float[]{1f, 2f}, 0f);
-
-	    public CustomSliderUI(JSlider b) {
-	        super(b);
-	    }
-
-	    @Override
-	    public void paint(Graphics g, JComponent c) {
-	        Graphics2D g2d = (Graphics2D) g;
-	        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-	                RenderingHints.VALUE_ANTIALIAS_ON);
-	        super.paint(g, c);
-	    }
-
-	    @Override
-	    protected Dimension getThumbSize() {
-	        return new Dimension(12, 16);
-	    }
-
-	    @Override
-	    public void paintTrack(Graphics g) {
-	        Graphics2D g2d = (Graphics2D) g;
-	        Stroke old = g2d.getStroke();
-	        g2d.setStroke(stroke);
-	        g2d.setPaint(Color.BLACK);
-	        if (slider.getOrientation() == SwingConstants.HORIZONTAL) {
-	            g2d.drawLine(trackRect.x, trackRect.y + trackRect.height / 2, 
-	                    trackRect.x + trackRect.width, trackRect.y + trackRect.height / 2);
-	        } else {
-	            g2d.drawLine(trackRect.x + trackRect.width / 2, trackRect.y, 
-	                    trackRect.x + trackRect.width / 2, trackRect.y + trackRect.height);
-	        }
-	        g2d.setStroke(old);
-	    }
-	}*/
 	
 	private static class MySliderUI extends BasicSliderUI {
 
