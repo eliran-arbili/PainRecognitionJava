@@ -72,6 +72,7 @@ public class MainFrame extends JFrame {
 		mnTracking			= new JMenu("Tracking");
 		mntmOpenTracker		= new JMenuItem("Open Tracker");
 		mntmAbout 			= new JMenuItem("About");
+		mntmRemoveTag		= new JMenuItem("Remove Tag");
 		contentPane 		= new JPanel();
 		tabbedPane 			= new JTabbedPane(JTabbedPane.TOP);
 		footerPanel 		= new JPanel();
@@ -113,7 +114,7 @@ public class MainFrame extends JFrame {
 		mntmAbout.addActionListener(new ActionListener() {	
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				onAboutClick();
+				onClickAbout();
 			}
 		});
 		
@@ -125,8 +126,16 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
+		mntmRemoveTag.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				onClickRemoveTag();
+			}
+		});
+		
 		setJMenuBar(menuBar);
 		menuBar.add(mnFile);
+		mnFile.add(mntmRemoveTag);
 		mnFile.add(mntmExit);
 		mnTracking.add(mntmOpenTracker);
 		menuBar.add(mnTracking);
@@ -153,6 +162,7 @@ public class MainFrame extends JFrame {
 		contentPane.add(footerPanel);
 	}
 	
+
 	/* 
 	 * Components Call backs
 	 */
@@ -162,14 +172,20 @@ public class MainFrame extends JFrame {
 			JOptionPane.showMessageDialog(this, "Tracker Already Opened!", "Warnning", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
-		tracker.start();
-		
+		tracker.start();	
 	}
 
-	protected void onAboutClick() {
+	protected void onClickRemoveTag() {
+		if(serverRunModePanel != null){
+			serverRunModePanel.deleteCurrentSelectedTag();
+		}
+	}
+	
+	protected void onClickAbout() {
 		dlgAbout.setVisible(true);
 	}
 
+	
 	protected void onApplicationExit() {
         int confirm = JOptionPane.showOptionDialog(this,
                 "Are You Sure You Want To Exit?",
@@ -201,6 +217,7 @@ public class MainFrame extends JFrame {
 	private JMenuItem 			mntmAbout;
 	private JMenu				mnTracking;
 	private JMenuItem			mntmOpenTracker;
+	private JMenuItem			mntmRemoveTag;
 	private JTabbedPane 		tabbedPane;
 	private JPanel 				footerPanel;
 	private ServerRunModePanel 	serverRunModePanel;

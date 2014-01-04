@@ -26,7 +26,6 @@ public class Server extends ObservableServer{
 	{
 		super(port);
 		painCBR = new CBRController();		
-		
 	}
 
 	/*
@@ -86,13 +85,21 @@ public class Server extends ObservableServer{
 		notifyObservers(rtCase);
 	}
 	
-	protected void serverStarted() {
+	synchronized protected void serverStarted() {
+		super.serverStarted();
 		System.out.println("Server Started...");
 	}
 
-	protected void serverStopped() {
+	synchronized protected void serverStopped() {
+		super.serverStopped();
 		painCBR.handleShutDown();
 		System.out.println("Server Stopped...");
+	}
+	
+	synchronized protected void serverClosed() {
+		super.serverClosed();
+		painCBR.handleShutDown();
+		System.out.println("Server Closed...");
 	}
 
 	protected void listeningException(Throwable exception) {

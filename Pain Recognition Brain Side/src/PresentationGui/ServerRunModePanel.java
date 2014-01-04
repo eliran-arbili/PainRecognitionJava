@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import businessLogic.CBRController;
+import businessLogic.ProjectUtils;
 import businessLogic.painServer.Server;
 import dataLayer.ProjectConfig;
 
@@ -34,12 +35,14 @@ public class ServerRunModePanel extends BackgroundPanel {
 	 */
 	private Server painRecognitionServer;
 	private PainMeasureGui painGui;
+	private boolean serverRunning;
 	
 	/**
 	 * Create new ServerRunModePanel with a background image
 	 */
 	public ServerRunModePanel(Image image) {
 		super(image);
+		setServerRunning(false);
 		initialize();
 	}
 	
@@ -135,30 +138,59 @@ public class ServerRunModePanel extends BackgroundPanel {
 		}
 	}
 	
+	public boolean isServerRunning() {
+		return serverRunning;
+	}
+
+	public void setServerRunning(boolean serverRunning) {
+		this.serverRunning = serverRunning;
+	}
+	
+	public void deleteCurrentSelectedTag(){
+		
+		if(isServerRunning()){
+			JOptionPane.showMessageDialog(this, "Can't Remove Tag While Server Is Running","Operation Couldn't Be Completed",JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		File currTag = (File)cmboxTags.getSelectedItem();
+		if(currTag != null){
+			if(ProjectUtils.deleteDirectory(currTag)){
+				cmboxTags.removeItem(currTag);
+				JOptionPane.showMessageDialog(this, "Tag Removed Successfully", "Tag", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+			else{
+				JOptionPane.showMessageDialog(this, "Tag Cannot Be Removed\nPlease Check That The File Is Not Used By Another Application", "Operation Couldn't Be Completed", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+		}
+		else{
+			JOptionPane.showMessageDialog(this, "There Are Currently No Tags", "Operation Couldn't Be Completed", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+	}
+	
 	/*
 	 * Components callback's
 	 */
 
 	protected void btnStartStopOnClick(ActionEvent arg0) {
-		
-		if(btnStartStop.getText().equalsIgnoreCase("Start")){
-			handleServerStart();
-		}
-		else{
-			handleServerClose();
-		}
-
+		switchServerStatus();
 	}
 	
-	private void handleServerClose() {
-		lblServerStatus.setText("OFF");
-		lblServerStatus.setForeground(Color.RED);
-		btnStartStop.setText("Start");
-		painGui.closeWindow();		
+	
+	/*
+	 * Auxiliary methods
+	 */
+	
+	private void stopServer() {
+		if(painRecognitionServer != null){
+			painRecognitionServer.stopListening();
+		}
 	}
-
-	private void handleServerStart(){
-		
+	
+	
+	private void startServer(){
 			String portTxt		= txtFldPort.getText();
 			String kCasesTxt 	= txtFldKCases.getText();
 			if(! isFieldsOK(portTxt,kCasesTxt)){
@@ -197,16 +229,10 @@ public class ServerRunModePanel extends BackgroundPanel {
 			}
 			
 			ProjectConfig.setCurrentTag(trainingTag);
-			painGui.openWindow();
-			lblServerStatus.setText("ON");
-			lblServerStatus.setForeground(Color.GREEN);
-			btnStartStop.setText("Stop");
 	}
 	
 	
-	/*
-	 * Auxiliary methods
-	 */
+	
 	private boolean isFieldsOK(String... args)
 	{
 		
@@ -218,6 +244,26 @@ public class ServerRunModePanel extends BackgroundPanel {
 	    }
 		return true;
 	}
+	
+	private void switchServerStatus(){
+		if(isServerRunning()){
+			stopServer();
+			lblServerStatus.setText("OFF");
+			lblServerStatus.setForeground(Color.RED);
+			btnStartStop.setText("Start");
+			setServerRunning(false);
+		}
+		else{
+			startServer();
+			painGui.openWindow();
+			lblServerStatus.setText("ON");
+			lblServerStatus.setForeground(Color.GREEN);
+			btnStartStop.setText("Stop");
+			setServerRunning(true);
+		}
+	}
+	
+	
 	private JButton 		 	btnStartStop;
 	private JTextField 		 	txtFldPort;
 	private JTextField 			txtFldKCases;
