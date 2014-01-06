@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.event.WindowAdapter;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -34,6 +33,8 @@ import dataLayer.ProjectConfig;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -97,12 +98,11 @@ public class PainMeasureGui  implements Observer{
 		frame.getContentPane().add(backgroundPanel);
 		frameBackground.setBounds(0,0,700,730);
 		
-		
-		frame.addWindowListener(new WindowAdapter() {
-			@Override
-            public void windowActivated(java.awt.event.WindowEvent e) {
-				onFrameLoading();
-			}
+		frame.addComponentListener(new ComponentAdapter() {
+	        public void componentShown ( ComponentEvent e )
+	        {
+	        	onFrameLoading();
+	        }
 		});
 		sliderMinPainImage=new JLabel(painIcons.get(7));
 		sliderMaxPainImage=new JLabel(painIcons.get(8));
@@ -177,6 +177,7 @@ public class PainMeasureGui  implements Observer{
 
 	public void closeWindow(){
 		this.frame.setVisible(false);
+		lstLastCases.removeAll();
 	}
 	
 	@Override
@@ -261,7 +262,9 @@ public class PainMeasureGui  implements Observer{
 	}
 
 	protected void onFrameLoading() {
-		lstLastCases.removeAll();
+		((CasesListModel)lstLastCases.getModel()).removeAll();
+		slider.setValue(0);
+		lstLastCases.setBackground(Color.white);
 	}
 
 	
