@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -155,8 +157,9 @@ public class MainFrame extends JFrame {
 		try {
 			backgroundPanel = new BackgroundPanel(ImageIO.read(this.getClass().getClassLoader().getResource("resources/footer.jpg")));
 			footerPanel.add(backgroundPanel);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (IOException e) 
+		{
 			e.printStackTrace();
 		}
 		contentPane.add(footerPanel);
@@ -172,6 +175,12 @@ public class MainFrame extends JFrame {
 			JOptionPane.showMessageDialog(this, "Tracker Already Opened!", "Warnning", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
+		
+		if(! Files.exists(Paths.get(ProjectConfig.getOpt("TRACKER_PROGRAM")))){
+			JOptionPane.showMessageDialog(this, "Tracker Cannot be Found!", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
 		tracker.start();	
 	}
 

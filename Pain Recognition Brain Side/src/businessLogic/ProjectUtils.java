@@ -185,8 +185,7 @@ public class ProjectUtils {
 		EncogAnalyst analyst 		= new EncogAnalyst();
 		AnalystWizard wizard 		= new AnalystWizard(analyst);
 		wizard.setGoal(AnalystGoal.Regression);
-		wizard.setTargetField(ProjectConfig.getOptArray("OUTPUT_FIELDS")[0]);
-		if(ProjectConfig.getOptInt("NORM_MAX_LIMIT") == 1 && ProjectConfig.getOptInt("NORM_MIN_LIMIT") == 0){
+ 		if(ProjectConfig.getOptInt("NORM_MAX_LIMIT") == 1 && ProjectConfig.getOptInt("NORM_MIN_LIMIT") == 0){
 			wizard.setRange(NormalizeRange.Zero2One);
 		}
 		else{
@@ -401,7 +400,7 @@ public class ProjectUtils {
 		while((line = reader.readLine()) != null){
 			String addRow = "";
 			List<String> lineStrings = csvParser.parse(line);
-			for(int i = 0; i < startColumn - endColumn +1; i++){
+			for(int i = 0; i < endColumn - startColumn  +1; i++){
 				addRow += "," + lineStrings.get(startColumn + i -1);
 			}
 			toAdd.add(addRow);
@@ -442,6 +441,9 @@ public class ProjectUtils {
 		for(AnalystField af : analyst.getScript().getNormalize().getNormalizedFields()){
 			if(af.getAction() != NormalizationAction.Ignore){
 				af.setAction(NormalizationAction.Normalize);
+			}
+			if(af.getName().matches("(?i).*id")){
+				af.setAction(NormalizationAction.Ignore);
 			}
 		}
 	}
