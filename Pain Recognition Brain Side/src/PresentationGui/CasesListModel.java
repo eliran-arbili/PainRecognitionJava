@@ -69,18 +69,25 @@ public class CasesListModel extends AbstractListModel<String> {
 		fireIntervalAdded(this, this.getSize()-1, this.getSize()-1);
 	}
 	
+	
 	/**
-	 * Remove case from the list
-	 * @param index of case to remove
+	 * Remove all cases from this list
 	 */
-	public void remove(int index) {
-		modelCases.remove(index);
-		fireIntervalRemoved(this, index, index);
+	public void removeAll(){
+		if(modelCases.size() <= 0){
+			return;
+		}
+		int index = 0;
+		int size = modelCases.size();
+		while(index < size){
+			modelCases.remove();
+			index++;
+		}
+		fireIntervalRemoved(this, 0, index-1);
 	}
 	
-	
 	/**
-	 * A veriant for the regular queue just with a limitation of queue size 
+	 * A variant for the regular queue just with a limitation of queue size 
 	 * and automatic poll of first-in objects when adding to full queue
 	 * @author Eliran Arbeli , Arie Gaon
 	 *
