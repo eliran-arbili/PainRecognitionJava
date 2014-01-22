@@ -1,8 +1,14 @@
 package businessLogic.training;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.List;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -12,9 +18,15 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.encog.ml.data.MLDataPair;
+import org.encog.ml.data.basic.BasicMLData;
+import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.neural.networks.ContainsFlat;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.Format;
+import org.encog.util.csv.CSVFormat;
+import org.encog.util.csv.ParseCSVLine;
+import org.encog.util.csv.ReadCSV;
 
 import businessLogic.ProjectUtils;
 import businessLogic.RunTimeCase;
@@ -202,6 +214,50 @@ public class NeuralNetworkAnalyzer {
 		}
 	}
 	
+	public void evaluateDataSet(File dataSetFile, int executionNumber) throws IOException{
+			
+		String [] 				auNames			= ProjectConfig.getOptArray("AUS");
+		double [] 				actionUnits 	= new double[auNames.length];
+		String []				outputFields 	= ProjectConfig.getOptArray("OUTPUT_FIELDS");
+		double [] 				result 			= new double[outputFields.length];
+		double []				computedResult  = new double[result.length];
+		Sheet sheet = wbHandle.createSheet("Data Set Evaluation");
+		int sheetRowIndex = 0;
+		Row infoRow = sheet.createRow(sheetRowIndex++);
+		infoRow.createCell(0).setCellValue("Execution Id");
+		infoRow.createCell(1).setCellValue("Sample Id");
+		infoRow.createCell(2).setCellValue("Face Id");
+		for(int i = 0 ; i < outputFields.length;i++){
+			infoRow.createCell(i*3+3).setCellValue("Manual Output");
+			infoRow.createCell(i*3+4).setCellValue("System Output");
+			infoRow.createCell(i*3+5).setCellValue("Diff");
+			infoRow.createCell(i*3+6).setCellValue("Diff Percentage");
+
+		}
+		
+		ReadCSV csv = new ReadCSV(new FileInputStream(dataSetFile), true, CSVFormat.ENGLISH);
+		while(csv.next()){
+			for(int i = 0 ; i < actionUnits.length; i++){
+				actionUnits[i] = csv.getDouble(auNames[i]);
+			}
+			for(int i = 0 ; i < outputFields.length ; i++){
+				result[i]	   = csv.getDouble(outputFields[i]);
+			}
+			Row dataRow = sheet.createRow(sheetRowIndex++);
+			dataRow.createCell(0).setCellValue(String.valueOf(executionNumber));
+			dataRow.createCell(1).setCellValue(csv.get("SampleID"));
+			dataRow.createCell(2).setCellValue(csv.get("CaseID"));
+			neuralNet.getFlat().compute(actionUnits, computedResult);
+			for(int i = 0 ; i < result.length;i++){
+				dataRow.createCell(i*3+3).setCellValue(result[i]);
+				dataRow.createCell(i*3+4).setCellValue(computedResult[i]);
+				dataRow.createCell(i*3+5).setCellValue(Math.abs(computedResult[i]-result[i]));
+				dataRow.createCell(i*3+6).setCellValue(Format.formatPercentWhole(Math.abs(computedResult[i]-result[i])/result[i]));
+			}
+		}
+		csv.close();
+	}
+	
 	/*
 	 * Auxiliary Methods
 	 */
@@ -276,11 +332,13 @@ public class NeuralNetworkAnalyzer {
 		RunTimeCase neutralCase = new RunTimeCase(neutralValues,true);
 		try 
 		{
-			analyzer.printAnalyzeByArray(neutralCase, addPercents);
+			File dataSetFile = ProjectConfig.getCSVByTag(new File(ProjectUtils.combine(ProjectConfig.TRAINING_TAGS_PATH, "sample")));
+			analyzer.evaluateDataSet(dataSetFile, 1);
+			//analyzer.printAnalyzeByArray(neutralCase, addPercents);
 			//analyzer.analyzeCombinations(neutralCase,1);
 			//analyzer.analyzeCombinations(neutralCase,2);
 			//analyzer.analyzeCombinations(neutralCase,3);
-			//analyzer.saveWork();
+			analyzer.saveWork();
 		} 
 		catch (Exception e) 
 		{
