@@ -1,14 +1,9 @@
 package businessLogic.training;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.util.List;
-
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -18,14 +13,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.encog.ml.data.MLDataPair;
-import org.encog.ml.data.basic.BasicMLData;
-import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.neural.networks.ContainsFlat;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.Format;
 import org.encog.util.csv.CSVFormat;
-import org.encog.util.csv.ParseCSVLine;
 import org.encog.util.csv.ReadCSV;
 
 import businessLogic.ProjectUtils;
@@ -44,8 +35,8 @@ public class NeuralNetworkAnalyzer {
 	 * Instance Variables
 	 */
 	private ContainsFlat neuralNet;
-	private File targetFile;
 	private Workbook wbHandle;
+	private File targetDirectory;
 	
 	/*
 	 * Constructors
@@ -57,7 +48,7 @@ public class NeuralNetworkAnalyzer {
 	 */
 	public NeuralNetworkAnalyzer(ContainsFlat neuralNet, File targetDirectory) {
 		this.neuralNet = neuralNet;
-		targetFile = new File(ProjectUtils.combine(targetDirectory.getAbsolutePath(), "ann_analys.xls"));
+		this.targetDirectory = targetDirectory;
 		wbHandle = new HSSFWorkbook();	
 	}
 	
@@ -69,9 +60,10 @@ public class NeuralNetworkAnalyzer {
 	 * Save all analyzed results till far to a Microsoft Excel .xls file format
 	 * @return true if success, else false
 	 */
-	public boolean saveWork(){
+	public boolean saveWork(String name){
 	    try 
 	    {
+			File targetFile = new File(ProjectUtils.combine(targetDirectory.getAbsolutePath(), name+".xls"));
 		    FileOutputStream fileOut = new FileOutputStream(targetFile);
 			wbHandle.write(fileOut);
 		    fileOut.close();
@@ -231,7 +223,6 @@ public class NeuralNetworkAnalyzer {
 			infoRow.createCell(i*3+3).setCellValue("Manual Output");
 			infoRow.createCell(i*3+4).setCellValue("System Output");
 			infoRow.createCell(i*3+5).setCellValue("Diff");
-			infoRow.createCell(i*3+6).setCellValue("Diff Percentage");
 
 		}
 		
@@ -245,14 +236,13 @@ public class NeuralNetworkAnalyzer {
 			}
 			Row dataRow = sheet.createRow(sheetRowIndex++);
 			dataRow.createCell(0).setCellValue(String.valueOf(executionNumber));
-			dataRow.createCell(1).setCellValue(csv.get("SampleID"));
-			dataRow.createCell(2).setCellValue(csv.get("CaseID"));
+			dataRow.createCell(1).setCellValue(csv.get("sample_id"));
+			dataRow.createCell(2).setCellValue(csv.get("face_id"));
 			neuralNet.getFlat().compute(actionUnits, computedResult);
 			for(int i = 0 ; i < result.length;i++){
 				dataRow.createCell(i*3+3).setCellValue(result[i]);
 				dataRow.createCell(i*3+4).setCellValue(computedResult[i]);
 				dataRow.createCell(i*3+5).setCellValue(Math.abs(computedResult[i]-result[i]));
-				dataRow.createCell(i*3+6).setCellValue(Format.formatPercentWhole(Math.abs(computedResult[i]-result[i])/result[i]));
 			}
 		}
 		csv.close();
@@ -323,7 +313,7 @@ public class NeuralNetworkAnalyzer {
 	
 	public static void main(String[] args){
 		//writeDefaultPropertiesFile();
-		File egAnn = ProjectConfig.getANNFileByTag(new File(ProjectUtils.combine(ProjectConfig.TRAINING_TAGS_PATH, "sample"))); 
+		File egAnn = ProjectConfig.getANNFileByTag(new File(ProjectUtils.combine(ProjectConfig.TRAINING_TAGS_PATH, "stam"))); 
 		ContainsFlat myNet = (ContainsFlat)EncogDirectoryPersistence.loadObject(egAnn);
 		NeuralNetworkAnalyzer analyzer = new NeuralNetworkAnalyzer(myNet,new File("C:\\Users\\earbili\\Desktop"));
 		double [] neutralValues = new double[]
@@ -332,13 +322,14 @@ public class NeuralNetworkAnalyzer {
 		RunTimeCase neutralCase = new RunTimeCase(neutralValues,true);
 		try 
 		{
-			File dataSetFile = ProjectConfig.getCSVByTag(new File(ProjectUtils.combine(ProjectConfig.TRAINING_TAGS_PATH, "sample")));
-			analyzer.evaluateDataSet(dataSetFile, 1);
-			//analyzer.printAnalyzeByArray(neutralCase, addPercents);
+			int exec = 11;
+			File dataSetFile = new File("C:\\Users\\earbili\\Desktop\\testing_sets_analysis\\Testing5\\DataSet-LEA_CK_AE_Testing_nodup_norm.csv");
+			analyzer.evaluateDataSet(dataSetFile, exec);
+			analyzer.printAnalyzeByArray(neutralCase, addPercents);
 			//analyzer.analyzeCombinations(neutralCase,1);
 			//analyzer.analyzeCombinations(neutralCase,2);
 			//analyzer.analyzeCombinations(neutralCase,3);
-			analyzer.saveWork();
+			analyzer.saveWork("ann_analysis_"+String.valueOf(exec));
 		} 
 		catch (Exception e) 
 		{

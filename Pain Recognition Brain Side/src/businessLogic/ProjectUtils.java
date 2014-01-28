@@ -3,6 +3,7 @@ package businessLogic;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -16,6 +17,7 @@ import org.encog.app.analyst.AnalystGoal;
 import org.encog.app.analyst.EncogAnalyst;
 import org.encog.app.analyst.csv.normalize.AnalystNormalizeCSV;
 import org.encog.app.analyst.script.normalize.AnalystField;
+import org.encog.app.analyst.util.CSVHeaders;
 import org.encog.app.analyst.wizard.AnalystWizard;
 import org.encog.app.analyst.wizard.NormalizeRange;
 import org.encog.ml.data.MLDataPair;
@@ -24,6 +26,7 @@ import org.encog.ml.data.specific.CSVNeuralDataSet;
 import org.encog.util.arrayutil.NormalizationAction;
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.csv.ParseCSVLine;
+import org.encog.util.csv.ReadCSV;
 
 import dataLayer.ProjectConfig;
 
@@ -92,27 +95,28 @@ public class ProjectUtils {
 	 */
 	public static ArrayList<File> splitDataSet(File dataSet, int k, boolean headers) throws IOException {
 		ArrayList<File> kDataSets = new ArrayList<File>();
-		BufferedReader reader 				= Files.newBufferedReader(dataSet.toPath(),Charset.defaultCharset());
+		ReadCSV			csv					= new ReadCSV(new FileInputStream(dataSet), headers, CSVFormat.ENGLISH);
+		//BufferedReader reader 				= Files.newBufferedReader(dataSet.toPath(),Charset.defaultCharset());
 		int 			numberOfFileLines 	= getNumberOFLines(dataSet);
 		int 			numOfSetLines 		= numberOfFileLines/ k;
 		int 			remainder 			= numberOfFileLines % k;
 		int 			remainderAddition 	= (remainder == 0)? 0:1; 
 		int 			index 				= 1;
 		int 			dataSetIndex 		= 0;
-		String 			line 				= null;
-		String 			prevLineId			= null;
-		ParseCSVLine 	csvParser 			= new ParseCSVLine(CSVFormat.ENGLISH);
+		String 			prevLineFaceID		= null;
 		kDataSets.add(generateFile(dataSet,"_sub"+(dataSetIndex+1)));
 		BufferedWriter 	writer				= Files.newBufferedWriter(kDataSets.get(0).toPath(),Charset.defaultCharset());
 		String 			lineHeaders				= "";
 		if(headers){
-			lineHeaders = reader.readLine();
+			CSVHeaders csvHeaders = new CSVHeaders(dataSet, true, CSVFormat.ENGLISH);
+			lineHeaders = join(",",csvHeaders.getHeaders());
 			writer.write(lineHeaders + System.getProperty("line.separator"));
 		}
-		while((line = reader.readLine()) != null){	
-			List<String> lineStrings = csvParser.parse(line);
+		while(csv.next()){	
+			String currLine = 	getCSVLine(csv);
+			String faceID 	=	csv.get("face_id");
 			if(index > numOfSetLines + remainderAddition){
-				if(! lineStrings.get(lineStrings.size() -1 ).equals(prevLineId)){
+				if(! faceID.equals(prevLineFaceID)){
 					index = 1;
 					dataSetIndex++;
 					if(remainder > 1)
@@ -127,13 +131,13 @@ public class ProjectUtils {
 					}
 				}
 
-			}	
-			writer.write(line+System.getProperty("line.separator"));
+			}
+			writer.append(currLine);
 			index++;
-			prevLineId = lineStrings.get(lineStrings.size() - 1);
+			prevLineFaceID = faceID;
 		}
 
-		reader.close();
+		csv.close();
 		writer.close();
 		return kDataSets;
 	}
@@ -461,6 +465,84 @@ public class ProjectUtils {
 		}
 	}
 	
+	private static ArrayList<File> splitToTestingSet(File dataSetFile,ArrayList<String> allFacesIDs, boolean headers) throws IOException{
+		int 				numFacesForTestingSet 	= allFacesIDs.size() / 5;
+		ArrayList<String> 	randomFaces 			= pickRandomFaces(allFacesIDs, numFacesForTestingSet);
+		File 				testingSetFile 			= generateFile(dataSetFile, "_Testing");
+		File 				trainingSetFile 		= generateFile(dataSetFile, "_Training");
+		BufferedWriter 		testingSetwriter		= Files.newBufferedWriter(testingSetFile.toPath(),Charset.defaultCharset());
+		BufferedWriter 		trainingSetwriter		= Files.newBufferedWriter(trainingSetFile.toPath(),Charset.defaultCharset());
+		String				lineSep					= System.getProperty("line.separator");
+		ArrayList<File> 	newSets 				= new ArrayList<File>();
+		System.out.println(randomFaces);
+		
+		ReadCSV csv = new ReadCSV(new FileInputStream(dataSetFile), true, CSVFormat.ENGLISH);
+		if(headers){
+			CSVHeaders csvHeaders = new CSVHeaders(dataSetFile, true, CSVFormat.ENGLISH);
+			String headersStr = join(",",csvHeaders.getHeaders());
+			testingSetwriter.write(headersStr);
+			testingSetwriter.append(lineSep);
+			trainingSetwriter.write(headersStr);
+			trainingSetwriter.append(lineSep);
+		}
+		
+		while(csv.next()){
+			String faceId 		= csv.get("face_id");
+			String currLine 	= getCSVLine(csv);
+			boolean isTesting	= isFaceIDMatching(faceId,randomFaces);
+			
+			if(isTesting){
+				testingSetwriter.append(currLine);
+			}
+			else{
+				trainingSetwriter.append(currLine);
+			}
+		}
+		testingSetwriter.close();
+		trainingSetwriter.close();
+		newSets.add(trainingSetFile);
+		newSets.add(testingSetFile);
+		return newSets;
+	}
+	
+	private static boolean isFaceIDMatching(String fullFaceID, ArrayList<String> facesIDs){
+		boolean isMatching	= false;
+		for(String rFace: facesIDs){
+			if(fullFaceID.matches(rFace+"[^a-zA-Z]*.*")){
+				isMatching = true;
+				break;
+			}
+		}
+		return isMatching;
+	}
+	
+	private static String getCSVLine(ReadCSV csv){
+		String	lineSep	= System.getProperty("line.separator");
+		String 	line 	= csv.get(0);
+		
+		int i = 1;
+		while(i < csv.getColumnCount()){
+			line += "," + csv.get(i);
+			i++;
+		}
+		line += lineSep;
+		return line;
+	}
+	
+	private static ArrayList<String> pickRandomFaces(List<String> allFacesIDs, int numberOfFaces){
+		ArrayList<String> randomFaces = new ArrayList<String>();
+		int min = 0;
+		int max = allFacesIDs.size() - 1;
+		while(numberOfFaces > 0){
+			int random = min + (int)(Math.random() * ((max - min) + 1));
+			randomFaces.add(allFacesIDs.get(random));
+			allFacesIDs.remove(random);
+			max = allFacesIDs.size() - 1;
+			numberOfFaces--;
+		}
+		return randomFaces;
+	}
+	
 	private static int findNameIndex(String[] names, String toFind) {
 		for(int index = 0 ; index < names.length; index++){
 			if(toFind.equalsIgnoreCase(names[index])){
@@ -468,6 +550,28 @@ public class ProjectUtils {
 			}
 		}
 		return -1;
+	}
+	
+	public static void main(String args[]){
+		ArrayList<String> faces = new ArrayList<String>();
+		faces.add("LEA_anita");faces.add("LEA_anse");faces.add("CK_S037");
+		faces.add("LEA_astrid");faces.add("arie_closeeyes");faces.add("LEA_ben");
+		faces.add("CK_S035");faces.add("LEA_birgit");faces.add("LEA_david");
+		faces.add("CK_S032");faces.add("LEA_doris");faces.add("LEA_johanna");
+		faces.add("CK_S026");faces.add("LEA_julian");faces.add("LEA_julius");
+		faces.add("CK_S022");faces.add("LEA_katharina");faces.add("LEA_marcus");
+		faces.add("CK_S014");faces.add("LEA_phillip");faces.add("eliran_closeeyes");
+		faces.add("LEA_phillipa");faces.add("LEA_robertwilli");faces.add("CK_S011");
+		faces.add("LEA_ronny");faces.add("LEA_simon");faces.add("LEA_ursl");
+		faces.add("LEA_vera");faces.add("LEA_willikollegin");faces.add("CK_S010");
+		File dataSetFile = new File("C:\\Users\\earbili\\Desktop\\testing_sets_analysis\\DataSet-LEA_CK_AE.csv");
+		try {	
+			File testingSetFile = splitToTestingSet(dataSetFile, faces,true).get(1);
+			normalizeCSVFile(removeDuplicateLines(testingSetFile, 11,1, true), 11, 1, true);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }
